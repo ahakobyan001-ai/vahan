@@ -398,6 +398,9 @@ button{font-family:inherit}
 .lyr-row{display:flex;justify-content:space-between;align-items:center;font-size:12px;padding:7px 0;border-bottom:1px dashed var(--line);font-family:'JetBrains Mono',monospace;letter-spacing:.5px}
 .lyr-row:last-child{border-bottom:0}
 .lyr-tgl{width:32px;height:17px;cursor:pointer}
+.mk-layer{position:absolute;inset:0;pointer-events:none;z-index:2}
+.mk{position:absolute;transform:translate(-50%,-50%);font-size:11px;display:block;filter:drop-shadow(0 0 3px currentColor);animation:mkpulse 3s ease-in-out infinite}
+@keyframes mkpulse{0%,100%{opacity:.45}50%{opacity:.95}}
 .auth-hint{text-align:center;font-size:11px;color:var(--muted2);margin-top:12px}
 .auth-hint b{color:var(--cyan)}
 .auth-err{text-align:center;color:var(--red);font-size:12px;margin-top:9px;min-height:15px}
@@ -524,6 +527,7 @@ button{font-family:inherit}
     <div class="nav-item" data-v="incidents"><svg viewBox="0 0 24 24"><path d="M3 7h18M3 12h18M3 17h18"/></svg><span class="label">Միջադեպեր</span><span class="badge alert" data-k="incOpen">0</span></div>
     <div class="nav-section">Ինտելեկտ</div>
     <div class="nav-item" data-v="ai"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M12 2v4M12 18v4M2 12h4M18 12h4M5 5l3 3M16 16l3 3M19 5l-3 3M8 16l-3 3"/></svg><span class="label">AI վերլուծիչ</span><span class="badge p">лок</span></div>
+    <div class="nav-item" data-v="aicore"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3.2"/><circle cx="12" cy="12" r="9"/><path d="M12 3v3M12 18v3M3 12h3M18 12h3"/></svg><span class="label">AI կենտրոն</span><span class="badge p">live</span></div>
     <div class="nav-item" data-v="reports"><svg viewBox="0 0 24 24"><path d="M4 4h16v16H4z"/><path d="M8 9h8M8 13h5"/></svg><span class="label">Հաշվետվ.</span></div>
     <div class="nav-section">Հետախուզ. գործիքներ</div>
     <div class="nav-item" data-v="search"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4-4M11 8v6M8 11h6"/></svg><span class="label">AI որոնում</span><span class="badge p">★</span></div>
@@ -535,6 +539,7 @@ button{font-family:inherit}
     <div class="nav-item" data-v="asn"><svg viewBox="0 0 24 24"><circle cx="12" cy="5" r="2.5"/><circle cx="5" cy="19" r="2.5"/><circle cx="19" cy="19" r="2.5"/><path d="M12 7.5v4M10 13l-3.5 4M14 13l3.5 4"/></svg><span class="label">Օպերատորներ</span></div>
     <div class="nav-item" data-v="osint"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4-4M8 11h6M11 8v6"/></svg><span class="label">OSINT</span></div>
     <div class="nav-item" data-v="apt"><svg viewBox="0 0 24 24"><path d="M12 2l7 4v6c0 4-3 7-7 8-4-1-7-4-7-8V6z"/><circle cx="12" cy="11" r="2"/></svg><span class="label">APT խմբեր</span></div>
+    <div class="nav-item" data-v="graph"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="2.5"/><circle cx="5" cy="6" r="2"/><circle cx="19" cy="6" r="2"/><circle cx="5" cy="18" r="2"/><circle cx="19" cy="18" r="2"/><path d="M10 11L6.5 7.5M14 11l3.5-3.5M10 13l-3.5 3.5M14 13l3.5 3.5"/></svg><span class="label">Կապերի գրաֆ</span><span class="badge p">graph</span></div>
     <div class="nav-section">Պաշտպանություն</div>
     <div class="nav-item" data-v="connectors"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M12 2v6M12 22v-6M2 12h6M22 12h-6"/></svg><span class="label">Աղբյուրներ</span><span class="badge" id="connBadge">դեմո</span></div>
     <div class="nav-item" data-v="defense"><svg viewBox="0 0 24 24"><path d="M12 2L4 6v6c0 5 3.5 8 8 10 4.5-2 8-5 8-10V6z"/></svg><span class="label">Մակարդակներ</span></div>
@@ -690,7 +695,7 @@ setInterval(()=>{if(Math.random()<0.35)for(let i=0;i<4;i++)setTimeout(tick,i*140
 /* ============================ ROUTER ============================ */
 let viewTimers=[],rafId=null;
 function clearView(){viewTimers.forEach(t=>clearInterval(t));viewTimers=[];if(rafId)cancelAnimationFrame(rafId);rafId=null;listeners=[]}
-const VIEWS={overview:vOverview,map:vMap,siem:vSiem,intel:vIntel,vuln:vVuln,ipintel:vIp,incidents:vInc,ai:vAi,reports:vReports,connectors:vConnectors,defense:vDefense,trace:vTrace,asn:vAsn,osint:vOsint,search:vSearch,apt:vApt,image:vImage,geo:vGeo,cams:vCams,tools:vTools,learn:vLearn,users:vUsers};
+const VIEWS={overview:vOverview,map:vMap,siem:vSiem,intel:vIntel,vuln:vVuln,ipintel:vIp,incidents:vInc,ai:vAi,reports:vReports,connectors:vConnectors,defense:vDefense,trace:vTrace,asn:vAsn,osint:vOsint,search:vSearch,apt:vApt,image:vImage,geo:vGeo,cams:vCams,tools:vTools,learn:vLearn,users:vUsers,graph:vGraph,aicore:vAiCore};
 function go(v){location.hash=v}
 function route(){
   const v=(location.hash.replace('#','')||'overview');
@@ -822,7 +827,7 @@ function vMap(){
   el.innerHTML=`<div class="page-head"><h1>Հարձակումների քարտեզ</h1><span class="sub">· "pew-pew" ուղղորդված հոսք · ծագում → թիրախ</span><div class="hrow" style="margin-left:auto"><button class="btn" id="mapMode">🌍 Գլոբալ ռեժիմ</button><span class="live"><span class="dot"></span>REAL-TIME</span></div></div>
   <div class="grid" style="grid-template-columns:1fr 330px">
     <div class="map-wrap" style="height:calc(100vh - 150px)"><canvas id="bigmap"></canvas>
-      <div class="map-ov"><div class="scanline"></div><div class="map-tag mono">equirectangular · 6 սենսոր · auto-mitigation ON</div>
+      <div class="map-ov"><div id="mkLayer" class="mk-layer"></div><div class="scanline"></div><div class="map-tag mono">equirectangular · 6 սենսոր · auto-mitigation ON</div>
       <div class="map-legend"><span><i class="lg-dot" style="background:#ff3b63"></i>Կրիտ</span><span><i class="lg-dot" style="background:#ff9f1a"></i>Բարձր</span><span><i class="lg-dot" style="background:#ffd23f"></i>Միջին</span><span><i class="lg-dot" style="background:#34d399"></i>Թիրախ</span></div>
       <div class="map-target mono">● AM datacenter · Երևան</div></div></div>
     <div class="grid" style="gap:13px;align-content:start">
@@ -846,7 +851,11 @@ function vMap(){
     <div class="prow"><span class="pn">L3/4 (Network)</span><div class="pbar"><i style="width:${l34/t*100}%;background:#22d3ee"></i></div><span class="pv mono">${Math.round(l34/t*100)}%</span></div>`}
   document.getElementById('layerSplit').innerHTML=layer();
   const LAYERS=[['✈ AIRCRAFT','aircraft','#22d3ee'],['⚓ MARITIME','maritime','#34d399'],['🛰 SPACE','space','#a78bfa'],['⚠ HAZARDS','hazard','#ff9f1a']];
-  const dl=document.getElementById('dLayers');if(dl)dl.innerHTML=LAYERS.map(([n,k,c])=>`<label class="lyr-row"><span style="color:${c}">${n}</span><span class="hrow" style="gap:9px"><b class="mono" id="ly_${k}">—</b><input type="checkbox" checked class="lyr-tgl"></span></label>`).join('');
+  const dl=document.getElementById('dLayers');if(dl)dl.innerHTML=LAYERS.map(([n,k,c])=>`<label class="lyr-row"><span style="color:${c}">${n}</span><span class="hrow" style="gap:9px"><b class="mono" id="ly_${k}">—</b><input type="checkbox" checked class="lyr-tgl" data-k="${k}"></span></label>`).join('');
+  const LICON={aircraft:'✈',maritime:'⚓',space:'🛰',hazard:'⚠'};
+  function buildMarkers(){const mk=document.getElementById('mkLayer');if(!mk)return;let h='';LAYERS.forEach(([n,k,c])=>{const cnt=k==='aircraft'?28:k==='space'?14:k==='maritime'?10:6;for(let i=0;i<cnt;i++){h+=`<span class="mk mk-${k}" style="left:${rnd(5,95)}%;top:${rnd(9,89)}%;color:${c}">${LICON[k]}</span>`}});mk.innerHTML=h}
+  buildMarkers();
+  document.querySelectorAll('.lyr-tgl').forEach(t=>t.onchange=()=>{document.querySelectorAll('.mk-'+t.dataset.k).forEach(m=>m.style.display=t.checked?'block':'none')});
   function tickLayers(){const mp={aircraft:rnd(5800,6400),maritime:rnd(8,16),space:rnd(480,500),hazard:rnd(2,9)};for(const k in mp){const e=document.getElementById('ly_'+k);if(e)e.textContent=fmt(mp[k])}}
   function intFeed(){const f=document.getElementById('intFeed');if(f)f.innerHTML=S.alerts.slice(0,8).map(alertHTML).join('');const ic=document.getElementById('intCount');if(ic)ic.textContent=S.alerts.length}
   tickLayers();intFeed();
@@ -1502,7 +1511,9 @@ async function uniIp(q){let d=IPDB[q];let ports=[],vulns=[],isp='';
  const psvc={21:'FTP',22:'SSH',23:'Telnet',25:'SMTP',53:'DNS',80:'HTTP',110:'POP3',143:'IMAP',443:'HTTPS',445:'SMB',1433:'MSSQL',3306:'MySQL',3389:'RDP',5432:'Postgres',6379:'Redis',8080:'HTTP-alt',27017:'MongoDB'};
  const portHtml=ports.length?`<div class="ip-row"><span class="l">Բաց պորտեր (${ports.length})</span><span class="v" style="text-align:right">${ports.slice(0,24).map(p=>`<span class="pill gray" style="margin:1px">${p}${psvc[p]?'·'+psvc[p]:''}</span>`).join(' ')}</span></div>`:'';
  const vulnHtml=vulns.length?`<div class="ip-row"><span class="l">Խոցելիություն (${vulns.length})</span><span class="v" style="text-align:right">${vulns.slice(0,16).map(v=>`<span class="pill kev" style="margin:1px;cursor:pointer" onclick="go('search');setTimeout(()=>{var i=document.getElementById('uniIn');if(i){i.value='${v}';document.getElementById('uniGo').click()}},150)">${v}</span>`).join(' ')}</span></div>`:'';
- return `<div class="card"><div class="card-h">${d.f} ${esc(q)} <span class="mini">· սարքի տեսանելիություն</span></div><div class="ip-row"><span class="l">Երկիր / ASN</span><span class="v">${d.cc} · ${d.asn}${isp?' · '+esc(isp):''}</span></div><div class="ip-row"><span class="l">Ռիսկ</span><span class="v" style="color:${rc}">${d.risk}/100 · ${d.risk>=70?'վտանգավոր':d.risk>=40?'կասկածելի':'անվնաս'}</span></div>${portHtml}${vulnHtml}<div class="ip-row"><span class="l">Tags</span><span class="v">${(d.tags||['—']).join(', ')}</span></div></div>${!ports.length&&!vulns.length?'<div class="note" style="margin-top:10px">Պորտ/vuln տվյալը հասանելի է live ռեժիմում (Shodan InternetDB)։</div>':''}`;
+ let gn='';
+ if(/^\d{1,3}(\.\d{1,3}){3}$/.test(q)){try{const r=await fetch('https://api.greynoise.io/v3/community/'+encodeURIComponent(q));if(r.ok){const j=await r.json();const nz=j.noise?'🔴 ցանցային աղմուկ (սկաներ)':j.riot?'🟢 վստահելի ծառայություն (RIOT)':'⚪ չդասակարգված';gn=`<div class="ip-row"><span class="l">GreyNoise</span><span class="v">${nz}${j.classification&&j.classification!=='unknown'?' · '+esc(j.classification):''}${j.name&&j.name!=='unknown'?' · '+esc(j.name):''}</span></div>`}}catch(e){}}
+ return `<div class="card"><div class="card-h">${d.f} ${esc(q)} <span class="mini">· սարքի տեսանելիություն</span></div><div class="ip-row"><span class="l">Երկիր / ASN</span><span class="v">${d.cc} · ${d.asn}${isp?' · '+esc(isp):''}</span></div><div class="ip-row"><span class="l">Ռիսկ</span><span class="v" style="color:${rc}">${d.risk}/100 · ${d.risk>=70?'վտանգավոր':d.risk>=40?'կասկածելի':'անվնաս'}</span></div>${portHtml}${vulnHtml}${gn}<div class="ip-row"><span class="l">Tags</span><span class="v">${(d.tags||['—']).join(', ')}</span></div></div>${!ports.length&&!vulns.length?'<div class="note" style="margin-top:10px">Պորտ/vuln տվյալը հասանելի է live ռեժիմում (Shodan InternetDB)։</div>':''}`;
 }
 async function uniCve(q){let cv=CVES.find(v=>v.id.toUpperCase()===q.toUpperCase());
  if(CONFIG.live){try{const L=await api('/cve',{id:q});cv={id:L.id,cvss:L.cvss,epss:Math.round((L.epss||0)*100),kev:L.kev?1:0,desc:L.summary||'—'};}catch(e){}}
@@ -1577,7 +1588,14 @@ function vTools(){
  el.innerHTML=`<div class="page-head"><h1>Online գործիքներ</h1><span class="sub">· արդյունքը՝ համակարգի ներսում (CORS-բաց աղբյուրներից) + deep-link մնացածին</span></div>
  <div class="ip-search" style="max-width:580px"><input id="toolQ" placeholder="IP / դոմեն / email / hash / CVE / ASN / username"><button class="btn primary" id="toolApply">Հետազոտել</button></div>
  <div id="toolResult" style="margin:12px 0"></div>
+ <div class="card" style="margin-bottom:14px"><div class="card-h">📡 Անլար / WiFi · WiGLE SSID<span class="mini">ցանցի որոնում</span></div>
+  <div class="ip-search" style="max-width:480px;margin:0"><input id="wgSsid" placeholder="SSID անուն (օր. FreeWiFi, home_net)"><button class="btn" id="wgGo">Որոնել</button></div>
+  <div id="wgRes" style="margin-top:10px"></div></div>
  <div id="toolGrid"></div>`;
+ (function(){const go=document.getElementById('wgGo');if(!go)return;async function wrun(){const s=document.getElementById('wgSsid').value.trim();if(!s){toast('Մուտքագրիր SSID');return}const box=document.getElementById('wgRes');box.innerHTML='<div class="spin"></div>';logAudit('WiGLE SSID → '+s);
+   if(CONFIG.live){try{const L=await api('/wifi',{ssid:s});if(L&&L.results){box.innerHTML=`<div class="ip-row"><span class="l">Գտնված ցանցեր</span><span class="v">${L.total||L.results.length}</span></div>`+L.results.slice(0,8).map(n=>`<div class="ip-row"><span class="l mono">${esc(n.ssid||s)}</span><span class="v">${esc(n.encryption||n.auth||'—')} · ${esc((n.country||'')+' '+(n.city||''))} · ${n.lat?n.lat.toFixed(2)+','+n.lon.toFixed(2):''}</span></div>`).join('');return}}catch(e){}}
+   box.innerHTML=`<div class="note">WiGLE-ի live տվյալը պահանջում է backend-բանալի (API)։ Միացրու backend-ը Կարգավորումներից, կամ բացիր ուղիղ՝ <a href="https://wigle.net/search?ssid=${encodeURIComponent(s)}" target="_blank" rel="noopener" style="color:var(--cyan)">WiGLE որոնում ↗</a></div>`}
+  go.onclick=wrun;document.getElementById('wgSsid').addEventListener('keydown',e=>{if(e.key==='Enter')wrun()})})();
  const spin=t=>`<div class="card"><div style="text-align:center;padding:26px"><div class="spin"></div><div style="margin-top:10px;color:var(--muted);font-size:12.5px">${t||'Հետազոտվում է…'}</div></div></div>`;
  function renderGrid(q){document.getElementById('toolGrid').innerHTML=TOOLS.map(([cat,items])=>`<div class="card" style="margin-bottom:14px"><div class="card-h">${cat}<span class="mini">${items.length}</span></div><div class="grid" style="grid-template-columns:repeat(auto-fit,minmax(245px,1fr))">${items.map(([n,d,u,p])=>{const deep=(q&&p)?p.replace('{q}',encodeURIComponent(q)):'';return `<div class="conn-card"><div class="conn-top"><span class="cn">${n}</span>${deep?`<a class="st live" href="${deep}" target="_blank" rel="noopener" style="text-decoration:none">«q» ↗</a>`:''}</div><div class="conn-use">${d}</div><a class="conn-ep" href="${u}" target="_blank" rel="noopener" style="color:var(--cyan);text-decoration:none">${u.replace('https://','').replace(/\/$/,'')} ↗</a></div>`}).join('')}</div></div>`).join('')}
  async function run(){const q=document.getElementById('toolQ').value.trim();const panel=document.getElementById('toolResult');
@@ -1601,6 +1619,76 @@ function vTools(){
 }
 
 /* ===================== PUBLIC WEBCAMS (intentionally-public only) ===================== */
+/* ===================== ԿԱՊԵՐԻ ԳՐԱՖ (influence/connection) ===================== */
+function vGraph(){
+ const el=document.getElementById('view');
+ const CATS={alias:['Այլանուն','#a78bfa'],origin:['Ծագում','#ff3b63'],target:['Թիրախ','#ff9f1a'],ttp:['Տեխնիկա','#22d3ee']};
+ el.innerHTML=`<div class="page-head"><h1>Կապերի գրաֆ</h1><span class="sub">· դերակատար → այլանուններ · ծագում · թիրախներ · տեխնիկաներ (ինտերակտիվ)</span></div>
+ <div class="hrow" style="gap:10px;margin-bottom:12px;flex-wrap:wrap"><select class="role-sel" id="gSel" style="min-width:240px">${APT_GROUPS.map(a=>`<option value="${a.id}">${a.n} · ${a.a!=='—'?a.a:a.o}</option>`).join('')}</select>
+   <span class="hrow" id="gFilt" style="gap:6px;flex-wrap:wrap">${Object.entries(CATS).map(([k,v])=>`<span class="fchip on" data-c="${k}" style="border-color:${v[1]}66"><i style="display:inline-block;width:8px;height:8px;border-radius:50%;background:${v[1]};margin-right:5px"></i>${v[0]}</span>`).join('')}</span></div>
+ <div class="grid" style="grid-template-columns:1fr 320px;gap:14px;align-items:start">
+   <div class="card" style="padding:6px"><div class="map-wrap" style="height:560px;background:radial-gradient(circle at 50% 45%,#0a1830,#060c18)"><svg id="gSvg" viewBox="0 0 740 560" style="width:100%;height:100%"></svg></div></div>
+   <div class="grid" style="gap:14px;align-content:start" id="gInfo"></div>
+ </div>`;
+ const hidden={};
+ const stat=(l,v)=>`<div style="padding:11px;background:var(--panel2);border:1px solid var(--line);border-radius:9px"><div style="font-size:11px;color:var(--muted)">${l}</div><div style="font-size:14px;font-weight:700;margin-top:3px">${v}</div></div>`;
+ function build(id){const a=APT_GROUPS.find(x=>x.id===id);if(!a)return;
+   const items=[];
+   if(a.a!=='—')a.a.split(/·|,/).forEach(s=>s.trim()&&items.push({l:s.trim(),c:'alias'}));
+   items.push({l:a.o,c:'origin'});
+   a.t.split(/,|·/).forEach(s=>s.trim()&&items.push({l:s.trim(),c:'target'}));
+   a.ttp.split(/,|·/).forEach(s=>s.trim()&&items.push({l:s.trim(),c:'ttp'}));
+   const vis=items.filter(it=>!hidden[it.c]);const cx=360,cy=278,n=vis.length||1;
+   let svg='';
+   const pts=vis.map((it,i)=>{const ang=-Math.PI/2+i/n*2*Math.PI;const r=(i%2?252:188);return {x:cx+Math.cos(ang)*r,y:cy+Math.sin(ang)*r,it}});
+   pts.forEach(p=>{svg+=`<line x1="${cx}" y1="${cy}" x2="${p.x.toFixed(0)}" y2="${p.y.toFixed(0)}" stroke="${CATS[p.it.c][1]}" stroke-opacity="0.28" stroke-width="1.2"/>`});
+   svg+=`<circle cx="${cx}" cy="${cy}" r="46" fill="#0b1f3a" stroke="#22d3ee" stroke-width="2"/><circle cx="${cx}" cy="${cy}" r="56" fill="none" stroke="#22d3ee" stroke-opacity="0.3"><animate attributeName="r" values="56;64;56" dur="3s" repeatCount="indefinite"/></circle><text x="${cx}" y="${cy-2}" text-anchor="middle" fill="#eaf6ff" font-size="15" font-weight="700">${esc(a.n)}</text><text x="${cx}" y="${cy+15}" text-anchor="middle" fill="#7fa6d6" font-size="10">${a.id}</text>`;
+   pts.forEach((p,i)=>{const col=CATS[p.it.c][1],side=p.x>=cx;svg+=`<g class="gnode" data-i="${i}" style="cursor:pointer"><circle cx="${p.x.toFixed(0)}" cy="${p.y.toFixed(0)}" r="6" fill="${col}"/><circle cx="${p.x.toFixed(0)}" cy="${p.y.toFixed(0)}" r="11" fill="none" stroke="${col}" stroke-opacity="0.4"/><text x="${(p.x+(side?9:-9)).toFixed(0)}" y="${(p.y+4).toFixed(0)}" text-anchor="${side?'start':'end'}" fill="#cfe0f2" font-size="11">${esc(p.it.l).slice(0,22)}</text></g>`});
+   document.getElementById('gSvg').innerHTML=svg;info(a);
+   document.querySelectorAll('.gnode').forEach(g=>g.onclick=()=>nodeInfo(a,pts[+g.dataset.i].it));
+ }
+ function info(a){const rel=APT_GROUPS.filter(x=>x.o===a.o&&x.id!==a.id);
+   document.getElementById('gInfo').innerHTML=`<div class="card"><div class="card-h">${esc(a.n)}<span class="mini">${a.id}</span></div><div class="grid" style="grid-template-columns:1fr 1fr;gap:9px">${stat('Ծագում',a.o)}${stat('Այլանուն',a.a)}</div><div style="margin-top:10px;font-size:12.5px;color:var(--muted);line-height:1.5"><b style="color:var(--txt)">Թիրախներ՝</b> ${esc(a.t)}<br><b style="color:var(--txt)">TTP՝</b> ${esc(a.ttp)}</div></div>
+   <div class="card"><div class="card-h">Նույն ծագման դերակատարներ<span class="mini">${rel.length}</span></div>${rel.length?rel.map(r=>`<div class="hrow" data-rel="${r.id}" style="justify-content:space-between;padding:8px 0;border-bottom:1px dashed var(--line);cursor:pointer"><span>${esc(r.n)} <span class="mini">${esc(r.a)}</span></span><span style="color:var(--cyan)">→</span></div>`).join(''):'<div class="mini" style="color:var(--muted2)">— չկան</div>'}</div>
+   <div class="card"><div class="card-h">Ակտիվություն<span class="mini">12 ամիս (մոդել)</span></div><canvas id="gSpark" height="60" style="width:100%"></canvas></div>`;
+   document.querySelectorAll('[data-rel]').forEach(r=>r.onclick=()=>{document.getElementById('gSel').value=r.dataset.rel;build(r.dataset.rel)});spark(a);
+ }
+ function nodeInfo(a,it){const cat=CATS[it.c];document.getElementById('gInfo').innerHTML=`<div class="card" style="border-color:${cat[1]}66"><div class="card-h"><span style="color:${cat[1]}">${cat[0]}</span><span class="mini">հանգույց</span></div><div style="font-size:15px;font-weight:700;margin:4px 0 8px">${esc(it.l)}</div><div style="font-size:12px;color:var(--muted)">Կապված՝ <b style="color:var(--txt)">${esc(a.n)}</b> (${a.id})</div><button class="btn" id="gBack" style="margin-top:12px">← Վերադառնալ դերակատարին</button></div>`;document.getElementById('gBack').onclick=()=>info(a);}
+ function spark(a){const c=document.getElementById('gSpark');if(!c)return;const w=c.width=c.offsetWidth||280,h=c.height,ctx=c.getContext('2d');let s=a.id.charCodeAt(a.id.length-1)+a.n.length;const vals=Array.from({length:12},()=>{s=(s*9301+49297)%233280;return 18+s/233280*44});ctx.clearRect(0,0,w,h);ctx.beginPath();ctx.strokeStyle='#22d3ee';ctx.lineWidth=2;vals.forEach((v,i)=>{const x=i/11*w,y=h-v/70*h;i?ctx.lineTo(x,y):ctx.moveTo(x,y)});ctx.stroke();ctx.lineTo(w,h);ctx.lineTo(0,h);ctx.fillStyle='rgba(34,211,238,.12)';ctx.fill();}
+ document.getElementById('gSel').onchange=e=>build(e.target.value);
+ document.querySelectorAll('#gFilt [data-c]').forEach(x=>x.onclick=()=>{hidden[x.dataset.c]=!hidden[x.dataset.c];x.classList.toggle('on');x.style.opacity=hidden[x.dataset.c]?'0.4':'1';build(document.getElementById('gSel').value)});
+ build(APT_GROUPS[0].id);
+}
+
+/* ===================== AI ՕՊԵՐԱՑԻՈՆ ԿԵՆՏՐՈՆ ===================== */
+function vAiCore(){
+ const el=document.getElementById('view');
+ const MODS=[['SIEM','#22d3ee'],['Threat Intel','#a78bfa'],['OSINT','#34d399'],['Correlation','#ffd23f'],['Anomaly AI','#ff9f1a'],['Auto-Response','#ff3b63'],['Geo-Intel','#38bdf8'],['Vuln Scan','#f472b6']];
+ el.innerHTML=`<div class="page-head"><h1>AI Օպերացիոն կենտրոն</h1><span class="sub">· մոդուլների ուղղորդում · live հոսք · մոդելների վիճակ</span><span class="live"><span class="dot"></span>ACTIVE</span></div>
+ <div class="grid" style="grid-template-columns:1fr 330px;gap:14px;align-items:start">
+   <div class="card" style="padding:6px"><div class="map-wrap" style="height:480px;background:radial-gradient(circle at 50% 50%,#0a1830,#060c18)"><svg id="aiSvg" viewBox="0 0 700 480" style="width:100%;height:100%"></svg></div></div>
+   <div class="grid" style="gap:14px;align-content:start">
+     <div id="aiStats" class="grid" style="grid-template-columns:1fr 1fr;gap:10px"></div>
+     <div class="card"><div class="card-h">Ներթողունակություն<span class="mini">events/sec</span></div><canvas id="aiSpark" height="56" style="width:100%"></canvas></div>
+     <div class="card pad0"><div class="card-h" style="padding:14px 14px 0">Մոդելներ<span class="mini">${MODS.length}</span></div><div id="aiModels" style="padding:6px 14px 12px"></div></div>
+   </div>
+ </div>`;
+ const cx=350,cy=240;let svg=`<circle cx="${cx}" cy="${cy}" r="90" fill="none" stroke="#22d3ee" stroke-opacity="0.12"/><circle cx="${cx}" cy="${cy}" r="120" fill="none" stroke="#22d3ee" stroke-opacity="0.07"/>`;
+ const nodes=MODS.map((m,i)=>{const ang=-Math.PI/2+i/MODS.length*2*Math.PI;return {x:cx+Math.cos(ang)*172,y:cy+Math.sin(ang)*172,m}});
+ nodes.forEach(p=>{svg+=`<line x1="${cx}" y1="${cy}" x2="${p.x.toFixed(0)}" y2="${p.y.toFixed(0)}" stroke="${p.m[1]}" stroke-opacity="0.32" stroke-width="1.4" stroke-dasharray="4 6"><animate attributeName="stroke-dashoffset" values="20;0" dur="1.1s" repeatCount="indefinite"/></line>`});
+ svg+=`<circle cx="${cx}" cy="${cy}" r="46" fill="#0b1f3a" stroke="#22d3ee" stroke-width="2"/><circle cx="${cx}" cy="${cy}" r="46" fill="none" stroke="#22d3ee" stroke-opacity="0.5"><animate attributeName="r" values="46;60;46" dur="2.4s" repeatCount="indefinite"/><animate attributeName="stroke-opacity" values="0.5;0;0.5" dur="2.4s" repeatCount="indefinite"/></circle><text x="${cx}" y="${cy-3}" text-anchor="middle" fill="#eaf6ff" font-size="13" font-weight="700">ՎԱՀԱՆ</text><text x="${cx}" y="${cy+13}" text-anchor="middle" fill="#7fa6d6" font-size="9">AI CORE</text>`;
+ nodes.forEach(p=>{const side=p.x>=cx;svg+=`<circle cx="${p.x.toFixed(0)}" cy="${p.y.toFixed(0)}" r="8" fill="${p.m[1]}"/><circle cx="${p.x.toFixed(0)}" cy="${p.y.toFixed(0)}" r="13" fill="none" stroke="${p.m[1]}" stroke-opacity="0.4"/><text x="${(p.x+(side?12:-12)).toFixed(0)}" y="${(p.y+4).toFixed(0)}" text-anchor="${side?'start':'end'}" fill="#cfe0f2" font-size="11">${p.m[0]}</text>`});
+ document.getElementById('aiSvg').innerHTML=svg;
+ const st=(l,v,c)=>`<div style="padding:11px;background:var(--panel2);border:1px solid var(--line);border-radius:9px"><div style="font-size:10.5px;color:var(--muted)">${l}</div><div style="font-size:17px;font-weight:700;margin-top:3px;color:${c||'var(--txt)'};font-family:'JetBrains Mono',monospace">${v}</div></div>`;
+ let hist=[];
+ function tick(){const ev=rnd(1200,2600),det=rnd(4,22),load=rnd(38,86),q=rnd(0,40);
+   document.getElementById('aiStats').innerHTML=st('Events/sec',fmt(ev),'#22d3ee')+st('Հայտնաբ./ր',det,'#ff9f1a')+st('Pipeline load',load+'%',load>75?'#ff3b63':'#34d399')+st('Հերթ',q,'#a78bfa');
+   hist.push(ev);if(hist.length>40)hist.shift();sparkA();}
+ function sparkA(){const c=document.getElementById('aiSpark');if(!c)return;const w=c.width=c.offsetWidth||280,h=c.height,ctx=c.getContext('2d');ctx.clearRect(0,0,w,h);if(hist.length<2)return;const mn=Math.min(...hist),mx=Math.max(...hist)||1;ctx.beginPath();ctx.strokeStyle='#22d3ee';ctx.lineWidth=2;hist.forEach((v,i)=>{const x=i/(hist.length-1)*w,y=h-((v-mn)/(mx-mn||1))*(h-6)-3;i?ctx.lineTo(x,y):ctx.moveTo(x,y)});ctx.stroke();}
+ document.getElementById('aiModels').innerHTML=MODS.map(m=>`<div class="hrow" style="justify-content:space-between;padding:7px 0;border-bottom:1px dashed var(--line)"><span><i style="display:inline-block;width:8px;height:8px;border-radius:50%;background:${m[1]};margin-right:7px"></i>${m[0]}</span><span class="pill" style="background:rgba(52,211,153,.12);color:#34d399;border-color:rgba(52,211,153,.3)">online</span></div>`).join('');
+ tick();viewTimers.push(setInterval(tick,1600));
+}
+
 /* ===================== ՕԳՏԱՏԵՐԵՐ · ստեղծում/կառավարում ===================== */
 function vUsers(){
  const el=document.getElementById('view');
