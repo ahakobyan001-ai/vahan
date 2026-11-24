@@ -276,7 +276,40 @@ button{font-family:inherit}
 .audit-row .ar{flex:0 0 96px;color:var(--cyan)}
 .hide{display:none!important}
 /* AUTH GATE */
-#authGate{position:fixed;inset:0;z-index:1000;background:radial-gradient(900px 520px at 50% 18%,#0e1c34,#05080f);display:flex;align-items:center;justify-content:center;transition:opacity .5s}
+#authGate{position:fixed;inset:0;z-index:1000;overflow:hidden;background:#04070e;display:flex;align-items:center;justify-content:center;transition:opacity .5s}
+#authBg{display:none}
+.term-rays{position:absolute;inset:-25%;z-index:0;pointer-events:none;background:radial-gradient(58% 44% at 50% 42%,rgba(44,120,220,.30),transparent 70%),repeating-conic-gradient(from 0deg at 50% 42%,rgba(70,155,245,.09) 0deg 5deg,transparent 5deg 15deg),radial-gradient(120% 120% at 50% 42%,transparent 38%,#02050b 86%);animation:termspin 140s linear infinite}
+@keyframes termspin{to{transform:rotate(360deg)}}
+.term-beams{position:absolute;inset:0;z-index:0;pointer-events:none;background:conic-gradient(from 0deg at 50% 42%,transparent 0deg,rgba(60,150,240,.10) 44deg 46deg,transparent 90deg,rgba(60,150,240,.10) 134deg 136deg,transparent 180deg,rgba(60,150,240,.10) 224deg 226deg,transparent 270deg,rgba(60,150,240,.10) 314deg 316deg,transparent 360deg)}
+.seal{position:absolute;top:42%;left:50%;transform:translate(-50%,-50%);width:min(640px,88vw);height:min(640px,88vw);z-index:1;opacity:.48;pointer-events:none;color:#9fd8ff;filter:drop-shadow(0 0 18px rgba(30,110,210,.35))}
+.seal svg{width:100%;height:100%}
+.org{position:absolute;inset:0;z-index:2;pointer-events:none;font-family:'JetBrains Mono',ui-monospace,monospace}
+.org .lab{position:absolute;padding:5px 11px;border:1px solid rgba(120,180,240,.34);border-radius:3px;background:rgba(10,24,46,.22);color:#8fb8e6;font-size:10.5px;letter-spacing:1.3px;text-transform:uppercase;white-space:nowrap}
+.org .lab.big{font-size:12px;color:#c3dfff;border-color:rgba(150,200,255,.5);padding:7px 16px}
+.org .lab::after{content:'';position:absolute;background:rgba(120,180,240,.28)}
+.org .lab.l-r::after{right:-24px;top:50%;width:24px;height:1px}
+.org .lab.l-l::after{left:-24px;top:50%;width:24px;height:1px}
+.org .lab.l-d::after{left:50%;bottom:-20px;height:20px;width:1px}
+.org .lab.l-u::after{left:50%;top:-20px;height:20px;width:1px}
+#authGate .auth-card{position:absolute;top:42%;left:50%;transform:translate(-50%,-50%);z-index:5;width:340px;max-width:90vw;padding:16px 16px;background:rgba(8,16,30,.84);backdrop-filter:blur(3px);border:1px solid rgba(120,180,240,.4);border-radius:8px;box-shadow:0 22px 72px rgba(0,0,0,.72)}
+.tile-user{display:flex;align-items:center;gap:11px;margin-bottom:12px}
+.tile-ava{width:46px;height:46px;border-radius:6px;background:linear-gradient(160deg,#0a2448,#06101f);border:1px solid rgba(120,180,240,.42);display:flex;align-items:center;justify-content:center;flex:0 0 auto}
+.tile-ava svg{width:28px;height:28px}
+.tile-name{font-weight:700;font-size:15px;color:#d4e8ff;line-height:1.2}
+.tile-name small{display:block;font-weight:500;font-size:10px;color:#7fa6d6;letter-spacing:1.2px;margin-top:2px}
+.tile-lab{font-size:12px;color:#9fbce0;margin-bottom:7px}
+.pin-field{display:flex;align-items:center;gap:6px}
+.pin-field input{flex:1;padding:9px 11px;background:rgba(3,8,16,.92);border:1px solid rgba(120,180,240,.45);border-radius:4px;color:#dffbff;font-size:16px;letter-spacing:5px;font-family:'JetBrains Mono',monospace;outline:none}
+.pin-field input:focus{border-color:var(--cyan);box-shadow:0 0 0 2px rgba(34,211,238,.18)}
+.pin-field input.err{border-color:var(--bad);animation:pinshake .3s}
+@keyframes pinshake{0%,100%{transform:translateX(0)}25%{transform:translateX(-5px)}75%{transform:translateX(5px)}}
+.pin-go,.pin-help{width:36px;height:36px;border-radius:4px;border:1px solid rgba(120,180,240,.45);cursor:pointer;font-size:15px;display:flex;align-items:center;justify-content:center;flex:0 0 auto}
+.pin-go{background:#15497e;color:#dff}
+.pin-go:hover{background:#1d5c9e}
+.pin-help{background:#1a5fb0;color:#fff;font-weight:700}
+.term-leave{position:absolute;left:16px;bottom:11px;z-index:6;display:flex;align-items:center;gap:9px;color:#9fb6cc;font-size:13px;cursor:pointer;font-family:'JetBrains Mono',ui-monospace,monospace;opacity:.85;letter-spacing:.5px}
+.term-leave:hover{color:#d4e8ff}
+.term-leave .pw{width:22px;height:22px;border-radius:50%;border:1px solid #6b8fb5;display:flex;align-items:center;justify-content:center;font-size:12px}
 #authGate.gone{opacity:0;pointer-events:none}
 #authBg{position:absolute;inset:0;z-index:0;pointer-events:none}
 .auth-scan{position:absolute;left:0;right:0;top:0;height:160px;background:linear-gradient(180deg,transparent,rgba(34,211,238,.06),transparent);animation:authscan 7s linear infinite;z-index:1;pointer-events:none}
@@ -341,18 +374,53 @@ button{font-family:inherit}
 <body>
 <div id="authGate">
   <canvas id="authBg"></canvas>
-  <div class="auth-scan"></div>
-  <div class="auth-ring r1"></div><div class="auth-ring r2"></div><div class="auth-ring r3"></div>
+  <div class="term-rays"></div><div class="term-beams"></div>
+  <div class="seal"><svg viewBox="0 0 400 400">
+    <defs>
+      <path id="arcTop" d="M58,200 a142,142 0 0,1 284,0"/>
+      <path id="arcBot" d="M338,200 a138,138 0 0,1 -276,0"/>
+    </defs>
+    <circle cx="200" cy="200" r="152" fill="none" stroke="currentColor" stroke-width="2" opacity=".5"/>
+    <circle cx="200" cy="200" r="124" fill="none" stroke="currentColor" stroke-width="1" opacity=".32"/>
+    <circle cx="200" cy="200" r="178" fill="none" stroke="currentColor" stroke-width="1" opacity=".18"/>
+    <text font-size="21" letter-spacing="4" fill="currentColor" font-weight="700"><textPath href="#arcTop" startOffset="50%" text-anchor="middle">ԱՆՎՏԱՆԳՈՒԹՅԱՆ ՀԱՐԹԱԿ</textPath></text>
+    <text font-size="19" letter-spacing="5" fill="currentColor" font-weight="700"><textPath href="#arcBot" startOffset="50%" text-anchor="middle">ՀԱՅԱՍՏԱՆ · ՎԱՀԱՆ</textPath></text>
+    <g transform="translate(200,202)">
+      <path d="M0 -72 L56 -47 V3 C56 46 31 69 0 81 C-31 69 -56 46 -56 3 V-47 Z" fill="none" stroke="currentColor" stroke-width="3"/>
+      <path d="M-27 3 l20 21 L35 -23" fill="none" stroke="currentColor" stroke-width="4.5" stroke-linecap="round" stroke-linejoin="round"/>
+    </g>
+  </svg></div>
+  <div class="org">
+    <div class="lab big l-d" style="left:50%;top:7%;transform:translateX(-50%)">Գլխավոր Տնօրեն · Անվտանգության Կենտրոն</div>
+    <div class="lab l-d" style="left:50%;top:24%;transform:translateX(-50%)">Տեխնոլոգիաներ</div>
+    <div class="lab l-r" style="left:3%;top:37%">Տեսչություն</div>
+    <div class="lab l-r" style="left:3%;top:44%">Տեղեկատվական շտաբ</div>
+    <div class="lab l-r" style="left:3%;top:51%">Իրավաբանական</div>
+    <div class="lab l-r" style="left:3%;top:58%">Հանրային կապեր</div>
+    <div class="lab l-r" style="left:3%;top:65%">Վերլուծական շտաբ</div>
+    <div class="lab l-l" style="right:3%;top:37%">Գործառնություններ</div>
+    <div class="lab l-l" style="right:3%;top:44%">Սպառնալիքներ</div>
+    <div class="lab l-l" style="right:3%;top:51%">Ազգային հետախուզ.</div>
+    <div class="lab l-l" style="right:3%;top:58%">Կառավարում</div>
+    <div class="lab l-u" style="left:46%;top:75%;transform:translateX(-50%)">Հետազոտական կենտրոն</div>
+    <div class="lab l-u" style="right:19%;top:81%">Վերահսկողություն</div>
+    <div class="lab l-u" style="right:17%;top:87%">Կադրային շտաբ</div>
+    <div class="lab l-u" style="right:21%;top:93%">Օպերատիվ շտաբ</div>
+  </div>
   <div class="auth-card">
-    <div class="auth-logo"><svg viewBox="0 0 32 32"><path d="M16 2 L28 7 V15 C28 23 22 28 16 30 C10 28 4 23 4 15 V7 Z" fill="none" stroke="#22d3ee" stroke-width="2"/><path d="M11 16 l3.5 3.5 L22 12" fill="none" stroke="#22d3ee" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg><div class="t">ՎԱ<span>ՀԱՆ</span></div></div>
-    <div class="auth-sub">Անվտանգ մուտք · եռաստիճան նույնականացում</div>
-    <div class="auth-status" id="authStatus">● ՀԱՄԱԿԱՐԳ ԱԿՏԻՎ</div>
     <div class="auth-steps"><i id="as1" class="on"></i><i id="as2"></i><i id="as3"></i></div>
     <div class="astep on" id="step1">
-      <h3>Քայլ 1 · Ծածկագիր</h3><div class="d">Մուտքագրիր 3-նիշ PIN-ը</div>
-      <div class="pin-dots" id="pinDots"><i></i><i></i><i></i></div>
-      <div class="keypad" id="keypad"></div>
-      <div class="auth-hint">Մուտքագրիր ծածկագիրը</div>
+      <div class="tile-user">
+        <div class="tile-ava"><svg viewBox="0 0 32 32"><path d="M16 2 L28 7 V15 C28 23 22 28 16 30 C10 28 4 23 4 15 V7 Z" fill="none" stroke="#7fd4ff" stroke-width="2"/><path d="M11 16 l3.5 3.5 L22 12" fill="none" stroke="#7fd4ff" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+        <div class="tile-name">ՎԱՀԱՆ · Տնօրեն<small id="authStatus">● ՀԱՄԱԿԱՐԳ ԱԿՏԻՎ</small></div>
+      </div>
+      <div class="tile-lab">Մուտքագրիր գաղտնաբառը</div>
+      <div class="pin-field">
+        <input id="pinInput" type="password" inputmode="numeric" maxlength="8" placeholder="•••" autocomplete="off">
+        <button class="pin-go" id="pinGo" title="Մուտք">➜</button>
+        <button class="pin-help" id="pinHelp" title="Օգնություն">?</button>
+      </div>
+      <div class="pin-dots" id="pinDots" style="display:none"></div>
       <div class="auth-err" id="err1"></div>
     </div>
     <div class="astep" id="step2">
@@ -371,6 +439,7 @@ button{font-family:inherit}
       <div class="auth-err" id="err3"></div>
     </div>
   </div>
+  <div class="term-leave" onclick="location.reload()"><span class="pw">⏻</span> Լքել ՎԱՀԱՆ տերմինալը</div>
 </div>
 <div class="app">
   <div class="topbar">
@@ -1656,12 +1725,13 @@ function renderQR(el,text){if(!el)return;el.innerHTML='';try{if(window.QRCode){n
 (function(){
   const gate=document.getElementById('authGate');if(!gate)return;
   let pin='';
-  const dots=document.getElementById('pinDots'),kp=document.getElementById('keypad'),otp=document.getElementById('otp');
-  dots.innerHTML=Array.from({length:AUTH.pin.length},()=>'<i></i>').join('');
-  const renderDots=()=>[...dots.children].forEach((d,i)=>d.classList.toggle('f',i<pin.length));
-  ['1','2','3','4','5','6','7','8','9','','0','⌫'].forEach(k=>{const b=document.createElement('button');b.textContent=k;if(k===''){b.style.visibility='hidden';b.disabled=true}
-    b.onclick=()=>{if(k==='⌫')pin=pin.slice(0,-1);else if(k!==''&&pin.length<AUTH.pin.length)pin+=k;renderDots();if(pin.length>=AUTH.pin.length)setTimeout(checkPin,160)};kp.appendChild(b)});
-  function checkPin(){if(pin===AUTH.pin){gotoStep(2)}else{dots.classList.add('err');document.getElementById('err1').textContent='Սխալ ծածկագիր';setTimeout(()=>{dots.classList.remove('err');pin='';renderDots();document.getElementById('err1').textContent=''},650)}}
+  const otp=document.getElementById('otp');
+  const pinInput=document.getElementById('pinInput');
+  const renderDots=()=>{};
+  function checkPin(){const v=(pinInput?pinInput.value:'').trim();if(v===AUTH.pin){if(pinInput)pinInput.value='';gotoStep(2)}else{const e=document.getElementById('err1');if(e)e.textContent='Սխալ ծածկագիր';if(pinInput)pinInput.classList.add('err');setTimeout(()=>{if(pinInput){pinInput.value='';pinInput.classList.remove('err');pinInput.focus()}if(e)e.textContent=''},650)}}
+  if(pinInput)pinInput.addEventListener('keydown',e=>{if(e.key==='Enter')checkPin()});
+  const pinGoB=document.getElementById('pinGo');if(pinGoB)pinGoB.onclick=checkPin;
+  const pinHelpB=document.getElementById('pinHelp');if(pinHelpB)pinHelpB.onclick=()=>{try{toast('PIN՝ 3–8 նիշ · փոխել՝ Կարգավորումներ → Անվտանգություն')}catch(e){}};
   for(let i=0;i<6;i++){const inp=document.createElement('input');inp.maxLength=1;inp.inputMode='numeric';
     inp.oninput=()=>{inp.value=inp.value.replace(/\D/g,'');if(inp.value&&otp.children[i+1])otp.children[i+1].focus();checkOtp()};
     inp.onkeydown=e=>{if(e.key==='Backspace'&&!inp.value&&otp.children[i-1])otp.children[i-1].focus()};otp.appendChild(inp)}
@@ -1698,7 +1768,7 @@ function renderQR(el,text){if(!el)return;el.innerHTML='';try{if(window.QRCode){n
   function unlock(reason){stopCam();gate.classList.add('gone');try{logAudit('✅ ՄՈՒՏՔ · '+(reason||'3-աստիճ.'))}catch(e){}try{fetch('https://ipwho.is/').then(r=>r.json()).then(d=>{try{logAudit('մուտքի IP՝ '+(d.ip||'?')+' ('+(d.country||'?')+')')}catch(e){}}).catch(()=>{})}catch(e){}setTimeout(()=>{try{toast('Բարի գալուստ, ՎԱՀԱՆ')}catch(e){}},400)}
   function resetGate(){try{stopCam()}catch(e){}pin='';renderDots();[...otp.children].forEach(x=>x.value='');fails=0;['err1','err2','err3'].forEach(id=>{const e=document.getElementById(id);if(e)e.textContent=''});const b=document.getElementById('faceCapBtn');if(b){b.disabled=true;b.textContent=enroll?'Գրանցել դեմքը':'Ճանաչել դեմքը'}const fm=document.getElementById('faceMsg');if(fm)fm.textContent='Տեսախցիկը միանում է…';gate.classList.remove('gone');try{logAudit('ելք համակարգից')}catch(e){}gotoStep(AUTH.pinOn?1:2)}
   window.vahanLogout=resetGate;
-  function gotoStep(n){[1,2,3].forEach(i=>{document.getElementById('step'+i).classList.toggle('on',i===n);const s=document.getElementById('as'+i);s.classList.toggle('on',i===n);s.classList.toggle('done',i<n)});if(n===2){setTimeout(()=>otp.children[0].focus(),120)}}
+  function gotoStep(n){[1,2,3].forEach(i=>{document.getElementById('step'+i).classList.toggle('on',i===n);const s=document.getElementById('as'+i);s.classList.toggle('on',i===n);s.classList.toggle('done',i<n)});if(n===1){setTimeout(()=>{const p=document.getElementById('pinInput');if(p){p.value='';p.focus()}},120)}if(n===2){setTimeout(()=>otp.children[0].focus(),120)}}
   renderDots();
   if(!AUTH.pinOn)gotoStep(2);
 })();
@@ -1708,7 +1778,7 @@ function renderQR(el,text){if(!el)return;el.innerHTML='';try{if(window.QRCode){n
  sz();window.addEventListener('resize',sz);
  const N=230,pts=[];for(let i=0;i<N;i++){const y=1-(i/(N-1))*2,r=Math.sqrt(Math.max(0,1-y*y)),th=i*2.399963229;pts.push([Math.cos(th)*r,y,Math.sin(th)*r])}
  let a=0;
- function loop(){const g=document.getElementById('authGate');if(!g)return;requestAnimationFrame(loop);if(g.classList.contains('gone')){return}
+ function loop(){const g=document.getElementById('authGate');if(!g)return;requestAnimationFrame(loop);if(g.classList.contains('gone')||cv.offsetParent===null){return}
    if(!W||!H)sz();ctx.clearRect(0,0,W,H);a+=0.0022;const cx=W/2,cy=H*0.40,R=Math.min(W,H)*0.34;
    const pr=pts.map(p=>{const x=p[0]*Math.cos(a)-p[2]*Math.sin(a),z=p[0]*Math.sin(a)+p[2]*Math.cos(a),sc=1/(2-z*0.6);return [cx+x*R*sc,cy+p[1]*R*sc,z]});
    ctx.strokeStyle='rgba(34,211,238,0.10)';ctx.lineWidth=0.5;
