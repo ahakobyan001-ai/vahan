@@ -400,7 +400,7 @@ button{font-family:inherit}
 <script src="https://cdn.jsdelivr.net/npm/topojson-client@3/dist/topojson-client.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/blueimp-md5/2.19.0/js/md5.min.js"></script>
-<script defer src="https://cdn.jsdelivr.net/npm/@vladmandic/face-api/dist/face-api.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@vladmandic/face-api/dist/face-api.min.js"></script>
 <script>
 /* ============================ DATA ============================ */
 const TARGET={lon:44.51,lat:40.18};
@@ -1399,9 +1399,8 @@ async function faceInit(){if(FACE.ready||FACE.loading)return;FACE.loading=true;
     FACE.mode='embedding';FACE.ready=true;}}catch(e){FACE.mode='hash';}
   FACE.loading=false;}
 async function getFaceDesc(video){
-  if(FACE.mode==='embedding'&&window.faceapi){try{const d=await faceapi.detectSingleFace(video,new faceapi.TinyFaceDetectorOptions({scoreThreshold:0.4})).withFaceLandmarks().withFaceDescriptor();if(!d)return null;return {m:'embedding',v:Array.from(d.descriptor)}}catch(e){return null}}
-  let has=true;try{if('FaceDetector'in window){const fd=new window.FaceDetector();const f=await fd.detect(video);has=f&&f.length>0}}catch(e){has=true}
-  if(!has)return null;return {m:'hash',v:faceHash(video)};}
+  if(FACE.mode!=='embedding'||!window.faceapi)return null;
+  try{const d=await faceapi.detectSingleFace(video,new faceapi.TinyFaceDetectorOptions({scoreThreshold:0.4})).withFaceLandmarks().withFaceDescriptor();if(!d)return null;return {m:'embedding',v:Array.from(d.descriptor)}}catch(e){return null}}
 function faceMatch(a,b){if(!a||!b||a.m!==b.m)return 1e9;if(a.m==='embedding'){let s=0;for(let i=0;i<a.v.length;i++){const d=a.v[i]-b.v[i];s+=d*d}return Math.sqrt(s)}return faceDist(a.v,b.v)}
 const FACE_THRESH={embedding:0.55,hash:72};
 function totpURI(label){return 'otpauth://totp/VAHAN:'+(label||'admin')+'?secret='+AUTH.totp+'&issuer=VAHAN&digits=6&period=30'}
@@ -1435,14 +1434,15 @@ function renderQR(el,text){if(!el)return;el.innerHTML='';try{if(window.QRCode){n
       msg.innerHTML=(FACE.mode==='embedding'?'🧠 Neural face-recognition · ':'')+(enroll?'Առաջին անգամ՝ գրանցիր դեմքդ':'Նայիր ուղիղ տեսախցիկին և սեղմիր ճանաչել');
       btn.disabled=false;if(enrolled)document.getElementById('faceReenroll').style.display='inline-flex';}
     catch(e){msg.innerHTML='📷 Տեսախցիկն անհասանելի է այս sandbox-ում։ Իրական (deploy) build-ում դեմք-ստուգումը պարտադիր է՝ սխալի դեպքում մուտք չի տա։';const sk=document.getElementById('faceSkip');sk.textContent='Դիտման ռեժիմ (միայն preview — production-ում անջատ)';sk.style.display='inline-flex';}}
-  document.getElementById('faceCapBtn').onclick=async()=>{const wrap=document.getElementById('faceWrap'),v=document.getElementById('faceVid');
-    wrap.classList.add('scan');document.getElementById('faceMsg').textContent='Անալիզ…';
+  document.getElementById('faceCapBtn').onclick=async()=>{const wrap=document.getElementById('faceWrap'),v=document.getElementById('faceVid'),msg=document.getElementById('faceMsg');
+    wrap.classList.add('scan');msg.textContent='Անալիզ…';
+    if(FACE.mode!=='embedding'){msg.textContent='Բեռնվում է ճանաչման մոդելը…';await faceInit();if(FACE.mode!=='embedding'){wrap.classList.remove('scan');return fail('Նեյրոնային մոդելը դեռ բեռնված չէ — թարմացրու էջը / ստուգիր կապը (առանց դրա մուտք չի տրվի)')}}
     const desc=await getFaceDesc(v);
     if(!desc){wrap.classList.remove('scan');return fail('Դեմք չի հայտնաբերվել — նայիր ուղիղ, լավ լույսի տակ')}
-    if(enroll){enrolled=desc;AUTH.face=JSON.stringify(desc);authSave('vahan_face',AUTH.face);enroll=false;unlock('դեմք գրանցվեց ('+desc.m+') + մուտք')}
-    else{if(desc.m!==enrolled.m){wrap.classList.remove('scan');enroll=true;return fail('Մոդելը փոխվել է — սեղմիր նորից՝ վերագրանցելու')}
-      const dist=faceMatch(desc,enrolled),th=FACE_THRESH[desc.m];
-      if(dist<th){fails=0;unlock('դեմք ճանաչվեց · '+desc.m+' d='+dist.toFixed(3))}
+    if(enroll){enrolled=desc;AUTH.face=JSON.stringify(desc);authSave('vahan_face',AUTH.face);enroll=false;unlock('դեմք գրանցվեց (neural) + մուտք')}
+    else{if(!enrolled||enrolled.m!=='embedding'){wrap.classList.remove('scan');enroll=true;document.getElementById('faceCapBtn').textContent='Գրանցել դեմքը';return fail('Վերագրանցիր դեմքը նոր նեյրոնային մոդելով')}
+      const dist=faceMatch(desc,enrolled);
+      if(dist<0.5){fails=0;unlock('դեմք ճանաչվեց · d='+dist.toFixed(3))}
       else{wrap.classList.remove('scan');fails++;if(fails>=3){lockGate()}else fail('Դեմքը չի համընկնում (d='+dist.toFixed(3)+') · մնաց '+(3-fails)+' փորձ')}}};
   function fail(m){const e=document.getElementById('err3');if(e){e.textContent=m;setTimeout(()=>{if(e)e.textContent=''},2200)}}
   function lockGate(){const b=document.getElementById('faceCapBtn');b.disabled=true;b.textContent='🔒 Արգելափակված';const r=document.getElementById('faceReenroll');if(r)r.style.display='none';document.getElementById('faceMsg').innerHTML='⛔ 3 անհաջող փորձ — մուտքն արգելափակված է։ Սեղմիր «⎋ Ելք» կամ վերբեռնիր։';try{logAudit('մուտք ԱՐԳԵԼԱՓԱԿՎԵՑ · դեմք 3x ձախող')}catch(e){}}
