@@ -278,6 +278,8 @@ button{font-family:inherit}
 /* AUTH GATE */
 #authGate{position:fixed;inset:0;z-index:1000;background:radial-gradient(900px 520px at 50% 18%,#0e1c34,#05080f);display:flex;align-items:center;justify-content:center;transition:opacity .5s}
 #authGate.gone{opacity:0;pointer-events:none}
+#authBg{position:absolute;inset:0;z-index:0;pointer-events:none}
+.auth-card{position:relative;z-index:2}
 .auth-card{width:384px;max-width:92vw;background:var(--panel);border:1px solid var(--line);border-radius:18px;padding:26px 26px;box-shadow:0 30px 90px rgba(0,0,0,.65)}
 .auth-logo{display:flex;align-items:center;gap:10px;justify-content:center;margin-bottom:6px}
 .auth-logo svg{width:32px;height:32px;filter:drop-shadow(0 0 8px rgba(34,211,238,.6))}
@@ -327,6 +329,7 @@ button{font-family:inherit}
 </head>
 <body>
 <div id="authGate">
+  <canvas id="authBg"></canvas>
   <div class="auth-card">
     <div class="auth-logo"><svg viewBox="0 0 32 32"><path d="M16 2 L28 7 V15 C28 23 22 28 16 30 C10 28 4 23 4 15 V7 Z" fill="none" stroke="#22d3ee" stroke-width="2"/><path d="M11 16 l3.5 3.5 L22 12" fill="none" stroke="#22d3ee" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg><div class="t">ՎԱ<span>ՀԱՆ</span></div></div>
     <div class="auth-sub">Անվտանգ մուտք · եռաստիճան նույնականացում</div>
@@ -339,8 +342,7 @@ button{font-family:inherit}
       <div class="auth-err" id="err1"></div>
     </div>
     <div class="astep" id="step2">
-      <h3>Քայլ 2 · Երկգործոն կոդ</h3><div class="d">Սկանավորիր QR-ը գեներատորով, հետո մուտքագրիր կոդը</div>
-      <div id="otpEnroll" style="text-align:center;margin-bottom:14px"><div id="otpQR" style="display:inline-block;padding:9px;background:#fff;border-radius:11px"></div><div style="font-size:11px;color:var(--muted);margin-top:7px">Google / Microsoft Authenticator → «Scan QR»</div></div>
+      <h3>Քայլ 2 · Երկգործոն կոդ</h3><div class="d">Մուտքագրիր authenticator-ի 6-նիշ կոդը</div>
       <div class="otp" id="otp"></div>
       <div class="auth-hint" id="otpHelp">TOTP · թարմացում <span id="otpT">30</span>վ</div>
       <div class="auth-err" id="err2"></div>
@@ -395,6 +397,7 @@ button{font-family:inherit}
     <div class="nav-item" data-v="search"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4-4M11 8v6M8 11h6"/></svg><span class="label">AI որոնում</span><span class="badge p">★</span></div>
     <div class="nav-item" data-v="image"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21"/></svg><span class="label">Նկար փնտրում</span></div>
     <div class="nav-item" data-v="cams"><svg viewBox="0 0 24 24"><path d="M3 7h11v10H3z"/><path d="M14 10l7-3v10l-7-3"/></svg><span class="label">Հանր. տեսախցիկ</span></div>
+    <div class="nav-item" data-v="tools"><svg viewBox="0 0 24 24"><path d="M14 7l3 3M5 19l6-6M14 7a4 4 0 115 5l-3-3zM5 19l-2 2"/></svg><span class="label">Online գործիքներ</span><span class="badge">30+</span></div>
     <div class="nav-item" data-v="trace"><svg viewBox="0 0 24 24"><circle cx="5" cy="19" r="2"/><circle cx="19" cy="5" r="2"/><path d="M6.5 17.5 17 7M8 6H5v3M16 18h3v-3"/></svg><span class="label">Traceroute</span></div>
     <div class="nav-item" data-v="asn"><svg viewBox="0 0 24 24"><circle cx="12" cy="5" r="2.5"/><circle cx="5" cy="19" r="2.5"/><circle cx="19" cy="19" r="2.5"/><path d="M12 7.5v4M10 13l-3.5 4M14 13l3.5 4"/></svg><span class="label">Օպերատորներ</span></div>
     <div class="nav-item" data-v="osint"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4-4M8 11h6M11 8v6"/></svg><span class="label">OSINT</span></div>
@@ -553,7 +556,7 @@ setInterval(()=>{if(Math.random()<0.35)for(let i=0;i<4;i++)setTimeout(tick,i*140
 /* ============================ ROUTER ============================ */
 let viewTimers=[],rafId=null;
 function clearView(){viewTimers.forEach(t=>clearInterval(t));viewTimers=[];if(rafId)cancelAnimationFrame(rafId);rafId=null;listeners=[]}
-const VIEWS={overview:vOverview,map:vMap,siem:vSiem,intel:vIntel,vuln:vVuln,ipintel:vIp,incidents:vInc,ai:vAi,reports:vReports,connectors:vConnectors,defense:vDefense,trace:vTrace,asn:vAsn,osint:vOsint,search:vSearch,apt:vApt,image:vImage,geo:vGeo,cams:vCams};
+const VIEWS={overview:vOverview,map:vMap,siem:vSiem,intel:vIntel,vuln:vVuln,ipintel:vIp,incidents:vInc,ai:vAi,reports:vReports,connectors:vConnectors,defense:vDefense,trace:vTrace,asn:vAsn,osint:vOsint,search:vSearch,apt:vApt,image:vImage,geo:vGeo,cams:vCams,tools:vTools};
 function go(v){location.hash=v}
 function route(){
   const v=(location.hash.replace('#','')||'overview');
@@ -1387,6 +1390,26 @@ function vSearch(){
  document.querySelectorAll('[data-ex]').forEach(c=>c.onclick=()=>{document.getElementById('uniIn').value=c.dataset.ex;run()});
 }
 
+/* ===================== ONLINE TOOLS HUB ===================== */
+const TOOLS=[
+ ['IP / Host intel',[['Shodan','Ինտернет-սարքերի որոնիչ','https://www.shodan.io/','https://www.shodan.io/host/{q}'],['Censys','Host / cert attack-surface','https://search.censys.io/','https://search.censys.io/hosts/{q}'],['GreyNoise','Scanner-աղմուկի դասակարգում','https://viz.greynoise.io/','https://viz.greynoise.io/ip/{q}'],['AbuseIPDB','IP reputation / բողոքներ','https://www.abuseipdb.com/','https://www.abuseipdb.com/check/{q}'],['IPinfo','Geo / ASN','https://ipinfo.io/','https://ipinfo.io/{q}']]],
+ ['File / Malware',[['VirusTotal','Multi-engine սկան','https://www.virustotal.com/','https://www.virustotal.com/gui/search/{q}'],['Hybrid Analysis','Malware sandbox','https://www.hybrid-analysis.com/','https://www.hybrid-analysis.com/search?query={q}'],['ANY.RUN','Ինտերակտիվ sandbox','https://any.run/',''],['MalwareBazaar','Malware sample DB','https://bazaar.abuse.ch/','https://bazaar.abuse.ch/browse.php?search={q}'],['Joe Sandbox','Deep malware analysis','https://www.joesandbox.com/','']]],
+ ['URL / Web',[['URLScan.io','URL sandbox / screenshot','https://urlscan.io/','https://urlscan.io/search/#{q}'],['URLhaus','Վնասաբեր URL DB','https://urlhaus.abuse.ch/','https://urlhaus.abuse.ch/browse.php?search={q}'],['Safe Browsing','URL reputation (Google)','https://transparencyreport.google.com/safe-browsing/search',''],['Sucuri SiteCheck','Վեբ malware / blacklist','https://sitecheck.sucuri.net/','https://sitecheck.sucuri.net/results/{q}']]],
+ ['Domain / DNS',[['crt.sh','Cert transparency / subdomains','https://crt.sh/','https://crt.sh/?q=%25.{q}'],['SecurityTrails','DNS / historical','https://securitytrails.com/','https://securitytrails.com/domain/{q}/dns'],['DNSdumpster','DNS recon','https://dnsdumpster.com/',''],['MXToolbox','MX / blacklist / DNS','https://mxtoolbox.com/','https://mxtoolbox.com/SuperTool.aspx?action=mx%3a{q}'],['ViewDNS','Reverse IP / DNS','https://viewdns.info/','https://viewdns.info/reverseip/?host={q}']]],
+ ['Email / Breach',[['Have I Been Pwned','Breach exposure','https://haveibeenpwned.com/','https://haveibeenpwned.com/account/{q}'],['Hunter.io','Email discovery','https://hunter.io/','https://hunter.io/search/{q}'],['EmailRep','Email reputation','https://emailrep.io/','https://emailrep.io/{q}'],['Dehashed','Leak search','https://www.dehashed.com/','']]],
+ ['Threat intel / Vuln',[['AlienVault OTX','Open threat exchange','https://otx.alienvault.com/','https://otx.alienvault.com/browse/global/pulses?q={q}'],['ThreatFox','IoC feed','https://threatfox.abuse.ch/','https://threatfox.abuse.ch/browse.php?search={q}'],['Pulsedive','Threat intel search','https://pulsedive.com/','https://pulsedive.com/browse/?q={q}'],['NVD','CVE database','https://nvd.nist.gov/','https://nvd.nist.gov/vuln/detail/{q}'],['Exploit-DB','Exploits','https://www.exploit-db.com/','https://www.exploit-db.com/search?text={q}'],['MITRE ATT&CK','TTP framework','https://attack.mitre.org/','']]],
+ ['OSINT frameworks',[['OSINT Framework','Գործիքների ծառ','https://osintframework.com/',''],['IntelTechniques','OSINT tools (Bazzell)','https://inteltechniques.com/tools/',''],['Maltego','Graph OSINT','https://www.maltego.com/','']]]
+];
+function vTools(){
+ const el=document.getElementById('view');
+ el.innerHTML=`<div class="page-head"><h1>Online գործիքներ</h1><span class="sub">· կիբեռանվտանգության ու վերլուծական լավագույն օնլայն գործիքները՝ մեկ հանգույցում</span></div>
+ <div class="ip-search" style="max-width:560px"><input id="toolQ" placeholder="query (IP / դոմեն / email / hash / CVE) — կկապվի գործիքներին"><button class="btn primary" id="toolApply">Կիրառել</button></div>
+ <div id="toolGrid"></div>`;
+ function render(){const q=document.getElementById('toolQ').value.trim();
+  document.getElementById('toolGrid').innerHTML=TOOLS.map(([cat,items])=>`<div class="card" style="margin-bottom:14px"><div class="card-h">${cat}<span class="mini">${items.length}</span></div><div class="grid" style="grid-template-columns:repeat(auto-fit,minmax(245px,1fr))">${items.map(([n,d,u,p])=>{const deep=(q&&p)?p.replace('{q}',encodeURIComponent(q)):'';return `<div class="conn-card"><div class="conn-top"><span class="cn">${n}</span>${deep?`<a class="st live" href="${deep}" target="_blank" rel="noopener" style="text-decoration:none">«q» ↗</a>`:''}</div><div class="conn-use">${d}</div><a class="conn-ep" href="${u}" target="_blank" rel="noopener" style="color:var(--cyan);text-decoration:none">${u.replace('https://','').replace(/\/$/,'')} ↗</a></div>`}).join('')}</div></div>`).join('');}
+ document.getElementById('toolApply').onclick=render;document.getElementById('toolQ').addEventListener('keydown',e=>{if(e.key==='Enter')render()});render();
+}
+
 /* ===================== PUBLIC WEBCAMS (intentionally-public only) ===================== */
 function vCams(){
  const el=document.getElementById('view');const g=s=>'https://www.google.com/search?q='+encodeURIComponent(s);
@@ -1567,9 +1590,23 @@ function renderQR(el,text){if(!el)return;el.innerHTML='';try{if(window.QRCode){n
   function unlock(reason){stopCam();gate.classList.add('gone');try{logAudit('✅ ՄՈՒՏՔ · '+(reason||'3-աստիճ.'))}catch(e){}try{fetch('https://ipwho.is/').then(r=>r.json()).then(d=>{try{logAudit('մուտքի IP՝ '+(d.ip||'?')+' ('+(d.country||'?')+')')}catch(e){}}).catch(()=>{})}catch(e){}setTimeout(()=>{try{toast('Բարի գալուստ, ՎԱՀԱՆ')}catch(e){}},400)}
   function resetGate(){try{stopCam()}catch(e){}pin='';renderDots();[...otp.children].forEach(x=>x.value='');fails=0;['err1','err2','err3'].forEach(id=>{const e=document.getElementById(id);if(e)e.textContent=''});const b=document.getElementById('faceCapBtn');if(b){b.disabled=true;b.textContent=enroll?'Գրանցել դեմքը':'Ճանաչել դեմքը'}const fm=document.getElementById('faceMsg');if(fm)fm.textContent='Տեսախցիկը միանում է…';gate.classList.remove('gone');try{logAudit('ելք համակարգից')}catch(e){}gotoStep(AUTH.pinOn?1:2)}
   window.vahanLogout=resetGate;
-  function gotoStep(n){[1,2,3].forEach(i=>{document.getElementById('step'+i).classList.toggle('on',i===n);const s=document.getElementById('as'+i);s.classList.toggle('on',i===n);s.classList.toggle('done',i<n)});if(n===2){renderQR(document.getElementById('otpQR'),totpURI());setTimeout(()=>otp.children[0].focus(),120)}}
+  function gotoStep(n){[1,2,3].forEach(i=>{document.getElementById('step'+i).classList.toggle('on',i===n);const s=document.getElementById('as'+i);s.classList.toggle('on',i===n);s.classList.toggle('done',i<n)});if(n===2){setTimeout(()=>otp.children[0].focus(),120)}}
   renderDots();
   if(!AUTH.pinOn)gotoStep(2);
+})();
+/* ոլորտային (globe) էֆեկտ մուտքի էջին */
+(function(){const cv=document.getElementById('authBg');if(!cv)return;const ctx=cv.getContext('2d');let W=0,H=0,DPR=Math.min(window.devicePixelRatio||1,2);
+ function sz(){const g=document.getElementById('authGate');if(!g)return;W=g.clientWidth;H=g.clientHeight;cv.width=W*DPR;cv.height=H*DPR;ctx.setTransform(DPR,0,0,DPR,0,0)}
+ sz();window.addEventListener('resize',sz);
+ const N=230,pts=[];for(let i=0;i<N;i++){const y=1-(i/(N-1))*2,r=Math.sqrt(Math.max(0,1-y*y)),th=i*2.399963229;pts.push([Math.cos(th)*r,y,Math.sin(th)*r])}
+ let a=0;
+ function loop(){const g=document.getElementById('authGate');if(!g)return;requestAnimationFrame(loop);if(g.classList.contains('gone')){return}
+   if(!W||!H)sz();ctx.clearRect(0,0,W,H);a+=0.0022;const cx=W/2,cy=H*0.40,R=Math.min(W,H)*0.34;
+   const pr=pts.map(p=>{const x=p[0]*Math.cos(a)-p[2]*Math.sin(a),z=p[0]*Math.sin(a)+p[2]*Math.cos(a),sc=1/(2-z*0.6);return [cx+x*R*sc,cy+p[1]*R*sc,z]});
+   ctx.strokeStyle='rgba(34,211,238,0.10)';ctx.lineWidth=0.5;
+   for(let i=0;i<pr.length;i+=2)for(let j=i+1;j<Math.min(i+12,pr.length);j++){const dx=pr[i][0]-pr[j][0],dy=pr[i][1]-pr[j][1];if(dx*dx+dy*dy<1500){ctx.beginPath();ctx.moveTo(pr[i][0],pr[i][1]);ctx.lineTo(pr[j][0],pr[j][1]);ctx.stroke()}}
+   for(const p of pr){ctx.beginPath();ctx.arc(p[0],p[1],p[2]>0?1.9:1.1,0,7);ctx.fillStyle='rgba(34,211,238,'+Math.max(0.12,0.35+p[2]*0.4)+')';ctx.fill()}}
+ loop();
 })();
 </script>
 </body>
