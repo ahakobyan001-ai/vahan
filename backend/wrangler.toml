@@ -1,0 +1,14 @@
+# ՎԱՀԱՆ connector backend — Cloudflare Worker config
+# (ընտրովի՝ միայն եթե deploy ես անում wrangler CLI-ով։ Dashboard-ով deploy-ին պետք չէ)
+name = "vahan-connector"
+main = "worker.js"
+compatibility_date = "2026-01-01"
+
+# Env փոփոխականներ դրեք dashboard-ում (Settings → Variables) կամ `wrangler secret put`-ով.
+#   VAHAN_API_KEY     — gateway բանալի (frontend↔backend)
+#   ABUSECH_AUTH_KEY  — անվճ. abuse.ch Auth-Key (IoC feed)
+#   NVD_API_KEY       — անվճ. NVD բանալի (rate limit 5→50/30վրկ)
+#   ALLOW_ORIGIN      — ձեր Pages դոմենը, օր. https://vahan.pages.dev
+
+[vars]
+ALLOW_ORIGIN = "*"

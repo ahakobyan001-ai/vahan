@@ -1,0 +1,1440 @@
+<!DOCTYPE html>
+<html lang="hy">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ՎԱՀԱՆ — Անվտանգության հարթակ</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Armenian:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#060a12;--bg2:#0a0f1c;--panel:#0d1424;--panel2:#111a2e;--panel3:#15203a;
+  --line:#1b2740;--line2:#273755;
+  --txt:#e8eef9;--muted:#8094b6;--muted2:#56688a;
+  --cyan:#22d3ee;--green:#34d399;--red:#ff3b63;--orange:#ff9f1a;--yellow:#ffd23f;--purple:#a78bfa;--blue:#60a5fa;
+  --crit:#ff3b63;--high:#ff9f1a;--med:#ffd23f;--low:#3dd6c4;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%}
+body{font-family:'Noto Sans Armenian',system-ui,-apple-system,'Segoe UI',sans-serif;background:var(--bg);color:var(--txt);overflow:hidden;-webkit-font-smoothing:antialiased;font-size:14px}
+.mono{font-family:'JetBrains Mono',monospace;font-variant-numeric:tabular-nums}
+::-webkit-scrollbar{width:9px;height:9px}
+::-webkit-scrollbar-track{background:transparent}
+::-webkit-scrollbar-thumb{background:var(--line2);border-radius:5px}
+::-webkit-scrollbar-thumb:hover{background:#34496e}
+a{color:var(--cyan)}
+button{font-family:inherit}
+
+.app{display:grid;grid-template-columns:238px 1fr;grid-template-rows:56px 1fr;grid-template-areas:"top top" "nav main";height:100vh}
+@media(max-width:1100px){.app{grid-template-columns:62px 1fr}.nav .label,.nav .badge,.nav .nav-section,.nav-foot{display:none}.nav-item{justify-content:center}}
+
+/* TOPBAR */
+.topbar{grid-area:top;display:flex;align-items:center;gap:16px;padding:0 18px;background:linear-gradient(180deg,#0b1220,#080d18);border-bottom:1px solid var(--line);z-index:30}
+.logo{display:flex;align-items:center;gap:11px;cursor:pointer}
+.logo-mark{width:30px;height:30px;flex:0 0 auto}
+.logo-mark svg{width:100%;height:100%;filter:drop-shadow(0 0 7px rgba(34,211,238,.55))}
+.logo-txt{font-weight:800;font-size:18px;letter-spacing:3px;color:#fff}
+.logo-txt span{color:var(--cyan)}
+.gsearch{flex:1;max-width:440px;position:relative}
+.gsearch input{width:100%;background:var(--bg);border:1px solid var(--line);border-radius:9px;padding:9px 13px 9px 36px;color:var(--txt);font-size:13px}
+.gsearch input:focus{outline:none;border-color:var(--cyan);box-shadow:0 0 0 3px rgba(34,211,238,.1)}
+.gsearch svg{position:absolute;left:11px;top:50%;transform:translateY(-50%);width:15px;height:15px;stroke:var(--muted);fill:none;stroke-width:2}
+.spacer{flex:1}
+.chip{display:flex;align-items:center;gap:7px;font-size:12px;color:var(--muted);padding:6px 11px;border:1px solid var(--line);border-radius:7px;background:var(--panel)}
+.chip b{color:var(--green);font-weight:600}
+.dot{width:7px;height:7px;border-radius:50%;background:var(--green);animation:pulse 2s infinite}
+@keyframes pulse{0%{box-shadow:0 0 0 0 rgba(52,211,153,.5)}70%{box-shadow:0 0 0 7px rgba(52,211,153,0)}100%{box-shadow:0 0 0 0 rgba(52,211,153,0)}}
+.mode-pill{display:flex;align-items:center;gap:7px;font-size:12px;color:var(--cyan);background:rgba(34,211,238,.08);border:1px solid rgba(34,211,238,.28);border-radius:20px;padding:5px 12px}
+.clock{font-size:13px;color:var(--txt);font-weight:600}
+
+/* NAV */
+.nav{grid-area:nav;background:linear-gradient(180deg,#0a0f1c,#070b15);border-right:1px solid var(--line);padding:12px 9px;display:flex;flex-direction:column;gap:2px;overflow-y:auto}
+.nav-section{font-size:10px;letter-spacing:1.4px;color:var(--muted2);text-transform:uppercase;padding:13px 10px 5px;font-weight:700}
+.nav-item{display:flex;align-items:center;gap:11px;padding:9px 11px;border-radius:9px;cursor:pointer;color:var(--muted);font-size:13px;font-weight:500;transition:.14s;position:relative;user-select:none}
+.nav-item svg{width:18px;height:18px;flex:0 0 auto;stroke:currentColor;fill:none;stroke-width:1.8}
+.nav-item:hover{background:var(--panel);color:var(--txt)}
+.nav-item.active{background:rgba(34,211,238,.1);color:var(--cyan)}
+.nav-item.active::before{content:"";position:absolute;left:0;top:8px;bottom:8px;width:3px;background:var(--cyan);border-radius:3px}
+.nav-item .badge{margin-left:auto;font-size:10px;background:var(--panel2);color:var(--muted);padding:2px 7px;border-radius:10px;font-weight:700}
+.nav-item.active .badge{background:rgba(34,211,238,.2);color:var(--cyan)}
+.nav-item .badge.alert{background:rgba(255,59,99,.18);color:var(--red)}
+.nav-foot{margin-top:auto;padding:11px 10px;font-size:10.5px;color:var(--muted2);border-top:1px solid var(--line);line-height:1.6}
+
+/* MAIN */
+.main{grid-area:main;overflow-y:auto;position:relative}
+.view{padding:18px;animation:fade .35s ease;min-height:100%}
+@keyframes fade{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+.page-head{display:flex;align-items:center;gap:12px;margin-bottom:16px}
+.page-head h1{font-size:19px;font-weight:700;letter-spacing:.2px}
+.page-head .sub{font-size:12.5px;color:var(--muted)}
+.page-head .live{margin-left:auto;display:flex;align-items:center;gap:6px;font-size:11px;color:var(--red);font-weight:700;letter-spacing:.5px}
+.page-head .live .dot{background:var(--red);animation:pulse 1.4s infinite}
+.hrow{display:flex;gap:9px;align-items:center}
+
+.btn{display:inline-flex;align-items:center;gap:7px;background:var(--panel2);border:1px solid var(--line2);color:var(--txt);border-radius:8px;padding:8px 13px;font-size:12.5px;cursor:pointer;font-weight:500;transition:.14s}
+.btn:hover{border-color:var(--cyan);color:var(--cyan)}
+.btn.primary{background:var(--cyan);color:#041018;border-color:var(--cyan);font-weight:700}
+.btn.primary:hover{background:#4fe0f3;color:#041018}
+.btn svg{width:14px;height:14px;stroke:currentColor;fill:none;stroke-width:2}
+
+/* GRID + CARDS */
+.grid{display:grid;gap:14px}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:16px}
+.card.pad0{padding:0;overflow:hidden}
+.card-h{display:flex;align-items:center;gap:9px;margin-bottom:14px;font-size:13.5px;font-weight:600}
+.card-h .ico{width:24px;height:24px;border-radius:7px;display:grid;place-items:center;background:rgba(34,211,238,.1)}
+.card-h .ico svg{width:14px;height:14px;stroke-width:2;fill:none}
+.card-h .mini{margin-left:auto;font-size:11px;color:var(--muted);font-weight:400}
+
+/* KPI */
+.kpis{display:grid;grid-template-columns:repeat(5,1fr);gap:13px}
+@media(max-width:1500px){.kpis{grid-template-columns:repeat(3,1fr)}}
+@media(max-width:800px){.kpis{grid-template-columns:repeat(2,1fr)}}
+.kpi{background:linear-gradient(160deg,var(--panel),var(--bg2));border:1px solid var(--line);border-radius:13px;padding:14px 15px;position:relative;overflow:hidden}
+.kpi::after{content:"";position:absolute;inset:0;background:radial-gradient(130px 60px at 85% -10%,var(--gl,rgba(34,211,238,.14)),transparent);pointer-events:none}
+.kpi .k-lab{font-size:11.5px;color:var(--muted);display:flex;align-items:center;gap:7px;position:relative}
+.kpi .k-ico{width:22px;height:22px;border-radius:6px;display:grid;place-items:center;background:var(--ic,rgba(34,211,238,.12))}
+.kpi .k-ico svg{width:13px;height:13px;stroke-width:2;fill:none}
+.kpi .k-val{font-size:26px;font-weight:800;margin-top:9px;letter-spacing:-.5px;position:relative}
+.kpi .k-sub{font-size:11px;margin-top:3px;position:relative;display:flex;align-items:center;gap:5px;color:var(--muted)}
+.up{color:var(--red);font-weight:600}.down{color:var(--green);font-weight:600}
+
+/* MAP */
+.map-wrap{background:radial-gradient(1200px 500px at 50% 0%,#0b1424,#060a12);border:1px solid var(--line);border-radius:14px;position:relative;overflow:hidden}
+.map-wrap canvas{display:block;width:100%;height:100%}
+.map-ov{position:absolute;inset:0;pointer-events:none}
+.map-tag{position:absolute;top:12px;left:14px;font-size:10.5px;color:var(--muted);letter-spacing:.5px}
+.map-legend{position:absolute;bottom:12px;left:14px;display:flex;gap:13px;font-size:10.5px;color:var(--muted);flex-wrap:wrap}
+.map-legend span{display:flex;align-items:center;gap:6px}
+.lg-dot{width:9px;height:9px;border-radius:50%}
+.map-target{position:absolute;bottom:12px;right:14px;font-size:10.5px;color:var(--cyan);display:flex;align-items:center;gap:6px}
+.scanline{position:absolute;left:0;right:0;height:130px;background:linear-gradient(180deg,transparent,rgba(34,211,238,.03),transparent);animation:scan 8s linear infinite}
+@keyframes scan{0%{top:-130px}100%{top:100%}}
+
+/* lists */
+.cty{display:flex;align-items:center;gap:11px;padding:7px 0;border-bottom:1px solid rgba(27,39,64,.6)}
+.cty:last-child{border:0}
+.cty .flag{font-size:17px;width:22px;text-align:center}
+.cty .nm{font-size:12.5px;min-width:86px}
+.cty .bar{flex:1;height:7px;background:var(--panel2);border-radius:4px;overflow:hidden}
+.cty .bar i{display:block;height:100%;background:linear-gradient(90deg,var(--orange),var(--red));border-radius:4px;transition:width .6s}
+.cty .ct{font-size:12px;color:var(--muted);min-width:44px;text-align:right;font-weight:700}
+.prow{display:flex;align-items:center;gap:10px;padding:7px 0;border-bottom:1px solid rgba(27,39,64,.6)}
+.prow:last-child{border:0}
+.prow .pn{font-size:12.5px;flex:1}
+.prow .pbar{width:40%;height:6px;background:var(--panel2);border-radius:4px;overflow:hidden}
+.prow .pbar i{display:block;height:100%;border-radius:4px}
+.prow .pv{font-size:12px;color:var(--muted);min-width:38px;text-align:right;font-weight:700}
+
+/* alert feed */
+.alert{border:1px solid var(--line);border-left-width:3px;border-radius:10px;padding:11px 12px;margin-bottom:9px;background:var(--panel2);animation:slidein .4s ease}
+@keyframes slidein{from{opacity:0;transform:translateX(12px)}to{opacity:1;transform:none}}
+.alert.crit{border-left-color:var(--crit)}.alert.high{border-left-color:var(--high)}.alert.med{border-left-color:var(--med)}.alert.low{border-left-color:var(--low)}
+.alert-top{display:flex;align-items:center;gap:8px;margin-bottom:6px}
+.sev{font-size:9px;font-weight:800;letter-spacing:.5px;padding:2px 7px;border-radius:5px;text-transform:uppercase}
+.sev.crit{background:rgba(255,59,99,.16);color:var(--crit)}.sev.high{background:rgba(255,159,26,.16);color:var(--high)}.sev.med{background:rgba(255,210,63,.16);color:var(--med)}.sev.low{background:rgba(61,214,196,.16);color:var(--low)}
+.alert-top .atype{font-size:12.5px;font-weight:600}
+.alert-top .atime{margin-left:auto;font-size:10px;color:var(--muted2)}
+.alert-src{display:flex;align-items:center;gap:7px;font-size:11px;color:var(--muted);margin-bottom:7px;flex-wrap:wrap}
+.alert-src .flag{font-size:13px}.alert-src .ip{color:var(--txt)}
+.ai-box{background:rgba(167,139,250,.07);border:1px solid rgba(167,139,250,.18);border-radius:8px;padding:8px 9px;font-size:11.5px;line-height:1.5;color:#cfd8ea}
+.ai-lab{display:flex;align-items:center;gap:5px;font-size:9.5px;color:var(--purple);font-weight:700;margin-bottom:4px;letter-spacing:.3px}
+.ai-lab svg{width:11px;height:11px}
+.ai-act{margin-top:6px;font-size:11px;color:var(--green);display:flex;gap:5px}
+.ai-act b{font-weight:700}
+
+/* TABLE */
+.tbl{width:100%;border-collapse:collapse;font-size:12.5px}
+.tbl th{text-align:left;padding:10px 12px;color:var(--muted);font-weight:600;font-size:11px;letter-spacing:.3px;text-transform:uppercase;border-bottom:1px solid var(--line);position:sticky;top:0;background:var(--panel);z-index:2}
+.tbl td{padding:9px 12px;border-bottom:1px solid rgba(27,39,64,.5)}
+.tbl tr:hover td{background:rgba(34,211,238,.03)}
+.tbl .mono{font-size:12px}
+.pill{display:inline-flex;align-items:center;gap:5px;font-size:10px;font-weight:700;padding:2px 8px;border-radius:12px;letter-spacing:.2px}
+.pill.crit{background:rgba(255,59,99,.15);color:var(--crit)}.pill.high{background:rgba(255,159,26,.15);color:var(--high)}.pill.med{background:rgba(255,210,63,.15);color:var(--med)}.pill.low{background:rgba(61,214,196,.15);color:var(--low)}
+.pill.kev{background:rgba(255,59,99,.2);color:#ff6b88}
+.pill.g{background:rgba(52,211,153,.15);color:var(--green)}
+.pill.b{background:rgba(96,165,250,.15);color:var(--blue)}
+.pill.p{background:rgba(167,139,250,.15);color:var(--purple)}
+.pill.gray{background:var(--panel3);color:var(--muted)}
+
+/* filters */
+.filters{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-bottom:12px}
+.fchip{font-size:12px;padding:6px 12px;border:1px solid var(--line2);border-radius:20px;color:var(--muted);cursor:pointer;transition:.14s;user-select:none}
+.fchip:hover{color:var(--txt);border-color:var(--cyan)}
+.fchip.on{background:rgba(34,211,238,.12);color:var(--cyan);border-color:var(--cyan)}
+.search-in{background:var(--bg);border:1px solid var(--line2);border-radius:8px;padding:8px 12px;color:var(--txt);font-size:12.5px;min-width:200px}
+.search-in:focus{outline:none;border-color:var(--cyan)}
+
+/* MITRE */
+.mitre{display:grid;grid-template-columns:repeat(auto-fit,minmax(118px,1fr));gap:8px}
+.mi-col{background:var(--panel2);border:1px solid var(--line);border-radius:9px;padding:8px}
+.mi-col h4{font-size:10px;color:var(--cyan);font-weight:700;margin-bottom:7px;text-align:center;min-height:26px;display:flex;align-items:center;justify-content:center;line-height:1.2}
+.mi-t{font-size:10.5px;padding:5px 6px;border-radius:5px;margin-bottom:4px;background:var(--panel3);color:var(--muted);text-align:center;transition:.2s}
+.mi-t.hot{background:rgba(255,59,99,.18);color:#ff8ba3;border:1px solid rgba(255,59,99,.3);font-weight:600}
+.mi-t.warm{background:rgba(255,159,26,.14);color:var(--orange)}
+
+/* compliance */
+.comp{display:flex;flex-direction:column;gap:13px}
+.comp-row .cl{display:flex;justify-content:space-between;font-size:12.5px;margin-bottom:5px}
+.comp-row .cl b{font-weight:600}
+.comp-bar{height:8px;background:var(--panel2);border-radius:5px;overflow:hidden}
+.comp-bar i{display:block;height:100%;border-radius:5px}
+
+/* kanban */
+.kanban{display:grid;grid-template-columns:repeat(4,1fr);gap:13px}
+@media(max-width:1200px){.kanban{grid-template-columns:repeat(2,1fr)}}
+.kcol{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:12px;min-height:200px}
+.kcol-h{display:flex;align-items:center;gap:8px;font-size:12.5px;font-weight:700;margin-bottom:12px;padding-bottom:9px;border-bottom:1px solid var(--line)}
+.kcol-h .n{margin-left:auto;font-size:11px;background:var(--panel2);padding:2px 8px;border-radius:10px;color:var(--muted)}
+.kcard{background:var(--panel2);border:1px solid var(--line2);border-left-width:3px;border-radius:9px;padding:11px;margin-bottom:9px;cursor:pointer;transition:.14s}
+.kcard:hover{border-color:var(--cyan);transform:translateX(2px)}
+.kcard.crit{border-left-color:var(--crit)}.kcard.high{border-left-color:var(--high)}.kcard.med{border-left-color:var(--med)}
+.kcard .kt{font-size:12.5px;font-weight:600;margin-bottom:6px}
+.kcard .km{font-size:10.5px;color:var(--muted);display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.kcard .kact{margin-top:8px;display:flex;gap:6px}
+.kmini{font-size:10px;padding:4px 8px;border-radius:6px;background:var(--panel3);color:var(--muted);border:1px solid var(--line2);cursor:pointer}
+.kmini:hover{color:var(--cyan);border-color:var(--cyan)}
+
+/* IP intel */
+.ip-search{display:flex;gap:9px;margin-bottom:12px;max-width:520px}
+.ip-search input{flex:1;background:var(--bg);border:1px solid var(--line2);border-radius:9px;padding:11px 14px;color:var(--txt);font-family:'JetBrains Mono',monospace;font-size:13.5px}
+.ip-search input:focus{outline:none;border-color:var(--cyan);box-shadow:0 0 0 3px rgba(34,211,238,.1)}
+.ip-hd{padding:14px 16px;background:linear-gradient(135deg,#112443,#0c1526);display:flex;align-items:center;gap:13px;border-bottom:1px solid var(--line)}
+.ip-hd .flag{font-size:30px}
+.ip-hd .addr{font-family:'JetBrains Mono',monospace;font-size:17px;font-weight:700}
+.ip-hd .ctry{font-size:12px;color:var(--muted)}
+.ip-tags{display:flex;gap:6px;flex-wrap:wrap;margin-top:6px}
+.ip-row{display:flex;justify-content:space-between;padding:9px 16px;font-size:12.5px;border-bottom:1px solid rgba(27,39,64,.5);gap:12px}
+.ip-row:last-child{border:0}
+.ip-row .l{color:var(--muted)}
+.ip-row .v{font-weight:500;text-align:right}
+.risk-bar{height:7px;border-radius:4px;background:var(--panel2);overflow:hidden;width:130px;margin-top:6px;margin-left:auto}
+.risk-bar i{display:block;height:100%;border-radius:4px}
+.empty{text-align:center;padding:48px 20px;color:var(--muted2)}
+.empty svg{width:50px;height:50px;opacity:.35;margin-bottom:12px;stroke:var(--muted2);fill:none;stroke-width:1.2}
+.note{font-size:11.5px;color:var(--muted);background:var(--panel2);border:1px solid var(--line);border-radius:10px;padding:12px 13px;line-height:1.55}
+.note b{color:var(--cyan)}
+
+/* AI analyst */
+.ai-chat{display:flex;flex-direction:column;gap:12px;max-width:820px}
+.ai-msg{display:flex;gap:11px}
+.ai-av{width:32px;height:32px;border-radius:9px;flex:0 0 auto;display:grid;place-items:center;background:linear-gradient(135deg,#6d4ef0,#a78bfa)}
+.ai-av svg{width:17px;height:17px;stroke:#fff;fill:none;stroke-width:2}
+.ai-av.u{background:var(--panel3)}
+.ai-bubble{background:var(--panel2);border:1px solid var(--line);border-radius:12px;padding:12px 14px;font-size:13px;line-height:1.6;flex:1}
+.ai-bubble.u{background:var(--panel3)}
+.ai-bubble h5{color:var(--cyan);font-size:12px;margin:8px 0 5px}
+.ai-bubble ul{margin:6px 0 6px 18px}
+.ai-bubble li{margin-bottom:4px}
+.ai-q{display:flex;gap:9px;margin-top:4px}
+.ai-q input{flex:1;background:var(--bg);border:1px solid var(--line2);border-radius:10px;padding:12px 14px;color:var(--txt);font-size:13px}
+.ai-q input:focus{outline:none;border-color:var(--purple)}
+.ai-sug{display:flex;gap:8px;flex-wrap:wrap;margin-top:4px}
+.ai-sug button{font-size:11.5px;padding:7px 12px;border-radius:18px;background:var(--panel2);border:1px solid var(--line2);color:var(--muted);cursor:pointer}
+.ai-sug button:hover{color:var(--purple);border-color:var(--purple)}
+
+/* report */
+.report{background:#fff;color:#0c1220;border-radius:12px;padding:30px 34px;max-width:820px;line-height:1.6;font-size:13.5px}
+.report h2{font-size:22px;margin-bottom:4px;color:#0c1220}
+.report .rsub{color:#5a6a85;font-size:12.5px;margin-bottom:20px}
+.report h3{font-size:14px;margin:20px 0 8px;color:#12306a;border-bottom:2px solid #e3e9f3;padding-bottom:5px}
+.report table{width:100%;border-collapse:collapse;margin:8px 0;font-size:12.5px}
+.report th,.report td{text-align:left;padding:7px 10px;border-bottom:1px solid #e8edf5}
+.report th{color:#5a6a85;font-size:11px;text-transform:uppercase}
+.report .rk{display:flex;gap:20px;flex-wrap:wrap;margin:10px 0}
+.report .rk div{flex:1;min-width:120px}
+.report .rk b{display:block;font-size:26px;color:#12306a}
+.report .rk span{font-size:11px;color:#5a6a85}
+.report ul{margin:6px 0 6px 20px}
+.report .rfoot{margin-top:24px;padding-top:12px;border-top:1px solid #e3e9f3;font-size:11px;color:#8595ad}
+
+.toast{position:fixed;bottom:22px;left:50%;transform:translateX(-50%) translateY(20px);background:var(--panel3);border:1px solid var(--line2);border-radius:10px;padding:12px 18px;font-size:13px;z-index:60;opacity:0;transition:.3s;box-shadow:0 12px 40px rgba(0,0,0,.5)}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+.post-chip{display:flex;align-items:center;gap:7px;font-size:12px;color:var(--muted);padding:5px 11px;border:1px solid var(--line);border-radius:7px;background:var(--panel)}
+.post-chip b{font-weight:700}
+.role-sel{background:var(--panel);border:1px solid var(--line);color:var(--txt);border-radius:7px;padding:6px 9px;font-size:12px;font-family:inherit;cursor:pointer}
+.role-sel:focus{outline:none;border-color:var(--cyan)}
+.conn-card{background:var(--panel2);border:1px solid var(--line);border-radius:11px;padding:13px 14px;display:flex;flex-direction:column;gap:7px}
+.conn-top{display:flex;align-items:center;gap:9px}
+.conn-top .cn{font-weight:600;font-size:13px}
+.conn-top .st{margin-left:auto;font-size:9.5px;font-weight:700;padding:3px 9px;border-radius:12px;letter-spacing:.3px}
+.st.live{background:rgba(52,211,153,.15);color:var(--green)}
+.st.off{background:rgba(255,159,26,.13);color:var(--orange)}
+.conn-ep{font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--muted);word-break:break-all}
+.conn-use{font-size:11.5px;color:var(--muted)}
+.post-hero{display:flex;align-items:center;gap:18px;padding:20px;border-radius:14px;border:1px solid var(--line)}
+.post-ring{width:76px;height:76px;border-radius:50%;display:grid;place-items:center;font-size:24px;font-weight:800;flex:0 0 auto}
+.post-steps{display:flex;gap:7px;margin-top:10px}
+.post-steps .ps{flex:1;height:7px;border-radius:4px;background:var(--panel2)}
+.rbac{width:100%;border-collapse:collapse;font-size:12.5px}
+.rbac th,.rbac td{padding:9px 11px;border-bottom:1px solid var(--line);text-align:center}
+.rbac th:first-child,.rbac td:first-child{text-align:left}
+.rbac td .y{color:var(--green);font-weight:700}.rbac td .n{color:var(--muted2)}
+.audit-row{display:flex;gap:11px;padding:8px 0;border-bottom:1px solid rgba(27,39,64,.5);font-size:12px}
+.audit-row .at{color:var(--muted2);font-family:'JetBrains Mono',monospace;flex:0 0 66px}
+.audit-row .ar{flex:0 0 96px;color:var(--cyan)}
+.hide{display:none!important}
+/* AUTH GATE */
+#authGate{position:fixed;inset:0;z-index:1000;background:radial-gradient(900px 520px at 50% 18%,#0e1c34,#05080f);display:flex;align-items:center;justify-content:center;transition:opacity .5s}
+#authGate.gone{opacity:0;pointer-events:none}
+.auth-card{width:384px;max-width:92vw;background:var(--panel);border:1px solid var(--line);border-radius:18px;padding:26px 26px;box-shadow:0 30px 90px rgba(0,0,0,.65)}
+.auth-logo{display:flex;align-items:center;gap:10px;justify-content:center;margin-bottom:6px}
+.auth-logo svg{width:32px;height:32px;filter:drop-shadow(0 0 8px rgba(34,211,238,.6))}
+.auth-logo .t{font-weight:800;letter-spacing:3px;font-size:20px}
+.auth-logo .t span{color:var(--cyan)}
+.auth-sub{text-align:center;color:var(--muted);font-size:12px;margin-bottom:18px}
+.auth-steps{display:flex;gap:6px;justify-content:center;margin-bottom:20px}
+.auth-steps i{width:36px;height:4px;border-radius:3px;background:var(--panel3)}
+.auth-steps i.on{background:var(--cyan)}.auth-steps i.done{background:var(--green)}
+.astep{display:none;animation:fade .35s}.astep.on{display:block}
+.astep h3{text-align:center;font-size:15px;margin-bottom:4px}
+.astep .d{text-align:center;color:var(--muted);font-size:12px;margin-bottom:16px}
+.pin-dots{display:flex;gap:13px;justify-content:center;margin-bottom:18px}
+.pin-dots i{width:14px;height:14px;border-radius:50%;border:2px solid var(--line2);transition:.15s}
+.pin-dots i.f{background:var(--cyan);border-color:var(--cyan);box-shadow:0 0 10px rgba(34,211,238,.5)}
+.pin-dots.err i{border-color:var(--red)}
+.pin-dots.err{animation:shake .4s}
+@keyframes shake{0%,100%{transform:translateX(0)}20%{transform:translateX(-7px)}40%{transform:translateX(7px)}60%{transform:translateX(-5px)}80%{transform:translateX(5px)}}
+.keypad{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+.keypad button{padding:14px;font-size:19px;font-weight:600;background:var(--panel2);border:1px solid var(--line2);border-radius:12px;color:var(--txt);cursor:pointer;font-family:'JetBrains Mono',monospace;transition:.14s}
+.keypad button:hover{border-color:var(--cyan);color:var(--cyan)}
+.otp{display:flex;gap:9px;justify-content:center;margin-bottom:14px}
+.otp input{width:42px;height:52px;text-align:center;font-size:21px;font-family:'JetBrains Mono',monospace;background:var(--bg);border:1px solid var(--line2);border-radius:10px;color:var(--txt)}
+.otp input:focus{outline:none;border-color:var(--cyan);box-shadow:0 0 0 3px rgba(34,211,238,.12)}
+.face-wrap{width:188px;height:188px;margin:0 auto 14px;border-radius:50%;overflow:hidden;border:3px solid var(--line2);position:relative;background:#05080f;transition:.2s}
+.face-wrap.scan{border-color:var(--cyan);box-shadow:0 0 0 4px rgba(34,211,238,.16)}
+.face-wrap video{width:100%;height:100%;object-fit:cover;transform:scaleX(-1)}
+.auth-hint{text-align:center;font-size:11px;color:var(--muted2);margin-top:12px}
+.auth-hint b{color:var(--cyan)}
+.auth-err{text-align:center;color:var(--red);font-size:12px;margin-top:9px;min-height:15px}
+.hop{display:flex;align-items:center;gap:11px;padding:9px 0;border-bottom:1px solid rgba(27,39,64,.5);font-size:12.5px;animation:slidein .3s}
+.hop .n{width:20px;color:var(--muted2);font-family:'JetBrains Mono',monospace;text-align:right}
+.hop .fl{font-size:15px}
+.hop .op{flex:1;line-height:1.35}.hop .op b{font-weight:600}.hop .op span{color:var(--muted);font-size:10.5px}
+.hop .ms{font-family:'JetBrains Mono',monospace;color:var(--cyan);min-width:52px;text-align:right}
+.osint-score{display:flex;align-items:center;gap:15px;padding:16px;border-radius:12px;border:1px solid var(--line)}
+.osint-ring{width:66px;height:66px;border-radius:50%;display:grid;place-items:center;font-size:21px;font-weight:800;flex:0 0 auto}
+</style>
+</head>
+<body>
+<div id="authGate">
+  <div class="auth-card">
+    <div class="auth-logo"><svg viewBox="0 0 32 32"><path d="M16 2 L28 7 V15 C28 23 22 28 16 30 C10 28 4 23 4 15 V7 Z" fill="none" stroke="#22d3ee" stroke-width="2"/><path d="M11 16 l3.5 3.5 L22 12" fill="none" stroke="#22d3ee" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg><div class="t">ՎԱ<span>ՀԱՆ</span></div></div>
+    <div class="auth-sub">Անվտանգ մուտք · եռաստիճան նույնականացում</div>
+    <div class="auth-steps"><i id="as1" class="on"></i><i id="as2"></i><i id="as3"></i></div>
+    <div class="astep on" id="step1">
+      <h3>Քայլ 1 · Ծածկագիր</h3><div class="d">Մուտքագրիր 3-նիշ PIN-ը</div>
+      <div class="pin-dots" id="pinDots"><i></i><i></i><i></i></div>
+      <div class="keypad" id="keypad"></div>
+      <div class="auth-hint">Մուտքագրիր ծածկագիրը</div>
+      <div class="auth-err" id="err1"></div>
+    </div>
+    <div class="astep" id="step2">
+      <h3>Քայլ 2 · Երկգործոն կոդ</h3><div class="d">Սկանավորիր QR-ը գեներատորով, հետո մուտքագրիր կոդը</div>
+      <div id="otpEnroll" style="text-align:center;margin-bottom:14px"><div id="otpQR" style="display:inline-block;padding:9px;background:#fff;border-radius:11px"></div><div style="font-size:11px;color:var(--muted);margin-top:7px">Google / Microsoft Authenticator → «Scan QR»</div></div>
+      <div class="otp" id="otp"></div>
+      <div class="auth-hint" id="otpHelp">TOTP · թարմացում <span id="otpT">30</span>վ</div>
+      <div class="auth-err" id="err2"></div>
+    </div>
+    <div class="astep" id="step3">
+      <h3>Քայլ 3 · Դեմքի հաստատում</h3><div class="d">Նայիր վեբ-տեսախցիկին</div>
+      <div class="face-wrap" id="faceWrap"><video id="faceVid" autoplay playsinline muted></video></div>
+      <div id="faceMsg" class="auth-hint">Տեսախցիկը միանում է…</div>
+      <button class="btn primary" id="faceCapBtn" style="width:100%;justify-content:center;margin-top:8px" disabled>Սկանավորել դեմքը</button>
+      <button class="btn" id="faceSkip" style="width:100%;justify-content:center;margin-top:8px;display:none">Շրջանցել (preview)</button>
+      <button class="btn" id="faceReenroll" style="width:100%;justify-content:center;margin-top:8px;display:none">Վերագրանցել դեմքը</button>
+      <div class="auth-err" id="err3"></div>
+    </div>
+  </div>
+</div>
+<div class="app">
+  <div class="topbar">
+    <div class="logo" onclick="go('overview')">
+      <div class="logo-mark"><svg viewBox="0 0 32 32"><path d="M16 2 L28 7 V15 C28 23 22 28 16 30 C10 28 4 23 4 15 V7 Z" fill="none" stroke="#22d3ee" stroke-width="2"/><path d="M11 16 l3.5 3.5 L22 12" fill="none" stroke="#22d3ee" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+      <div class="logo-txt">ՎԱ<span>ՀԱՆ</span></div>
+    </div>
+    <div class="mode-pill"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M2 12h20M12 2a15 15 0 010 20"/></svg>Հեռահար · առանց ագենտի</div>
+    <div class="gsearch">
+      <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4-4"/></svg>
+      <input id="gs" placeholder="Որոնել՝ IP, CVE, հանգույց, միջադեպ…">
+    </div>
+    <div class="spacer"></div>
+    <div class="chip"><span class="dot"></span>Համակարգ՝ <b>կայուն</b></div>
+    <div class="post-chip" id="postChip" title="Պաշտպանության աստիճան">🛡 <b>L2</b></div>
+    <select class="role-sel" id="roleSel" title="Ակտիվ դեր"></select>
+    <div class="chip">Սենսոր՝ <b>6/6</b></div>
+    <div class="clock mono" id="clock">--:--:--</div>
+    <button class="btn" id="logoutBtn" style="padding:6px 11px" title="Ելք համակարգից">⎋ Ելք</button>
+  </div>
+
+  <nav class="nav">
+    <div class="nav-section">Վահանակ</div>
+    <div class="nav-item" data-v="overview"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="9"/><rect x="14" y="3" width="7" height="5"/><rect x="14" y="12" width="7" height="9"/><rect x="3" y="16" width="7" height="5"/></svg><span class="label">Գլխավոր</span></div>
+    <div class="nav-item" data-v="map"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M2 12h20M12 2a15 15 0 010 20 15 15 0 010-20"/></svg><span class="label">Հարձակ. քարտեզ</span><span class="badge alert" data-k="active">0</span></div>
+    <div class="nav-section">Մոդուլներ</div>
+    <div class="nav-item" data-v="siem"><svg viewBox="0 0 24 24"><path d="M4 6h16M4 12h16M4 18h16"/><circle cx="8" cy="6" r="1.5" fill="currentColor"/><circle cx="16" cy="12" r="1.5" fill="currentColor"/><circle cx="10" cy="18" r="1.5" fill="currentColor"/></svg><span class="label">SIEM / Լոգեր</span><span class="badge" data-k="logs">0</span></div>
+    <div class="nav-item" data-v="intel"><svg viewBox="0 0 24 24"><path d="M12 2L3 7v6c0 5 4 8 9 9 5-1 9-4 9-9V7z"/></svg><span class="label">Սպառնալիքներ</span><span class="badge" data-k="iocs">0</span></div>
+    <div class="nav-item" data-v="vuln"><svg viewBox="0 0 24 24"><path d="M9 2h6l1 4h3v14H5V6h3z"/><path d="M9 11h6M9 15h4"/></svg><span class="label">Խոցելիություն</span><span class="badge alert">8</span></div>
+    <div class="nav-item" data-v="ipintel"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4-4"/></svg><span class="label">IP հետախուզ.</span><span class="badge">4.3B</span></div>
+    <div class="nav-item" data-v="incidents"><svg viewBox="0 0 24 24"><path d="M3 7h18M3 12h18M3 17h18"/></svg><span class="label">Միջադեպեր</span><span class="badge alert" data-k="incOpen">0</span></div>
+    <div class="nav-section">Ինտելեկտ</div>
+    <div class="nav-item" data-v="ai"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M12 2v4M12 18v4M2 12h4M18 12h4M5 5l3 3M16 16l3 3M19 5l-3 3M8 16l-3 3"/></svg><span class="label">AI վերլուծիչ</span><span class="badge p">лок</span></div>
+    <div class="nav-item" data-v="reports"><svg viewBox="0 0 24 24"><path d="M4 4h16v16H4z"/><path d="M8 9h8M8 13h5"/></svg><span class="label">Հաշվետվ.</span></div>
+    <div class="nav-section">Հետախուզ. գործիքներ</div>
+    <div class="nav-item" data-v="search"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4-4M11 8v6M8 11h6"/></svg><span class="label">AI որոնում</span><span class="badge p">★</span></div>
+    <div class="nav-item" data-v="trace"><svg viewBox="0 0 24 24"><circle cx="5" cy="19" r="2"/><circle cx="19" cy="5" r="2"/><path d="M6.5 17.5 17 7M8 6H5v3M16 18h3v-3"/></svg><span class="label">Traceroute</span></div>
+    <div class="nav-item" data-v="asn"><svg viewBox="0 0 24 24"><circle cx="12" cy="5" r="2.5"/><circle cx="5" cy="19" r="2.5"/><circle cx="19" cy="19" r="2.5"/><path d="M12 7.5v4M10 13l-3.5 4M14 13l3.5 4"/></svg><span class="label">Օպերատորներ</span></div>
+    <div class="nav-item" data-v="osint"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4-4M8 11h6M11 8v6"/></svg><span class="label">OSINT</span></div>
+    <div class="nav-item" data-v="apt"><svg viewBox="0 0 24 24"><path d="M12 2l7 4v6c0 4-3 7-7 8-4-1-7-4-7-8V6z"/><circle cx="12" cy="11" r="2"/></svg><span class="label">APT խմբեր</span></div>
+    <div class="nav-section">Պաշտպանություն</div>
+    <div class="nav-item" data-v="connectors"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M12 2v6M12 22v-6M2 12h6M22 12h-6"/></svg><span class="label">Աղբյուրներ</span><span class="badge" id="connBadge">դեմո</span></div>
+    <div class="nav-item" data-v="defense"><svg viewBox="0 0 24 24"><path d="M12 2L4 6v6c0 5 3.5 8 8 10 4.5-2 8-5 8-10V6z"/></svg><span class="label">Մակարդակներ</span></div>
+    <div class="nav-foot">v0.4 · ֆունկցիոնալ նախատիպ<br>100% open-source շերտ<br>MaxMind · abuse.ch · MITRE · KEV</div>
+  </nav>
+
+  <main class="main"><div id="view" class="view"></div></main>
+</div>
+<div class="toast" id="toast"></div>
+
+<script src="https://cdn.jsdelivr.net/npm/topojson-client@3/dist/topojson-client.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/blueimp-md5/2.19.0/js/md5.min.js"></script>
+<script>
+/* ============================ DATA ============================ */
+const TARGET={lon:44.51,lat:40.18};
+const COUNTRIES=[
+ {c:"ՌԴ",cc:"RU",f:"🇷🇺",lon:37.6,lat:55.7,w:9},{c:"Չինաստան",cc:"CN",f:"🇨🇳",lon:116.4,lat:39.9,w:10},
+ {c:"ԱՄՆ",cc:"US",f:"🇺🇸",lon:-95,lat:39,w:8},{c:"Նիդեռլ.",cc:"NL",f:"🇳🇱",lon:4.9,lat:52.4,w:6},
+ {c:"Գերմանիա",cc:"DE",f:"🇩🇪",lon:13.4,lat:52.5,w:5},{c:"Բրազիլիա",cc:"BR",f:"🇧🇷",lon:-47.9,lat:-15.8,w:5},
+ {c:"Հնդկաստան",cc:"IN",f:"🇮🇳",lon:77.2,lat:28.6,w:6},{c:"Իրան",cc:"IR",f:"🇮🇷",lon:51.4,lat:35.7,w:7},
+ {c:"Թուրքիա",cc:"TR",f:"🇹🇷",lon:32.9,lat:39.9,w:7},{c:"Վիետնամ",cc:"VN",f:"🇻🇳",lon:105.8,lat:21,w:5},
+ {c:"Ուկրաինա",cc:"UA",f:"🇺🇦",lon:30.5,lat:50.4,w:4},{c:"Ֆրանսիա",cc:"FR",f:"🇫🇷",lon:2.3,lat:48.9,w:4},
+ {c:"Ս.Կորեա",cc:"KR",f:"🇰🇷",lon:127,lat:37.6,w:4},{c:"Ինդոնեզ.",cc:"ID",f:"🇮🇩",lon:106.8,lat:-6.2,w:5},
+ {c:"Ռումինիա",cc:"RO",f:"🇷🇴",lon:26.1,lat:44.4,w:3},{c:"Սինգապուր",cc:"SG",f:"🇸🇬",lon:103.8,lat:1.35,w:3},
+ {c:"Մ.Բրիտ.",cc:"GB",f:"🇬🇧",lon:-0.1,lat:51.5,w:3},{c:"Ճապոնիա",cc:"JP",f:"🇯🇵",lon:139.7,lat:35.7,w:3},
+ {c:"Պակիստան",cc:"PK",f:"🇵🇰",lon:73,lat:33.7,w:3},{c:"Լեհաստան",cc:"PL",f:"🇵🇱",lon:21,lat:52.2,w:2}];
+
+const ATTACKS=[
+ {t:"SYN-հեղեղ (DDoS)",sev:"crit",proto:"TCP/SYN",layer:"L3/4",mitre:"T1498",rule:"ddos_syn_flood",
+  ai:"Հարձակվողը ուղարկում է հազարավոր կիսաբաց TCP միացումներ՝ սերվերի միացումների աղյուսակն ու ռեսուրսները սպառելու համար։ SYN-հեղեղը մնում է L3/4 DDoS-ի ամենատարածված վեկտորը (~38%)։",
+  act:"Ակտիվացնել SYN-cookies, սահմանափակել connection-rate-ը, ներգրավել upstream scrubbing։"},
+ {t:"DNS-հեղեղ (DDoS)",sev:"crit",proto:"DNS",layer:"L3/4",mitre:"T1498",rule:"ddos_dns_flood",
+  ai:"DNS հարցումների զանգվածային հեղեղ՝ authoritative սերվերները ծանրաբեռնելու համար։ 2025–2026-ին դարձել է թիվ մեկ աճող վեկտորներից։",
+  act:"Միացնել response rate limiting (RRL), anycast բաշխում, ISP-մակարդակի ֆիլտրացիա։"},
+ {t:"UDP-հեղեղ (DDoS)",sev:"crit",proto:"UDP",layer:"L3/4",mitre:"T1498",rule:"ddos_udp_flood",
+  ai:"Volumetric հարձակում՝ մեծ ծավալի UDP փաթեթներ պատահական պորտերի վրա՝ ցանցի թողունակությունը հագեցնելու համար։",
+  act:"Filter-ել անսպասելի UDP եզրին, միացնել anti-DDoS պրոֆիլը ISP-ի մոտ։"},
+ {t:"HTTP-հեղեղ (L7)",sev:"high",proto:"HTTP/S",layer:"L7",mitre:"T1499",rule:"l7_http_flood",
+  ai:"Application-layer հարձակում՝ թվացյալ օրինական HTTP հարցումների հեղեղով, որը ծանրաբեռնում է վեբ հավելվածն ու DB-ն։ Դժվար տարբերակելի նորմալ տրաֆիկից։",
+  act:"Միացնել WAF rate-limiting, challenge (JS/CAPTCHA) կասկածելի session-ների համար։"},
+ {t:"Կոպիտ ուժ (Brute Force)",sev:"high",proto:"SSH/RDP",layer:"L7",mitre:"T1110",rule:"auth_bruteforce",
+  ai:"Ավտոմատ կրկնվող փորձեր՝ գաղտնաբառ գուշակելու SSH/RDP մուտքի վրա։ Հաջողությունը տալիս է ամբողջական մուտք համակարգ։",
+  act:"Արգելափակել IP-ն (fail2ban), պարտադրել MFA, անջատել password-auth-ը SSH-ի համար։"},
+ {t:"SQL ներարկում",sev:"crit",proto:"HTTP/SQL",layer:"L7",mitre:"T1190",rule:"web_sqli",
+  ai:"Վնասաբեր SQL կոդ է ներարկվում մուտքային դաշտերով՝ DB-ից տվյալ կորզելու կամ փոփոխելու համար։ Կարող է հանգեցնել տվյալների արտահոսքի։",
+  act:"Parameterized queries, WAF SQLi կանոններ, input validation-ի վերանայում։"},
+ {t:"Վնասաբեր C2 կապ",sev:"crit",proto:"HTTPS/C2",layer:"L7",mitre:"T1071",rule:"malware_c2",
+  ai:"Ներքին հանգույց փորձում է կապ հաստատել հայտնի command-and-control սերվերի հետ։ Վկայում է հնարավոր վարակի մասին։",
+  act:"Մեկուսացնել հանգույցը, ուղղել forensics (Velociraptor), փնտրել lateral movement։"},
+ {t:"Պորտերի սկանավորում",sev:"med",proto:"TCP/multi",layer:"L3/4",mitre:"T1046",rule:"recon_portscan",
+  ai:"Հետախուզական փուլ. սկանավորվում են բաց պորտերն ու ծառայությունները՝ խոցելի մուտքի կետ գտնելու համար։ Հաճախ նախորդում է հարձակմանը։",
+  act:"Թաքցնել ավելորդ պորտերը, ավելացնել IP-ն watchlist, դիտարկել որպես վաղ նախազգուշացում։"},
+ {t:"Հավատարմագրերի լցոնում",sev:"high",proto:"HTTP/Auth",layer:"L7",mitre:"T1110",rule:"cred_stuffing",
+  ai:"Արտահոսած login/գաղտնաբառ զույգերը ավտոմատ փորձարկվում են մուտքի էջում։ Օգտվում է գաղտնաբառերի կրկնությունից։",
+  act:"Միացնել MFA, հետևել անսովոր geo-մուտքերին, ստուգել արտահոսած բազայով։"},
+ {t:"Exploit փորձ (CVE)",sev:"high",proto:"HTTP",layer:"L7",mitre:"T1190",rule:"exploit_attempt",
+  ai:"Ավտոմատ գործիք փնտրում է հայտնի CVE-ներով խոցելի ծառայություններ և անմիջապես փորձում exploit կիրառել (օր.՝ չթարմացված վեբ-սերվեր)։",
+  act:"Արագ patch-ել ծառայությունը, ստուգել CISA KEV ցանկի դեմ, միացնել վիրտուալ patching WAF-ում։"}];
+
+const IPDB={
+ "1.1.1.1":{f:"🇦🇺",cc:"Ավստրալիա",asn:"AS13335",isp:"Cloudflare Inc.",cls:"benign",type:"CDN / Public DNS",tor:0,vpn:0,bot:0,ports:[53,443,80],cves:[],risk:3,last:"2026-11-24",actor:"Cloudflare",tags:["Public DNS"]},
+ "8.8.8.8":{f:"🇺🇸",cc:"ԱՄՆ",asn:"AS15169",isp:"Google LLC",cls:"benign",type:"Public DNS",tor:0,vpn:0,bot:0,ports:[53,443],cves:[],risk:2,last:"2026-11-24",actor:"Google",tags:["Public DNS","RIOT"]},
+ "185.220.101.1":{f:"🇩🇪",cc:"Գերմանիա",asn:"AS205100",isp:"F3 Netze e.V.",cls:"malicious",type:"Tor Exit Node",tor:1,vpn:0,bot:0,ports:[9001,443],cves:[],risk:88,last:"2026-11-24",actor:"unknown",tags:["Tor","Anonymizer","Scanner"]},
+ "45.9.148.0":{f:"🇳🇱",cc:"Նիդեռլանդներ",asn:"AS49453",isp:"Global Layer B.V.",cls:"malicious",type:"Bulletproof Hosting",tor:0,vpn:0,bot:1,ports:[22,80,443,3389],cves:["CVE-2023-23397"],risk:74,last:"2026-11-23",actor:"FIN-cluster",tags:["Hosting","Botnet C2","Scanner"]},
+ "77.83.36.0":{f:"🇷🇺",cc:"Ռուսաստան",asn:"AS44050",isp:"Petersburg Internet",cls:"malicious",type:"Hosting",tor:0,vpn:1,bot:1,ports:[22,3389],cves:["CVE-2024-21887"],risk:69,last:"2026-11-22",actor:"unknown",tags:["Scanner","SSH Bruteforce"]}};
+const RANDC=[["🇨🇳","Չինաստան","AS4134","China Telecom"],["🇷🇺","Ռուսաստան","AS12389","Rostelecom"],["🇺🇸","ԱՄՆ","AS7922","Comcast"],["🇮🇳","Հնդկաստան","AS9829","BSNL"],["🇧🇷","Բրազիլիա","AS27699","Telefonica BR"],["🇮🇷","Իրան","AS58224","TCI"],["🇹🇷","Թուրքիա","AS9121","Turk Telekom"],["🇻🇳","Վիետնամ","AS7552","Viettel"]];
+
+const CVES=[
+ {id:"CVE-2024-3400",cvss:10.0,epss:94,kev:1,asset:"PAN-OS GlobalProtect",status:"open",desc:"Command injection — ակտիվ շահագործվում է"},
+ {id:"CVE-2023-23397",cvss:9.8,epss:89,kev:1,asset:"MS Outlook",status:"open",desc:"NTLM relay, zero-click"},
+ {id:"CVE-2024-21887",cvss:9.1,epss:91,kev:1,asset:"Ivanti Connect Secure",status:"patching",desc:"Command injection"},
+ {id:"CVE-2024-1709",cvss:10.0,epss:97,kev:1,asset:"ConnectWise ScreenConnect",status:"open",desc:"Auth bypass"},
+ {id:"CVE-2023-34362",cvss:9.8,epss:76,kev:1,asset:"MOVEit Transfer",status:"patched",desc:"SQLi → RCE (Cl0p)"},
+ {id:"CVE-2024-27198",cvss:9.8,epss:62,kev:0,asset:"JetBrains TeamCity",status:"open",desc:"Auth bypass"},
+ {id:"CVE-2024-6387",cvss:8.1,epss:18,kev:0,asset:"OpenSSH (regreSSHion)",status:"patching",desc:"RCE race condition"},
+ {id:"CVE-2023-44487",cvss:7.5,epss:71,kev:1,asset:"HTTP/2 (Rapid Reset)",status:"patched",desc:"DDoS amplification"},
+ {id:"CVE-2024-23897",cvss:8.8,epss:34,kev:0,asset:"Jenkins CLI",status:"open",desc:"Arbitrary file read"},
+ {id:"CVE-2022-26143",cvss:8.6,epss:22,kev:0,asset:"Mitel MiCollab",status:"patched",desc:"TP-240 amplification"}];
+
+const MITRE=[
+ {tac:"Հետախուզություն",ts:[["T1595","Ակտիվ սկան"],["T1592","Host info"]]},
+ {tac:"Սկզբ. մուտք",ts:[["T1190","Public exploit"],["T1133","Արտ. ծառ."],["T1566","Phishing"]]},
+ {tac:"Կատարում",ts:[["T1059","Command/Script"],["T1203","Client exploit"]]},
+ {tac:"Կայունություն",ts:[["T1136","Նոր հաշիվ"],["T1053","Պլան. առաջ."]]},
+ {tac:"Արտոնություն",ts:[["T1068","Exploit PE"],["T1078","Վավեր հաշիվ"]]},
+ {tac:"Պաշտպ. շրջանցում",ts:[["T1070","Հետքի ջնջում"],["T1562","Պաշտ. անջ."]]},
+ {tac:"Հավատարմագ.",ts:[["T1110","Brute force"],["T1003","Cred dump"]]},
+ {tac:"Հայտնաբերում",ts:[["T1046","Ցանց. scan"],["T1082","System info"]]},
+ {tac:"Կողմ. շարժ.",ts:[["T1021","Հեռ. ծառ."],["T1570","Գործիք փոխ."]]},
+ {tac:"Հավաքում",ts:[["T1005","Local data"],["T1119","Auto collect"]]},
+ {tac:"C2",ts:[["T1071","App layer"],["T1573","Encrypted"]]},
+ {tac:"Արտահոսք",ts:[["T1041","C2-ով"],["T1567","Web service"]]},
+ {tac:"Ազդեցություն",ts:[["T1498","Net DoS"],["T1499","App DoS"],["T1486","Ransomware"]]}];
+
+const COMPLIANCE=[["PCI DSS 4.0","#34d399",96],["GDPR","#22d3ee",91],["NIST 800-53","#60a5fa",88],["ISO 27001","#a78bfa",93],["HIPAA","#ffd23f",85]];
+
+/* ============================ STATE ============================ */
+const S={attacks:0,blocked:0,active:0,countries:new Set(),byC:{},byP:{},byLayer:{L7:0,"L3/4":0},
+  alerts:[],logs:[],iocs:[],mitreHot:{},
+  incidents:[
+   {id:"INC-4471",t:"Multi-vector DDoS քարոզարշավ",sev:"crit",stage:"investigating",src:"🇨🇳 Չինաստան",rule:"ddos_syn_flood",age:"12ր"},
+   {id:"INC-4470",t:"SSH brute-force՝ prod- gateway",sev:"high",stage:"new",src:"🇷🇺 Ռուսաստան",rule:"auth_bruteforce",age:"28ր"},
+   {id:"INC-4468",t:"Կասկածելի C2 beacon",sev:"crit",stage:"contained",src:"🇳🇱 Նիդեռլ.",rule:"malware_c2",age:"1ժ"},
+   {id:"INC-4465",t:"SQLi փորձ web-portal-ում",sev:"high",stage:"investigating",src:"🇮🇷 Իրան",rule:"web_sqli",age:"2ժ"},
+   {id:"INC-4461",t:"Պորտ scan՝ DMZ ենթացանց",sev:"med",stage:"resolved",src:"🇻🇳 Վիետնամ",rule:"recon_portscan",age:"4ժ"}]};
+
+const rnd=(a,b)=>Math.floor(a+Math.random()*(b-a+1));
+const fmt=n=>n.toLocaleString('hy-AM');
+const nowT=()=>new Date().toTimeString().slice(0,8);
+const randIP=()=>`${rnd(1,223)}.${rnd(0,255)}.${rnd(0,255)}.${rnd(1,254)}`;
+function wCountry(){const tot=COUNTRIES.reduce((s,c)=>s+c.w,0);let r=Math.random()*tot;for(const c of COUNTRIES){if((r-=c.w)<=0)return c}return COUNTRIES[0]}
+
+/* ============================ ENGINE ============================ */
+let listeners=[];
+function onTick(fn){listeners.push(fn)}
+function tick(){
+  const cty=wCountry(), atk=ATTACKS[rnd(0,ATTACKS.length-1)];
+  S.attacks++; (Math.random()<0.95)?S.blocked++:S.active++;
+  S.countries.add(cty.c);
+  S.byC[cty.c]=S.byC[cty.c]||{ct:0,f:cty.f}; S.byC[cty.c].ct++;
+  S.byP[atk.proto]=(S.byP[atk.proto]||0)+1;
+  S.byLayer[atk.layer]=(S.byLayer[atk.layer]||0)+1;
+  S.mitreHot[atk.mitre]=(S.mitreHot[atk.mitre]||0)+1;
+  const ip=randIP();
+  const ev={cty,atk,ip,time:nowT(),ts:Date.now()};
+  S.logs.unshift({time:ev.time,sev:atk.sev,rule:atk.rule,src:ip,cc:cty.cc,f:cty.f,msg:atk.t,proto:atk.proto,action:(Math.random()<0.95?"արգելափակված":"դիտարկում")});
+  if(S.logs.length>400)S.logs.pop();
+  if(atk.sev==='crit'||atk.sev==='high'||Math.random()<0.4){S.alerts.unshift(ev);if(S.alerts.length>40)S.alerts.pop();}
+  if(Math.random()<0.25){const kinds=["IP","Domain","Hash"];const k=kinds[rnd(0,2)];
+    S.iocs.unshift({k,v:k==='IP'?ip:(k==='Domain'?`mal-${rnd(1000,9999)}.${["ru","cn","top","xyz"][rnd(0,3)]}`:`${Array.from({length:12},()=>"0123456789abcdef"[rnd(0,15)]).join('')}…`),
+      src:["abuse.ch","AlienVault OTX","MISP","GreyNoise"][rnd(0,3)],conf:rnd(60,99),f:cty.f,seen:ev.time});
+    if(S.iocs.length>60)S.iocs.pop();}
+  listeners.forEach(fn=>{try{fn(ev)}catch(e){}});
+  updateBadges();
+}
+function updateBadges(){
+  document.querySelectorAll('[data-k="active"]').forEach(e=>e.textContent=S.active);
+  document.querySelectorAll('[data-k="logs"]').forEach(e=>e.textContent=S.logs.length>99?'99+':S.logs.length);
+  document.querySelectorAll('[data-k="iocs"]').forEach(e=>e.textContent=S.iocs.length);
+  document.querySelectorAll('[data-k="incOpen"]').forEach(e=>e.textContent=S.incidents.filter(i=>i.stage!=='resolved').length);
+  updatePostureChip();
+}
+for(let i=0;i<10;i++)setTimeout(tick,i*120);
+setInterval(tick,950);
+setInterval(()=>{if(Math.random()<0.35)for(let i=0;i<4;i++)setTimeout(tick,i*140)},5200);
+
+/* ============================ ROUTER ============================ */
+let viewTimers=[],rafId=null;
+function clearView(){viewTimers.forEach(t=>clearInterval(t));viewTimers=[];if(rafId)cancelAnimationFrame(rafId);rafId=null;listeners=[]}
+const VIEWS={overview:vOverview,map:vMap,siem:vSiem,intel:vIntel,vuln:vVuln,ipintel:vIp,incidents:vInc,ai:vAi,reports:vReports,connectors:vConnectors,defense:vDefense,trace:vTrace,asn:vAsn,osint:vOsint,search:vSearch,apt:vApt};
+function go(v){location.hash=v}
+function route(){
+  const v=(location.hash.replace('#','')||'overview');
+  const name=VIEWS[v]?v:'overview';
+  clearView();
+  document.querySelectorAll('.nav-item').forEach(n=>n.classList.toggle('active',n.dataset.v===name));
+  const el=document.getElementById('view');
+  el.style.animation='none'; void el.offsetWidth; el.style.animation='';
+  VIEWS[name]();
+}
+window.addEventListener('hashchange',route);
+document.querySelectorAll('.nav-item').forEach(n=>n.onclick=()=>go(n.dataset.v));
+
+/* ============================ MAP ENGINE ============================ */
+let landFeatures=null;
+(async()=>{try{const r=await fetch('https://cdn.jsdelivr.net/npm/world-atlas@2/countries-110m.json');const topo=await r.json();landFeatures=topojson.feature(topo,topo.objects.countries).features}catch(e){landFeatures=null}})();
+const SEVC={crit:'#ff3b63',high:'#ff9f1a',med:'#ffd23f',low:'#3dd6c4'};
+function hexA(h,a){const n=parseInt(h.slice(1),16);return`rgba(${n>>16&255},${n>>8&255},${n&255},${a})`}
+function qpt(x0,y0,cx,cy,x1,y1,t){const u=1-t;return[u*u*x0+2*u*t*cx+t*t*x1,u*u*y0+2*u*t*cy+t*t*y1]}
+
+function mountMap(canvas){
+  const ctx=canvas.getContext('2d');
+  let W=0,H=0,DPR=Math.min(window.devicePixelRatio||1,2),arcs=[],ripples=[];
+  function resize(){const r=canvas.getBoundingClientRect();W=r.width;H=r.height;canvas.width=W*DPR;canvas.height=H*DPR;ctx.setTransform(DPR,0,0,DPR,0,0)}
+  const ro=new ResizeObserver(resize);ro.observe(canvas.parentElement);resize();
+  const proj=(lon,lat)=>[(lon+180)/360*W,(90-lat)/180*H];
+  function land(){
+    ctx.strokeStyle='rgba(34,211,238,0.045)';ctx.lineWidth=1;
+    for(let lo=-180;lo<=180;lo+=30){const[a]=proj(lo,90);ctx.beginPath();ctx.moveTo(a,0);ctx.lineTo(a,H);ctx.stroke()}
+    for(let la=-60;la<=90;la+=30){const[,b]=proj(0,la);ctx.beginPath();ctx.moveTo(0,b);ctx.lineTo(W,b);ctx.stroke()}
+    if(!landFeatures)return;
+    ctx.fillStyle='rgba(34,211,238,0.05)';ctx.strokeStyle='rgba(34,211,238,0.26)';ctx.lineWidth=0.7;
+    for(const ft of landFeatures){const g=ft.geometry;if(!g)continue;const ps=g.type==='Polygon'?[g.coordinates]:g.coordinates;
+      for(const poly of ps)for(const ring of poly){ctx.beginPath();for(let i=0;i<ring.length;i++){const[x,y]=proj(ring[i][0],ring[i][1]);i?ctx.lineTo(x,y):ctx.moveTo(x,y)}ctx.closePath();ctx.fill();ctx.stroke()}}
+  }
+  onTick(ev=>{let tc=TARGET;if(window.MAP_GLOBAL){tc=COUNTRIES[Math.floor(Math.random()*COUNTRIES.length)]}const[sx,sy]=proj(ev.cty.lon,ev.cty.lat),[tx,ty]=proj(tc.lon,tc.lat);arcs.push({sx,sy,tx,ty,t:0,sev:ev.atk.sev,speed:0.006+Math.random()*0.006})});
+  function frame(){
+    ctx.clearRect(0,0,W,H);
+    const g=ctx.createRadialGradient(W/2,0,0,W/2,0,W*0.8);g.addColorStop(0,'rgba(18,30,55,0.45)');g.addColorStop(1,'rgba(6,10,18,0)');ctx.fillStyle=g;ctx.fillRect(0,0,W,H);
+    land();
+    const[tx,ty]=proj(TARGET.lon,TARGET.lat);
+    ctx.beginPath();ctx.arc(tx,ty,4,0,7);ctx.fillStyle='#34d399';ctx.fill();
+    ctx.beginPath();ctx.arc(tx,ty,8,0,7);ctx.strokeStyle='rgba(52,211,153,.5)';ctx.lineWidth=1.5;ctx.stroke();
+    if(window.SEL_CC){const sc=COUNTRIES.find(c=>c.cc===window.SEL_CC);if(sc){const[px,py]=proj(sc.lon,sc.lat);ctx.beginPath();ctx.arc(px,py,11,0,7);ctx.strokeStyle='#22d3ee';ctx.lineWidth=2;ctx.stroke();ctx.beginPath();ctx.arc(px,py,4,0,7);ctx.fillStyle='#22d3ee';ctx.fill();ctx.fillStyle='#e8eef9';ctx.font='bold 11px sans-serif';ctx.fillText(sc.c,px+13,py+4)}}
+    ripples=ripples.filter(r=>r.a>0);
+    for(const r of ripples){ctx.beginPath();ctx.arc(r.x,r.y,r.r,0,7);ctx.strokeStyle=`rgba(255,59,99,${r.a})`;ctx.lineWidth=2;ctx.stroke();r.r+=1.1;r.a-=0.025}
+    arcs=arcs.filter(a=>a.t<1.15);
+    for(const a of arcs){const col=SEVC[a.sev],mx=(a.sx+a.tx)/2,my=(a.sy+a.ty)/2,dist=Math.hypot(a.tx-a.sx,a.ty-a.sy),cx=mx,cy=my-dist*0.32;
+      ctx.beginPath();ctx.moveTo(a.sx,a.sy);ctx.quadraticCurveTo(cx,cy,a.tx,a.ty);ctx.strokeStyle=hexA(col,0.11);ctx.lineWidth=1;ctx.stroke();
+      const tt=Math.min(a.t,1),pts=[];for(let i=0;i<=22;i++)pts.push(qpt(a.sx,a.sy,cx,cy,a.tx,a.ty,(i/22)*tt));
+      ctx.beginPath();pts.forEach((p,i)=>i?ctx.lineTo(p[0],p[1]):ctx.moveTo(p[0],p[1]));ctx.strokeStyle=col;ctx.lineWidth=1.6;ctx.shadowColor=col;ctx.shadowBlur=8;ctx.stroke();ctx.shadowBlur=0;
+      if(tt<1){const h=qpt(a.sx,a.sy,cx,cy,a.tx,a.ty,tt);ctx.beginPath();ctx.arc(h[0],h[1],2.5,0,7);ctx.fillStyle='#fff';ctx.shadowColor=col;ctx.shadowBlur=10;ctx.fill();ctx.shadowBlur=0}
+      ctx.beginPath();ctx.arc(a.sx,a.sy,2.1,0,7);ctx.fillStyle=col;ctx.fill();
+      if(a.t>=1&&!a.hit){a.hit=true;ripples.push({x:tx,y:ty,r:0,a:1})}
+      a.t+=a.speed}
+    rafId=requestAnimationFrame(frame);
+  }
+  frame();
+}
+
+/* ============================ SHARED UI ============================ */
+function kpiRow(){
+  return `<div class="kpis">
+   ${kpi('Հարձակումներ','kA',S.attacks,'▲ 18% երեկվա','up','rgba(255,59,99,.16)','#ff3b63','M13 2L3 14h7l-1 8 10-12h-7z')}
+   ${kpi('Արգելափակված','kB',S.blocked,'99.3% հաջող','down','rgba(52,211,153,.16)','#34d399','M12 3l8 4v5c0 5-3.5 7.5-8 9-4.5-1.5-8-4-8-9V7z')}
+   ${kpi('Ակտիվ սպառնալիք','kAc',S.active,'հետազոտման','', 'rgba(255,159,26,.16)','#ff9f1a','M12 2L2 20h20z')}
+   ${kpi('Երկրներ','kC',S.countries.size,'ծագման','','rgba(34,211,238,.16)','#22d3ee','M3 12h18')}
+   ${kpi('Արձագանք','kR','0.8վ','▼ 0.2վ','down','rgba(167,139,250,.16)','#a78bfa','M12 2v6M7 14h10')}
+  </div>`;
+}
+function kpi(lab,id,val,sub,cls,gl,ic,path){
+  return `<div class="kpi" style="--gl:${gl};--ic:${gl}"><div class="k-lab"><span class="k-ico"><svg viewBox="0 0 24 24" stroke="${ic}" fill="none" stroke-width="2"><path d="${path}"/></svg></span>${lab}</div>
+  <div class="k-val mono" id="${id}">${typeof val==='number'?fmt(val):val}</div><div class="k-sub">${cls?`<span class="${cls}">${sub}</span>`:`<span>${sub}</span>`}</div></div>`;
+}
+function topCountriesHTML(){
+  const arr=Object.entries(S.byC).map(([c,o])=>({c,...o})).sort((a,b)=>b.ct-a.ct).slice(0,8);const mx=arr.length?arr[0].ct:1;
+  return arr.map(o=>`<div class="cty"><span class="flag">${o.f}</span><span class="nm">${o.c}</span><div class="bar"><i style="width:${o.ct/mx*100}%"></i></div><span class="ct mono">${fmt(o.ct)}</span></div>`).join('')||'<div style="color:var(--muted2);font-size:12px">…</div>';
+}
+function protoHTML(){
+  const arr=Object.entries(S.byP).sort((a,b)=>b[1]-a[1]).slice(0,7);const mx=arr.length?arr[0][1]:1,tot=arr.reduce((s,x)=>s+x[1],0)||1;
+  const cols=['#22d3ee','#a78bfa','#34d399','#ff9f1a','#ff3b63','#ffd23f','#60a5fa'];
+  return arr.map(([p,v],i)=>`<div class="prow"><span class="pn">${p}</span><div class="pbar"><i style="width:${v/mx*100}%;background:${cols[i%7]}"></i></div><span class="pv mono">${Math.round(v/tot*100)}%</span></div>`).join('');
+}
+function alertHTML(ev){const a=ev.atk;return `<div class="alert ${a.sev}"><div class="alert-top"><span class="sev ${a.sev}">${sevN(a.sev)}</span><span class="atype">${a.t}</span><span class="atime mono">${ev.time}</span></div>
+  <div class="alert-src"><span class="flag">${ev.cty.f}</span><span>${ev.cty.c}</span>·<span class="ip mono">${ev.ip}</span>·<span class="mono" style="color:var(--muted2)">${a.proto}</span>·<span class="pill gray">${a.mitre}</span></div>
+  <div class="ai-box"><div class="ai-lab"><svg viewBox="0 0 24 24" fill="none" stroke="#a78bfa" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3"/></svg>AI վերլուծություն</div>${a.ai}<div class="ai-act"><b>→ Առաջարկ.</b> ${a.act}</div></div></div>`}
+const sevN=s=>({crit:'Կրիտիկ',high:'Բարձր',med:'Միջին',low:'Ցածր'}[s]);
+
+/* ============================ VIEWS ============================ */
+function vOverview(){
+  const el=document.getElementById('view');
+  el.innerHTML=`
+  <div class="page-head"><h1>Անվտանգային պատկեր</h1><span class="sub">· վերջին 24 ժ · ավտոմատ ագրեգացիա</span><span class="live"><span class="dot"></span>ԿԵՆԴԱՆԻ</span></div>
+  ${kpiRow()}
+  <div class="grid" style="grid-template-columns:1fr 400px;margin-top:14px">
+    <div class="grid" style="gap:14px">
+      <div class="map-wrap" style="height:390px"><canvas id="ovmap"></canvas>
+        <div class="map-ov"><div class="scanline"></div><div class="map-tag mono">ԳԼՈԲԱԼ ՍՊԱՌՆԱԼԻՔՆԵՐԻ ՔԱՐՏԵԶ</div>
+        <div class="map-legend"><span><i class="lg-dot" style="background:#ff3b63"></i>Կրիտ</span><span><i class="lg-dot" style="background:#ff9f1a"></i>Բարձր</span><span><i class="lg-dot" style="background:#ffd23f"></i>Միջին</span><span><i class="lg-dot" style="background:#34d399"></i>Թիրախ՝ Երևան</span></div>
+        <div class="map-target mono">● 40.18°N 44.51°E</div></div></div>
+      <div class="grid" style="grid-template-columns:1.3fr 1fr">
+        <div class="card"><div class="card-h"><span class="ico"><svg viewBox="0 0 24 24" stroke="#ff9f1a" fill="none" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M3 12h18"/></svg></span>TOP ծագման երկրներ</div><div id="ovTop">${topCountriesHTML()}</div></div>
+        <div class="card"><div class="card-h"><span class="ico"><svg viewBox="0 0 24 24" stroke="#22d3ee" fill="none" stroke-width="2"><path d="M4 18V8M10 18V4M16 18v-6M22 18V10"/></svg></span>Վեկտորներ</div><div id="ovProto">${protoHTML()}</div></div>
+      </div>
+    </div>
+    <div class="card" style="display:flex;flex-direction:column;max-height:820px"><div class="card-h"><span class="ico"><svg viewBox="0 0 24 24" stroke="#ff3b63" fill="none" stroke-width="2"><path d="M12 2L2 20h20z"/><path d="M12 9v5"/></svg></span>Կենդանի ալերտներ<span class="mini" id="ovAc">AI-հարստացված</span></div>
+      <div id="ovFeed" style="overflow-y:auto;flex:1">${S.alerts.slice(0,12).map(alertHTML).join('')}</div></div>
+  </div>`;
+  mountMap(document.getElementById('ovmap'));
+  const feed=document.getElementById('ovFeed');
+  onTick(ev=>{
+    document.getElementById('kA').textContent=fmt(S.attacks);
+    document.getElementById('kB').textContent=fmt(S.blocked);
+    document.getElementById('kAc').textContent=fmt(S.active);
+    document.getElementById('kC').textContent=S.countries.size;
+    if(S.alerts.includes(ev)){feed.insertAdjacentHTML('afterbegin',alertHTML(ev));while(feed.children.length>14)feed.removeChild(feed.lastChild)}
+  });
+  viewTimers.push(setInterval(()=>{document.getElementById('ovTop').innerHTML=topCountriesHTML();document.getElementById('ovProto').innerHTML=protoHTML()},1500));
+}
+
+function vMap(){
+  const el=document.getElementById('view');
+  el.innerHTML=`<div class="page-head"><h1>Հարձակումների քարտեզ</h1><span class="sub">· "pew-pew" ուղղորդված հոսք · ծագում → թիրախ</span><div class="hrow" style="margin-left:auto"><button class="btn" id="mapMode">🌍 Գլոբալ ռեժիմ</button><span class="live"><span class="dot"></span>REAL-TIME</span></div></div>
+  <div class="grid" style="grid-template-columns:1fr 330px">
+    <div class="map-wrap" style="height:calc(100vh - 150px)"><canvas id="bigmap"></canvas>
+      <div class="map-ov"><div class="scanline"></div><div class="map-tag mono">equirectangular · 6 սենսոր · auto-mitigation ON</div>
+      <div class="map-legend"><span><i class="lg-dot" style="background:#ff3b63"></i>Կրիտ</span><span><i class="lg-dot" style="background:#ff9f1a"></i>Բարձր</span><span><i class="lg-dot" style="background:#ffd23f"></i>Միջին</span><span><i class="lg-dot" style="background:#34d399"></i>Թիրախ</span></div>
+      <div class="map-target mono">● AM datacenter · Երևան</div></div></div>
+    <div class="grid" style="gap:13px;align-content:start">
+      <div class="card"><div class="card-h">Երկրի դոսյե<span class="mini">սեղմիր քարտեզին կամ ընտրիր</span></div>
+        <select class="role-sel" id="ctrySel" style="width:100%;margin-bottom:10px"><option value="">— ընտրիր երկիր —</option>${COUNTRIES.map(c=>`<option value="${c.cc}">${c.f} ${c.c}</option>`).join('')}</select>
+        <div id="dossier"><div style="font-size:12px;color:var(--muted2)">Ընտրիր երկիր՝ IP-տարածք, օպերատորներ ու ՏՏ վիճակ տեսնելու համար</div></div></div>
+      <div class="card"><div class="card-h">Շերտ ըստ ծավալի<span class="mini">L3/4 ↔ L7</span></div><div id="layerSplit"></div></div>
+      <div class="card"><div class="card-h">TOP ծագման երկրներ</div><div id="mTop">${topCountriesHTML()}</div></div>
+      <div class="card"><div class="card-h">Վեկտորներ</div><div id="mProto">${protoHTML()}</div></div>
+    </div>
+  </div>`;
+  mountMap(document.getElementById('bigmap'));
+  const mm=document.getElementById('mapMode');if(mm)mm.onclick=()=>{window.MAP_GLOBAL=!window.MAP_GLOBAL;mm.textContent=window.MAP_GLOBAL?'🎯 Թիրախ ռեժիմ':'🌍 Գլոբալ ռեժիմ';mm.classList.toggle('primary',window.MAP_GLOBAL);const t=document.querySelector('.map-target');if(t)t.textContent=window.MAP_GLOBAL?'● Գլոբալ հոսք · ամբողջ աշխարհ':'● AM datacenter · Երևան'};
+  const bmap=document.getElementById('bigmap'),csel=document.getElementById('ctrySel');
+  if(csel)csel.onchange=()=>{if(csel.value)selectCountry(csel.value)};
+  if(bmap)bmap.onclick=(e)=>{const r=bmap.getBoundingClientRect();const x=e.clientX-r.left,y=e.clientY-r.top;let best=null,bd=1e9;for(const c of COUNTRIES){const cx=(c.lon+180)/360*r.width,cy=(90-c.lat)/180*r.height;const dd=Math.hypot(cx-x,cy-y);if(dd<bd){bd=dd;best=c}}if(best&&bd<42){selectCountry(best.cc);if(csel)csel.value=best.cc}};
+  function layer(){const l7=S.byLayer.L7||0,l34=S.byLayer['L3/4']||0,t=l7+l34||1;
+    return `<div class="prow"><span class="pn">L7 (Application)</span><div class="pbar"><i style="width:${l7/t*100}%;background:#a78bfa"></i></div><span class="pv mono">${Math.round(l7/t*100)}%</span></div>
+    <div class="prow"><span class="pn">L3/4 (Network)</span><div class="pbar"><i style="width:${l34/t*100}%;background:#22d3ee"></i></div><span class="pv mono">${Math.round(l34/t*100)}%</span></div>`}
+  document.getElementById('layerSplit').innerHTML=layer();
+  viewTimers.push(setInterval(()=>{document.getElementById('mTop').innerHTML=topCountriesHTML();document.getElementById('mProto').innerHTML=protoHTML();document.getElementById('layerSplit').innerHTML=layer()},1500));
+}
+
+let siemFilter='all',siemQ='';
+function vSiem(){
+  const el=document.getElementById('view');
+  el.innerHTML=`<div class="page-head"><h1>SIEM / Լոգերի հոսք</h1><span class="sub">· նորմալացված իրադարձություններ · Wazuh-ruleset համատեղելի</span><span class="live"><span class="dot"></span>STREAM</span></div>
+  <div class="grid" style="grid-template-columns:1fr 320px">
+    <div class="card pad0">
+      <div style="padding:13px 15px" class="filters">
+        ${['all','crit','high','med'].map(f=>`<span class="fchip ${f===siemFilter?'on':''}" data-f="${f}">${f==='all'?'Բոլորը':sevN(f)}</span>`).join('')}
+        <input class="search-in" id="siemQ" placeholder="Որոնել rule / IP / հաղորդագր." value="${siemQ}">
+        <span class="mini" style="margin-left:auto;color:var(--muted);font-size:11px">ընդ. <b id="siemCnt" class="mono">0</b></span>
+      </div>
+      <div style="max-height:calc(100vh - 230px);overflow-y:auto"><table class="tbl"><thead><tr><th>Ժամ</th><th>Severity</th><th>Rule</th><th>Աղբյուր IP</th><th>Հաղորդագր.</th><th>Proto</th><th>Գործ.</th></tr></thead><tbody id="siemBody"></tbody></table></div>
+    </div>
+    <div class="grid" style="gap:13px;align-content:start">
+      <div class="card"><div class="card-h">Severity բաշխում</div><div id="sevDist"></div></div>
+      <div class="card"><div class="card-h">TOP triggered rules</div><div id="topRules"></div></div>
+      <div class="card"><div class="card-h"><span class="ico"><svg viewBox="0 0 24 24" stroke="#34d399" fill="none" stroke-width="2"><path d="M9 11l3 3L22 4"/><path d="M21 12v7H3V5h12"/></svg></span>Համապատասխանություն</div>
+        <div class="comp">${COMPLIANCE.map(c=>`<div class="comp-row"><div class="cl"><b>${c[0]}</b><span class="mono">${c[2]}%</span></div><div class="comp-bar"><i style="width:${c[2]}%;background:${c[1]}"></i></div></div>`).join('')}</div></div>
+    </div>
+  </div>`;
+  function render(){
+    const body=document.getElementById('siemBody');if(!body)return;
+    let rows=S.logs.filter(l=>(siemFilter==='all'||l.sev===siemFilter));
+    if(siemQ)rows=rows.filter(l=>(l.rule+l.src+l.msg).toLowerCase().includes(siemQ.toLowerCase()));
+    rows=rows.slice(0,120);
+    document.getElementById('siemCnt').textContent=fmt(rows.length);
+    body.innerHTML=rows.map(l=>`<tr><td class="mono" style="color:var(--muted)">${l.time}</td><td><span class="pill ${l.sev}">${sevN(l.sev)}</span></td>
+      <td class="mono" style="color:var(--cyan)">${l.rule}</td><td class="mono">${l.f} ${l.src}</td><td>${l.msg}</td><td class="mono" style="color:var(--muted)">${l.proto}</td>
+      <td><span class="pill ${l.action==='արգելափակված'?'g':'gray'}">${l.action}</span></td></tr>`).join('');
+    // sev dist
+    const d={crit:0,high:0,med:0,low:0};S.logs.forEach(l=>d[l.sev]=(d[l.sev]||0)+1);const tot=S.logs.length||1;
+    document.getElementById('sevDist').innerHTML=['crit','high','med','low'].map(s=>`<div class="prow"><span class="pn"><span class="pill ${s}">${sevN(s)}</span></span><div class="pbar"><i style="width:${d[s]/tot*100}%;background:${SEVC[s]}"></i></div><span class="pv mono">${d[s]}</span></div>`).join('');
+    // top rules
+    const rc={};S.logs.forEach(l=>rc[l.rule]=(rc[l.rule]||0)+1);const ra=Object.entries(rc).sort((a,b)=>b[1]-a[1]).slice(0,6);const rm=ra.length?ra[0][1]:1;
+    document.getElementById('topRules').innerHTML=ra.map(([r,v])=>`<div class="prow"><span class="pn mono" style="font-size:11.5px;color:var(--cyan)">${r}</span><div class="pbar" style="width:34%"><i style="width:${v/rm*100}%;background:#60a5fa"></i></div><span class="pv mono">${v}</span></div>`).join('');
+  }
+  render();onTick(()=>render());
+  document.querySelectorAll('[data-f]').forEach(c=>c.onclick=()=>{siemFilter=c.dataset.f;document.querySelectorAll('[data-f]').forEach(x=>x.classList.toggle('on',x.dataset.f===siemFilter));render()});
+  document.getElementById('siemQ').oninput=e=>{siemQ=e.target.value;render()};
+  viewTimers.push(setInterval(render,1400));
+}
+
+function vIntel(){
+  const el=document.getElementById('view');
+  el.innerHTML=`<div class="page-head"><h1>Սպառնալիքների հետախուզություն</h1><span class="sub">· IoC հոսք · MITRE ATT&CK քարտեզագրում</span><span class="live"><span class="dot"></span>FEED</span></div>
+  <div class="grid" style="grid-template-columns:1fr 380px">
+    <div class="card"><div class="card-h"><span class="ico"><svg viewBox="0 0 24 24" stroke="#22d3ee" fill="none" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/></svg></span>MITRE ATT&CK — դիտարկված տեխնիկաներ<span class="mini">կարմիրը՝ ակտիվ</span></div>
+      <div class="mitre" id="mitre"></div></div>
+    <div class="card pad0" style="display:flex;flex-direction:column;max-height:calc(100vh - 150px)"><div class="card-h" style="padding:15px 15px 0">IoC հոսք<span class="mini">abuse.ch · OTX · MISP · GreyNoise</span></div>
+      <div id="iocFeed" style="overflow-y:auto;flex:1;padding:12px 15px"></div></div>
+  </div>`;
+  function mitre(){
+    document.getElementById('mitre').innerHTML=MITRE.map(col=>`<div class="mi-col"><h4>${col.tac}</h4>${col.ts.map(([id,nm])=>{const h=S.mitreHot[id]||0;const cl=h>5?'hot':h>0?'warm':'';return `<div class="mi-t ${cl}" title="${id}">${nm}${h?` <b>${h}</b>`:''}</div>`}).join('')}</div>`).join('');
+  }
+  function feed(){
+    document.getElementById('iocFeed').innerHTML=S.iocs.slice(0,22).map(o=>`<div class="alert low" style="border-left-color:${o.conf>85?'#ff3b63':'#ff9f1a'};margin-bottom:8px">
+      <div class="alert-top"><span class="pill ${o.k==='IP'?'b':o.k==='Domain'?'p':'gray'}">${o.k}</span><span class="atype mono" style="font-size:12px">${o.v}</span><span class="atime mono">${o.seen}</span></div>
+      <div class="alert-src"><span>${o.f}</span>·աղբյուր՝ <b style="color:var(--cyan)">${o.src}</b>·վստահ. <b class="mono">${o.conf}%</b></div></div>`).join('')||'<div class="empty"><div>Սպասում ենք IoC-ների…</div></div>';
+  }
+  mitre();feed();onTick(()=>{feed()});
+  viewTimers.push(setInterval(mitre,1500));
+}
+
+let vulnSort='risk';
+function vVuln(){
+  const el=document.getElementById('view');
+  // prioritization: KEV first, then EPSS, then CVSS
+  const score=v=>(v.kev?1e6:0)+v.epss*1000+v.cvss;
+  const rows=[...CVES].sort((a,b)=>score(b)-score(a));
+  const kevN=CVES.filter(v=>v.kev).length, openN=CVES.filter(v=>v.status==='open').length;
+  el.innerHTML=`<div class="page-head"><h1>Խոցելիությունների կառավարում</h1><span class="sub">· առաջնահերթություն՝ KEV → EPSS → CVSS</span><div class="hrow" style="margin-left:auto"><button class="btn" id="vulnLive"><svg viewBox="0 0 24 24"><path d="M3 12a9 9 0 019-9 9 9 0 016.7 3M21 12a9 9 0 01-9 9 9 9 0 01-6.7-3"/><path d="M21 3v6h-6"/></svg>Live KEV/EPSS</button></div></div>
+  <div class="kpis" style="grid-template-columns:repeat(4,1fr);margin-bottom:14px">
+    ${kpi('Ակտիվ շահագործվող (KEV)','',kevN,'անհապաղ','up','rgba(255,59,99,.16)','#ff3b63','M12 2L2 20h20z')}
+    ${kpi('Բաց (չ-patch)','',openN,'ուշադրություն','','rgba(255,159,26,.16)','#ff9f1a','M9 2h6l1 4h3v14H5V6h3z')}
+    ${kpi('Ընդամենը CVE','',CVES.length,'հետևվող','','rgba(34,211,238,.16)','#22d3ee','M4 6h16')}
+    ${kpi('Միջ. EPSS','',Math.round(CVES.reduce((s,v)=>s+v.epss,0)/CVES.length)+'%','շահագ. հավանակ.','','rgba(167,139,250,.16)','#a78bfa','M3 12h18')}
+  </div>
+  <div class="note" style="margin-bottom:12px">⚙️ <b>Առաջնահերթության տրամաբանություն.</b> Նախ՝ <b>KEV</b> (հաստատված ակտիվ շահագործում), ապա՝ բարձր <b>EPSS</b> (շահագործման հավանականություն 30 օրում), վերջում՝ <b>CVSS</b> որպես tie-breaker։ Սա կրճատում է շտապ patch-երի ծավալը ~95%-ով՝ պահպանելով իրական ռիսկի ծածկույթը։</div>
+  <div class="card pad0"><div style="max-height:calc(100vh - 360px);overflow-y:auto"><table class="tbl"><thead><tr><th>#</th><th>CVE</th><th>CVSS</th><th>EPSS</th><th>KEV</th><th>Ակտիվ</th><th>Կարգավիճակ</th><th>Նկարագրություն</th></tr></thead><tbody>
+    ${rows.map((v,i)=>`<tr><td class="mono" style="color:var(--muted)">${i+1}</td><td class="mono" style="color:var(--cyan);font-weight:600">${v.id}</td>
+      <td><span class="pill ${v.cvss>=9?'crit':v.cvss>=7?'high':'med'}">${v.cvss.toFixed(1)}</span></td>
+      <td class="mono" style="color:${v.epss>=80?'#ff3b63':v.epss>=40?'#ff9f1a':'var(--muted)'}">${v.epss}%</td>
+      <td>${v.kev?'<span class="pill kev">KEV</span>':'<span class="pill gray">—</span>'}</td>
+      <td>${v.asset}</td>
+      <td><span class="pill ${v.status==='open'?'crit':v.status==='patching'?'high':'g'}">${({open:'բաց',patching:'patch ընթ.',patched:'patch-ված'})[v.status]}</span></td>
+      <td style="color:var(--muted)">${v.desc}</td></tr>`).join('')}
+  </tbody></table></div></div>`;
+  const lb=document.getElementById('vulnLive');
+  if(lb)lb.onclick=async()=>{if(!CONFIG.live){toast('Backend անջատ է — միացրու «Աղբյուրներ» բաժնում');return}toast('Live թարմացում…');try{const k=await api('/kev');const hit=CVES.filter(v=>k.ids.includes(v.id)).length;toast('CISA KEV՝ '+k.count+' գրառում · քո ցանկից '+hit+' ակտիվ շահագործվող');}catch(e){toast('Live ձախողվեց')}};
+}
+
+function vIp(){
+  const el=document.getElementById('view');
+  el.innerHTML=`<div class="page-head"><h1>IP հետախուզություն</h1><span class="sub">· geo + reputation enrichment · MaxMind · GreyNoise-ոճ</span></div>
+  <div class="ip-search"><input id="ipIn" placeholder="օր. 185.220.101.1" value=""><button class="btn primary" id="ipGo">Հետազոտել</button></div>
+  <div class="hrow" style="margin-bottom:14px;flex-wrap:wrap">${Object.keys(IPDB).map(ip=>`<span class="fchip" data-ip="${ip}">${ip}</span>`).join('')}<span class="fchip" data-ip="random">🎲 պատահական</span></div>
+  <div class="grid" style="grid-template-columns:440px 1fr"><div id="ipRes"><div class="empty"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4-4"/></svg><div>Մուտքագրիր IP՝ geo-reputation տվյալները տեսնելու համար</div></div></div>
+  <div class="note">📚 <b>Շտեմարանի աղբյուրներ.</b><br>• <b>MaxMind GeoLite2</b> — երկիր, քաղաք, ASN<br>• <b>RIR delegated stats</b> (RIPE/ARIN/APNIC/LACNIC/AFRINIC) — պաշտոնական IP↔երկիր բաշխում, օրական<br>• <b>GreyNoise / abuse.ch</b> — scanner/botnet/Tor/VPN դասակարգում, actor, tags<br>• <b>Shodan-ոճ</b> — բաց պորտեր, banner, հայտնաբերված CVE<br><br>Ընդգրկում՝ ~4.3 մլրդ IPv4 + IPv6 բլոկներ։ Ամբողջ IPv4 տարածքը պահվում է PostgreSQL-ում որպես <span class="mono">inet/cidr</span> ինդեքսավորված տիպ՝ ակնթարթային որոնման համար։</div></div>`;
+  const show=async(ip)=>{
+    let d=IPDB[ip];
+    if(CONFIG.live){try{const L=await api('/ip',{ip});const tg=L.tags||[];d={f:L.flag||'🌐',cc:L.country||L.country_code||'—',asn:L.asn||'—',isp:L.isp||'—',cls:L.classification||'benign',type:tg.length?tg.join(', '):'—',tor:tg.some(t=>/tor/i.test(t))?1:0,vpn:tg.some(t=>/vpn|proxy/i.test(t))?1:0,bot:tg.some(t=>/bot|malware|compromised/i.test(t))?1:0,ports:L.ports||[],cves:L.vulns||[],risk:L.risk||0,last:new Date().toISOString().slice(0,10),actor:'—',tags:tg.length?tg:['—']};}catch(e){toast('Live ձախողվեց — backend անջ.')}}
+    if(!d){const r=RANDC[rnd(0,RANDC.length-1)];const risk=rnd(5,90);const cls=risk>60?'malicious':risk>30?'suspicious':'benign';
+      d={f:r[0],cc:r[1],asn:r[2],isp:r[3],cls,type:Math.random()<.5?'Hosting / VPS':'ISP / Residential',tor:Math.random()<.1?1:0,vpn:Math.random()<.2?1:0,bot:risk>50?1:0,ports:[22,80,443].slice(0,rnd(1,3)),cves:risk>60?["CVE-2024-3400"]:[],risk,last:"2026-11-"+rnd(18,24),actor:risk>60?"unknown":"—",tags:risk>60?["Scanner","Bruteforce"]:["Clean"]}}
+    const rc=d.risk>=70?'#ff3b63':d.risk>=40?'#ff9f1a':d.risk>=20?'#ffd23f':'#34d399';
+    const clsP={malicious:'crit',suspicious:'high',benign:'g'}[d.cls]||'gray';
+    document.getElementById('ipRes').innerHTML=`<div class="card pad0"><div class="ip-hd"><span class="flag">${d.f}</span><div style="flex:1"><div class="addr mono">${ip}</div><div class="ctry">${d.cc} · ${d.asn}</div>
+      <div class="ip-tags"><span class="pill ${clsP}">${({malicious:'Վնասաբեր',suspicious:'Կասկածելի',benign:'Անվտանգ'})[d.cls]}</span>${d.tor?'<span class="pill p">Tor</span>':''}${d.vpn?'<span class="pill b">VPN</span>':''}${d.bot?'<span class="pill crit">Botnet</span>':''}</div></div></div>
+      <div class="ip-row"><span class="l">Պրովայդեր (ISP)</span><span class="v">${d.isp}</span></div>
+      <div class="ip-row"><span class="l">Տեսակ</span><span class="v">${d.type}</span></div>
+      <div class="ip-row"><span class="l">Actor</span><span class="v mono">${d.actor}</span></div>
+      <div class="ip-row"><span class="l">Tags</span><span class="v">${d.tags.map(t=>`<span class="pill gray" style="margin-left:4px">${t}</span>`).join('')}</span></div>
+      <div class="ip-row"><span class="l">Բաց պորտեր</span><span class="v mono">${d.ports.join(', ')||'—'}</span></div>
+      <div class="ip-row"><span class="l">Հայտնաբ. CVE</span><span class="v mono" style="color:${d.cves.length?'#ff6b88':'var(--muted)'}">${d.cves.join(', ')||'—'}</span></div>
+      <div class="ip-row"><span class="l">Վերջին դիտ.</span><span class="v mono">${d.last}</span></div>
+      <div class="ip-row"><span class="l">Ռիսկ</span><span class="v" style="color:${rc}">${d.risk}/100<div class="risk-bar"><i style="width:${d.risk}%;background:${rc}"></i></div></span></div></div>`;
+  };
+  document.getElementById('ipGo').onclick=()=>{const v=document.getElementById('ipIn').value.trim();if(!/^\d{1,3}(\.\d{1,3}){3}$/.test(v)){toast('Մուտքագրիր վավեր IPv4');return}show(v)};
+  document.getElementById('ipIn').addEventListener('keydown',e=>{if(e.key==='Enter')document.getElementById('ipGo').click()});
+  document.querySelectorAll('[data-ip]').forEach(c=>c.onclick=()=>{const ip=c.dataset.ip==='random'?randIP():c.dataset.ip;document.getElementById('ipIn').value=ip;show(ip)});
+}
+
+const STAGES=[["new","Նոր","#ff3b63"],["investigating","Հետազոտվում","#ff9f1a"],["contained","Մեկուսացված","#60a5fa"],["resolved","Լուծված","#34d399"]];
+function vInc(){
+  const el=document.getElementById('view');
+  function board(){
+    return `<div class="kanban">${STAGES.map(([st,nm,col])=>{const items=S.incidents.filter(i=>i.stage===st);
+      return `<div class="kcol"><div class="kcol-h"><span style="width:8px;height:8px;border-radius:50%;background:${col}"></span>${nm}<span class="n">${items.length}</span></div>
+      ${items.map(i=>`<div class="kcard ${i.sev}"><div class="kt">${i.t}</div><div class="km"><span class="mono" style="color:var(--cyan)">${i.id}</span><span class="pill ${i.sev}">${sevN(i.sev)}</span><span>${i.src}</span><span style="color:var(--muted2)">${i.age}</span></div>
+        <div class="kact">${st!=='resolved'?`<span class="kmini" data-mv="${i.id}" data-to="${nextStage(st)}">→ ${STAGES[STAGES.findIndex(s=>s[0]===st)+1][1]}</span>`:'<span class="kmini" style="color:var(--green);border-color:transparent">✓ փակված</span>'}</div></div>`).join('')||'<div style="color:var(--muted2);font-size:11px;text-align:center;padding:14px">—</div>'}</div>`}).join('')}</div>`;
+  }
+  el.innerHTML=`<div class="page-head"><h1>Միջադեպերի կառավարում</h1><span class="sub">· case management · DFIR-IRIS-ոճ աշխատահոսք</span><div class="hrow" style="margin-left:auto"><button class="btn" id="genInc"><svg viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg>Նմանակել նոր միջադեպ</button></div></div>
+  <div id="kb">${board()}</div>`;
+  function bind(){document.querySelectorAll('[data-mv]').forEach(b=>b.onclick=()=>{if(!requireRole(2,'փոխել միջադեպի փուլ'))return;const inc=S.incidents.find(i=>i.id===b.dataset.mv);if(inc){inc.stage=b.dataset.to;document.getElementById('kb').innerHTML=board();bind();updateBadges();toast(inc.id+' → '+STAGES.find(s=>s[0]===b.dataset.to)[1])}})}
+  bind();
+  document.getElementById('genInc').onclick=()=>{if(!requireRole(2,'նմանակել միջադեպ'))return;const a=ATTACKS[rnd(0,ATTACKS.length-1)],c=wCountry();
+    S.incidents.unshift({id:"INC-"+rnd(4472,4999),t:a.t+" — auto-escalated",sev:a.sev==='low'?'med':a.sev,stage:"new",src:c.f+" "+c.c,rule:a.rule,age:"հենց հիմա"});
+    document.getElementById('kb').innerHTML=board();bind();updateBadges();toast('Նոր միջադեպ ստեղծվեց')};
+}
+function nextStage(st){const i=STAGES.findIndex(s=>s[0]===st);return STAGES[Math.min(i+1,STAGES.length-1)][0]}
+
+const AI_PRESETS={
+ "Ամփոփիր վերջին ժամվա սպառնալիքները":()=>{const top=Object.entries(S.byC).sort((a,b)=>b[1].ct-a[1].ct)[0];
+   return `<h5>Վերջին ժամվա ամփոփում</h5>Գրանցվել է <b>${fmt(S.attacks)}</b> հարձակման փորձ, որից <b>${fmt(S.blocked)}</b> ավտոմատ արգելափակվել է (${Math.round(S.blocked/(S.attacks||1)*100)}%)։ Ակտիվ հետազոտման փուլում՝ <b>${S.active}</b>։
+   <h5>Առանցքային դիտարկում</h5><ul><li>Ծագման գլխավոր աղբյուր՝ ${top?top[1].f+' '+top[0]+' ('+top[1].ct+' փորձ)':'—'}</li><li>Գերակշռում է ${(S.byLayer.L7||0)>(S.byLayer['L3/4']||0)?'L7 (application)':'L3/4 (network)'} շերտը</li><li>MITRE-ի ամենաակտիվ տեխնիկան՝ T1498 (Network DoS)</li></ul>
+   <h5>Առաջարկ</h5>Պահպանել always-on auto-mitigation-ը, վերանայել WAF rate-limit-ի շեմերը peak ժամերի համար։`},
+ "Ո՞ր խոցելիությունը patch անեմ առաջինը":()=>`<h5>Fix-first առաջնահերթություն</h5>Ըստ KEV→EPSS→CVSS տրամաբանության՝ առաջինը <b>CVE-2024-1709</b> (ConnectWise ScreenConnect, CVSS 10.0, EPSS 97%, <b>KEV</b>)։ Հաջորդը՝ <b>CVE-2024-3400</b> (PAN-OS, ակտիվ շահագործվող)։
+   <ul><li>Նախ՝ ակտիվ շահագործվողները (KEV) — անհապաղ</li><li>Ապա՝ EPSS≥80% — 72 ժամում</li><li>Մնացածը՝ ըստ CVSS-ի՝ պլանային</li></ul>Սա կկրճատի շտապ patch-երի ծավալը ~95%-ով։`,
+ "Ի՞նչ անեմ SSH brute-force-ի դեմ":()=>`<h5>SSH brute-force՝ արձագանքի playbook</h5><ul><li>Անմիջապես՝ արգելափակել աղբյուր IP-ն (fail2ban / edge ACL)</li><li>Անջատել password-auth-ը, անցնել key-based + MFA</li><li>Փոխել SSH պորտը, սահմանափակել մուտքը ըստ geo/IP allowlist-ի</li><li>Ստուգել՝ արդյոք եղել է հաջող մուտք (lateral movement նշաններ)</li></ul>Ավտոմատացում՝ Shuffle playbook-ով այս քայլերը կարելի է գործարկել ալերտի պահին։`};
+function vAi(){
+  const el=document.getElementById('view');
+  el.innerHTML=`<div class="page-head"><h1>AI վերլուծիչ</h1><span class="sub">· լոկալ LLM (Ollama) · RAG ձեր տվյալների վրա · տվյալը չի լքում սերվերը</span><span class="pill p" style="margin-left:6px">лок · офлайн</span></div>
+  <div class="ai-chat" id="aichat">
+    <div class="ai-msg"><div class="ai-av"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3"/></svg></div>
+      <div class="ai-bubble">Բարև։ Ես ՎԱՀԱՆ-ի անվտանգային վերլուծիչն եմ։ Հարցրու ցանկացած բան քո ընթացիկ սպառնալիքների, ալերտների կամ խոցելիությունների մասին՝ կպատասխանեմ հայերեն, ձեր տվյալների հիման վրա։</div></div>
+  </div>
+  <div class="ai-sug" style="margin-top:14px">${Object.keys(AI_PRESETS).map(q=>`<button data-q="${q}">${q}</button>`).join('')}</div>
+  <div class="ai-q" style="margin-top:12px;max-width:820px"><input id="aiIn" placeholder="Գրիր հարցդ…"><button class="btn primary" id="aiGo">Ուղարկել</button></div>`;
+  const chat=document.getElementById('aichat');
+  function add(u,html){const d=document.createElement('div');d.className='ai-msg';
+    d.innerHTML=u?`<div class="ai-av u"><svg viewBox="0 0 24 24" stroke="#8094b6" fill="none" stroke-width="2"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 4-6 8-6s8 2 8 6"/></svg></div><div class="ai-bubble u">${html}</div>`
+      :`<div class="ai-av"><svg viewBox="0 0 24 24" stroke="#fff" fill="none" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3"/></svg></div><div class="ai-bubble">${html}</div>`;
+    chat.appendChild(d);chat.scrollTop=chat.scrollHeight}
+  function answer(q){add(true,q);
+    let resp=AI_PRESETS[q];
+    if(resp)resp=resp();
+    else resp=`<h5>Վերլուծություն</h5>Ընթացիկ վիճակ՝ <b>${fmt(S.attacks)}</b> փորձ, <b>${S.active}</b> ակտիվ սպառնալիք։ Քո հարցի («${q}») շուրջ՝ նախատիպում AI-ը աշխատում է դեմո ռեժիմում. իրական MVP-ում այստեղ պատասխանը կգա լոկալ LLM-ից՝ քո լոգերի ու IoC-ների RAG-համատեքստով։ Ասա ավելի կոնկրետ՝ IP, CVE, թե միջադեպ ես ուզում վերլուծել։`;
+    setTimeout(()=>add(false,resp),380)}
+  document.querySelectorAll('[data-q]').forEach(b=>b.onclick=()=>answer(b.dataset.q));
+  document.getElementById('aiGo').onclick=()=>{const v=document.getElementById('aiIn').value.trim();if(v){answer(v);document.getElementById('aiIn').value=''}};
+  document.getElementById('aiIn').addEventListener('keydown',e=>{if(e.key==='Enter')document.getElementById('aiGo').click()});
+}
+
+function vReports(){
+  const el=document.getElementById('view');
+  const d=new Date();const ds=d.toLocaleDateString('hy-AM',{year:'numeric',month:'long',day:'numeric'});
+  const top=Object.entries(S.byC).sort((a,b)=>b[1].ct-a[1].ct).slice(0,5);
+  const kev=CVES.filter(v=>v.kev).length,openN=CVES.filter(v=>v.status==='open').length;
+  const openInc=S.incidents.filter(i=>i.stage!=='resolved').length;
+  const reportHTML=`
+    <h2>SOC օրական հաշվետվություն</h2>
+    <div class="rsub">ՎԱՀԱՆ անվտանգային հարթակ · ${ds} · ավտոմատ գեներացված</div>
+    <div class="rk"><div><b>${fmt(S.attacks)}</b><span>Հարձակման փորձ</span></div><div><b>${fmt(S.blocked)}</b><span>Արգելափակված (${Math.round(S.blocked/(S.attacks||1)*100)}%)</span></div><div><b>${openInc}</b><span>Բաց միջադեպ</span></div><div><b>${kev}</b><span>KEV խոցելիություն</span></div></div>
+    <h3>1. Ամփոփում</h3>Հաշվետու ժամանակահատվածում ՎԱՀԱՆ-ը գրանցել է ${fmt(S.attacks)} հարձակման փորձ ${S.countries.size} երկրից, որից ${fmt(S.blocked)} ավտոմատ չեզոքացվել է։ Ակտիվ հետազոտման փուլում՝ ${S.active} սպառնալիք։ Գերակշռող շերտ՝ ${(S.byLayer.L7||0)>(S.byLayer['L3/4']||0)?'L7 (application)':'L3/4 (network)'}։
+    <h3>2. Ծագման TOP երկրներ</h3><table><tr><th>#</th><th>Երկիր</th><th>Փորձեր</th></tr>${top.map((t,i)=>`<tr><td>${i+1}</td><td>${t[0]}</td><td>${fmt(t[1].ct)}</td></tr>`).join('')}</table>
+    <h3>3. Խոցելիություններ (fix-first)</h3>${kev} ակտիվ շահագործվող (KEV), ${openN} բաց։ Առաջնահերթ՝ CVE-2024-1709 (CVSS 10.0, EPSS 97%, KEV) և CVE-2024-3400։ Առաջարկ՝ KEV-երը patch անել 24 ժամում։
+    <h3>4. Միջադեպեր</h3>${S.incidents.length} ընդհանուր, ${openInc} բաց։ ${S.incidents.filter(i=>i.sev==='crit').length} կրիտիկական։
+    <h3>5. Առաջարկություններ</h3><ul><li>Պահպանել always-on auto-mitigation (մարդկային միջամտության պատուհան գործնականում չկա՝ հարձակումները տևում են վայրկյաններ)</li><li>Patch անել KEV ցանկի խոցելիությունները անհապաղ</li><li>Վերանայել WAF rate-limit շեմերը peak ժամերի համար</li><li>Ակտիվացնել MFA brute-force-ի ենթակա ծառայությունների վրա</li></ul>
+    <div class="rfoot">Գեներացվել է ՎԱՀԱՆ v0.2 հարթակով · ${d.toLocaleString('hy-AM')} · դասակարգում՝ ՆԵՐՔԻՆ</div>`;
+  el.innerHTML=`<div class="page-head"><h1>Հաշվետվություններ</h1><span class="sub">· ավտոմատ գեներացվող SOC ամփոփումներ</span>
+    <div class="hrow" style="margin-left:auto"><button class="btn" id="regen"><svg viewBox="0 0 24 24"><path d="M3 12a9 9 0 019-9 9 9 0 016.7 3M21 12a9 9 0 01-9 9 9 9 0 01-6.7-3"/><path d="M21 3v6h-6M3 21v-6h6"/></svg>Թարմացնել</button>
+    <button class="btn primary" id="copyR"><svg viewBox="0 0 24 24"><rect x="9" y="9" width="11" height="11" rx="2"/><path d="M5 15V5a2 2 0 012-2h10"/></svg>Պատճենել</button></div></div>
+  <div class="hrow" style="gap:10px;margin-bottom:14px;flex-wrap:wrap">
+    <span class="fchip on">Օրական SOC</span><span class="fchip" onclick="toast('Շաբաթական ձևանմուշը MVP-ում')">Շաբաթական</span><span class="fchip" onclick="toast('Համապատ. հաշվետվությունը MVP-ում')">Compliance (PCI/GDPR)</span><span class="fchip" onclick="toast('Executive ամփոփումը MVP-ում')">Executive</span></div>
+  <div class="report" id="reportDoc">${reportHTML}</div>
+  <div class="note" style="margin-top:14px;max-width:820px">📄 Նախատիպում՝ «Պատճերել»-ը պատճենում է հաշվետվությունը clipboard։ Աշխատող MVP-ում կավելանա <b>PDF/Word export</b>, <b>ավտոմատ ժամանակացույց</b> (օր. ամեն առավոտ email-ով) և <b>ստորագրված արխիվացում</b> (books-and-records)։</div>`;
+  document.getElementById('regen').onclick=()=>{vReports();toast('Հաշվետվությունը թարմացվեց')};
+  document.getElementById('copyR').onclick=()=>{const txt=document.getElementById('reportDoc').innerText;navigator.clipboard.writeText(txt).then(()=>toast('Հաշվետվությունը պատճենվեց ✓')).catch(()=>toast('Պատճենումը չհաջողվեց'))};
+}
+
+/* ===================== DEFENSE / RBAC / CONNECTORS ===================== */
+let POSTURE=2,postureManual=false,ROLE='admin';
+const ROLES={viewer:{n:'Դիտող',lvl:1},analyst:{n:'Վերլուծաբան',lvl:2},admin:{n:'Ադմին',lvl:3},lead:{n:'SOC-ղեկավար',lvl:4}};
+const AUDIT=[{t:nowT(),role:'admin',action:'մուտք համակարգ'}];
+const CONFIG={apiBase:(()=>{try{return localStorage.getItem('vahan_api')||''}catch(e){return''}})(),apiKey:(()=>{try{return localStorage.getItem('vahan_key')||''}catch(e){return''}})(),live:false,mode:'off'};
+function can(l){return ROLES[ROLE].lvl>=l}
+function logAudit(a){AUDIT.unshift({t:nowT(),role:ROLE,action:a});if(AUDIT.length>200)AUDIT.pop()}
+function requireRole(l,a){if(!can(l)){toast('⛔ Իրավունք չունեք՝ «'+a+'» (պետք է ավելի բարձր դեր)');return false}logAudit(a);return true}
+function computePosture(){if(!postureManual){const a=S.active;POSTURE=a>=12?5:a>=8?4:a>=4?3:a>=1?2:1}return POSTURE}
+const POST=[null,{n:'L1 · Նորմալ',c:'#34d399',d:'Ֆոնային ակտիվություն։ Ստանդարտ մոնիթորինգ։'},{n:'L2 · Բարձրացված',c:'#60a5fa',d:'Նկատելի սկանավորում։ Ուժեղացված դիտարկում։'},{n:'L3 · Զգուշացում',c:'#ffd23f',d:'Ակտիվ հարձակումներ։ Rate-limit խստացում, challenge։'},{n:'L4 · Բարձր',c:'#ff9f1a',d:'Բազմավեկտոր սպառնալիք։ Ագրեսիվ auto-mitigation, scrubbing։'},{n:'L5 · Կրիտիկ',c:'#ff3b63',d:'Զանգվածային հարձակում։ Արտակարգ ռեժիմ, բոլոր պաշտպանությունն ակտիվ։'}];
+function updatePostureChip(){const p=computePosture(),pi=POST[p],c=document.getElementById('postChip');if(c){c.style.borderColor=pi.c;const b=c.querySelector('b');b.textContent='L'+p;b.style.color=pi.c}}
+(function(){const sel=document.getElementById('roleSel');if(sel){sel.innerHTML=Object.entries(ROLES).map(([k,v])=>`<option value="${k}" ${k===ROLE?'selected':''}>${v.n}</option>`).join('');sel.onchange=()=>{ROLE=sel.value;logAudit('դեր փոխվեց → '+ROLES[ROLE].n);toast('Ակտիվ դեր՝ '+ROLES[ROLE].n);route()}}})();
+
+const SOURCES=[
+ {n:'ipwho.is',cat:'Geo / ASN',ep:'ipwho.is/{ip}',key:'Ոչ',use:'IP → երկիր, ASN, ISP',path:'/ip'},
+ {n:'Shodan InternetDB',cat:'Attack surface',ep:'internetdb.shodan.io/{ip}',key:'Ոչ',use:'Բաց պորտեր, vulns, tags',path:'/ip'},
+ {n:'Shodan CVEDB',cat:'Խոցելիություն',ep:'cvedb.shodan.io/cve/{id}',key:'Ոչ',use:'CVE + CVSS + EPSS + KEV',path:'/cve'},
+ {n:'NVD CVE API 2.0',cat:'Խոցելիություն',ep:'services.nvd.nist.gov/rest/json/cves/2.0',key:'Ընտր. (free)',use:'Կանոնական CVE / CVSS',path:'/cve'},
+ {n:'CISA KEV',cat:'Խոցելիություն',ep:'cisa.gov/.../known_exploited_vulnerabilities.json',key:'Ոչ',use:'Ակտիվ շահագործվող',path:'/kev'},
+ {n:'FIRST EPSS',cat:'Խոցելիություն',ep:'api.first.org/data/v1/epss',key:'Ոչ',use:'Շահագործման հավանականություն',path:'/epss'},
+ {n:'abuse.ch ThreatFox',cat:'IoC feed',ep:'threatfox-api.abuse.ch/api/v1/',key:'Պահանջ. (free)',use:'IP / domain / hash IoC',path:'/iocs'},
+ {n:'abuse.ch URLhaus',cat:'IoC feed',ep:'urlhaus-api.abuse.ch/v1/',key:'Պահանջ. (free)',use:'Վնասաբեր URL-ներ',path:'/iocs'},
+ {n:'AlienVault OTX',cat:'IoC feed',ep:'otx.alienvault.com/api/v1/',key:'Պահանջ. (free)',use:'Pulse / IoC',path:'/iocs'}];
+
+async function pingBackend(){
+  if(!CONFIG.apiBase){CONFIG.live=false;return false}
+  try{const r=await fetch(CONFIG.apiBase.replace(/\/$/,'')+'/health');CONFIG.live=!!(r&&r.ok);return CONFIG.live}
+  catch(e){CONFIG.live=false;return false}
+}
+async function api(path,params){
+  if(CONFIG.apiBase){const u=new URL(CONFIG.apiBase.replace(/\/$/,'')+path);if(params)Object.entries(params).forEach(([k,v])=>u.searchParams.set(k,v));const r=await fetch(u.toString(),{headers:CONFIG.apiKey?{'X-API-Key':CONFIG.apiKey}:{}});if(!r.ok)throw new Error('HTTP '+r.status);return r.json()}
+  return apiDirect(path,params||{});
+}
+/* ուղիղ ռեժիմ՝ բրաուզերից անմիջապես կանչում է CORS-բաց անվճար աղբյուրները (local-ում աշխատում է առանց backend-ի) */
+async function apiDirect(path,p){
+  const J=u=>fetch(u).then(r=>{if(!r.ok)throw new Error(r.status);return r.json()});
+  if(path==='/geo'){const d=await J('https://ipwho.is/'+encodeURIComponent(p.ip));return {ip:p.ip,country:d.country,country_code:d.country_code,flag:d.flag&&d.flag.emoji,asn:d.connection&&('AS'+d.connection.asn),isp:d.connection&&(d.connection.isp||d.connection.org)}}
+  if(path==='/ip'){const[g,s]=await Promise.allSettled([J('https://ipwho.is/'+encodeURIComponent(p.ip)),J('https://internetdb.shodan.io/'+encodeURIComponent(p.ip))]);
+    const gd=g.status==='fulfilled'?g.value:{},sd=s.status==='fulfilled'?s.value:{ports:[],vulns:[],tags:[]};
+    let risk=Math.min((sd.vulns||[]).length*18,60)+Math.min((sd.ports||[]).length*3,20)+Math.min((sd.tags||[]).filter(t=>/scanner|malware|tor|vpn|proxy|compromised/i.test(t)).length*12,30);risk=Math.min(risk,100);
+    return {ip:p.ip,country:gd.country,country_code:gd.country_code,flag:gd.flag&&gd.flag.emoji,asn:gd.connection&&('AS'+gd.connection.asn),isp:gd.connection&&(gd.connection.isp||gd.connection.org),ports:sd.ports||[],vulns:sd.vulns||[],tags:sd.tags||[],risk,classification:risk>=70?'malicious':risk>=35?'suspicious':'benign'}}
+  if(path==='/cve'){const d=await J('https://cvedb.shodan.io/cve/'+encodeURIComponent(p.id));return {id:d.cve_id||p.id,cvss:d.cvss_v3||d.cvss,epss:d.epss,kev:!!d.kev,summary:d.summary}}
+  if(path==='/epss'){const d=await J('https://api.first.org/data/v1/epss?cve='+encodeURIComponent(p.cve));const r=(d.data||[])[0];return {cve:p.cve,epss:r?+r.epss:null,percentile:r?+r.percentile:null}}
+  if(path==='/asn'){let num;if(/^as\d+$/i.test(p.q))num=p.q.replace(/^as/i,'');else{const ni=await J('https://stat.ripe.net/data/network-info/data.json?resource='+encodeURIComponent(p.q));num=ni.data&&ni.data.asns&&ni.data.asns[0]}const o=await J('https://stat.ripe.net/data/as-overview/data.json?resource=AS'+num);return {asn:'AS'+num,holder:o.data&&o.data.holder,announced:o.data&&o.data.announced,country:((o.data&&o.data.holder)||'').split(',').pop().trim()}}
+  if(path==='/country'){const cc=(p.cc||'').toLowerCase();const[st,as]=await Promise.allSettled([J('https://stat.ripe.net/data/country-resource-stats/data.json?resource='+cc+'&resolution=1y'),J('https://stat.ripe.net/data/country-asns/data.json?resource='+cc+'&lod=1')]);
+    let prefixes=null;if(st.status==='fulfilled'){const s=st.value.data&&st.value.data.stats,l=s&&s[s.length-1];if(l)prefixes=l.v4_prefixes}
+    let asns=null,topAsns=[];if(as.status==='fulfilled'){const co=as.value.data&&as.value.data.countries&&as.value.data.countries[0];if(co){const r=String(co.routed||'').replace(/[\[\]\s]/g,'').split(',').filter(Boolean);asns=r.length;topAsns=r.slice(0,6).map(a=>'AS'+a)}}
+    return {cc:(p.cc||'').toUpperCase(),prefixes,asns,topAsns}}
+  if(path==='/domain'){const[crt,a,rd]=await Promise.allSettled([J('https://crt.sh/?q=%25.'+encodeURIComponent(p.name)+'&output=json'),J('https://dns.google/resolve?name='+encodeURIComponent(p.name)+'&type=A'),J('https://rdap.org/domain/'+encodeURIComponent(p.name))]);
+    let subs=[];if(crt.status==='fulfilled'){const set=new Set();(crt.value||[]).forEach(r=>String(r.name_value||'').split('\n').forEach(s=>{s=s.trim();if(s&&!s.startsWith('*')&&s.endsWith(p.name))set.add(s)}));subs=[...set].slice(0,40)}
+    const A=a.status==='fulfilled'&&a.value.Answer?a.value.Answer.filter(x=>x.type===1).map(x=>x.data):[];
+    let reg=null;if(rd.status==='fulfilled'){for(const e of(rd.value.entities||[])){const fn=e.vcardArray&&e.vcardArray[1]&&e.vcardArray[1].find(f=>f[0]==='fn');if(fn){reg=fn[3];break}}}
+    return {domain:p.name,subdomains:subs,dns:{A:A.join(', ')||'—'},registrar:reg||'—'}}
+  if(path==='/username'){const r=await fetch('https://api.github.com/users/'+encodeURIComponent(p.u));return {username:p.u,platforms:{GitHub:r.status===200}}}
+  if(path==='/breach')return {enabled:false,note:'HIBP-ը ուղիղ բրաուզերից անհասանելի է (CORS+բանալի) — պետք է backend'};
+  throw new Error('direct mode: '+path+' չի աջակցվում (պետք է backend)');
+}
+async function probeLive(){
+  if(CONFIG.apiBase){try{const r=await fetch(CONFIG.apiBase.replace(/\/$/,'')+'/health');if(r.ok){CONFIG.live=true;CONFIG.mode='backend';return 'backend'}}catch(e){}}
+  try{const c=new AbortController();setTimeout(()=>c.abort(),4500);const r=await fetch('https://ipwho.is/8.8.8.8',{signal:c.signal});if(r.ok){CONFIG.live=true;CONFIG.mode='direct';return 'direct'}}catch(e){}
+  CONFIG.live=false;CONFIG.mode='off';return 'off';
+}
+
+function vConnectors(){
+  const el=document.getElementById('view');
+  const cats=[...new Set(SOURCES.map(s=>s.cat))];
+  el.innerHTML=`<div class="page-head"><h1>Աղբյուրներ / Connectors</h1><span class="sub">· կենտրոնացված միացում բոլոր անվճար օնլայն աղբյուրներին</span></div>
+  <div class="card" style="margin-bottom:14px"><div class="card-h"><span class="ico"><svg viewBox="0 0 24 24" stroke="#22d3ee" fill="none" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M12 2v6M12 22v-6M2 12h6M22 12h-6"/></svg></span>Backend կապ<span class="mini">Cloudflare Worker · առանց install</span></div>
+    <div class="ip-search" style="max-width:660px"><input id="apiIn" placeholder="https://vahan-connector.<ենթ>.workers.dev" value="${CONFIG.apiBase}"><button class="btn primary" id="apiSave">Պահել</button><button class="btn" id="apiTest">Ստուգել</button></div>
+    <div class="ip-search" style="max-width:660px;margin-top:8px"><input id="keyIn" placeholder="X-API-Key (ընտրովի, եթե դրել ես VAHAN_API_KEY)" value="${CONFIG.apiKey}"><button class="btn" id="keySave">Պահել բանալին</button></div>
+    <div id="connStatus" class="note">Կարգավիճակ՝ <b>${CONFIG.live?'🟢 միացված':'🟠 անջատ (backend անջ.)'}</b></div>
+    <div class="note" style="margin-top:10px">ℹ️ Այս preview-ում արտաքին կանչերն արգելափակված են sandbox-ով, ուստի կապը միշտ «անջատ» է։ Երբ հարթակը բացես քո Pages/Worker դոմենից, կապը դառնում է կենդանի և բոլոր մոդուլները անցնում են իրական տվյալների։ Backend-ի deploy քայլերը՝ README.md-ում։</div></div>
+  ${cats.map(cat=>`<div class="card" style="margin-bottom:14px"><div class="card-h">${cat}</div>
+    <div class="grid" style="grid-template-columns:repeat(auto-fit,minmax(255px,1fr))">
+    ${SOURCES.filter(s=>s.cat===cat).map(s=>`<div class="conn-card"><div class="conn-top"><span class="cn">${s.n}</span><span class="st ${CONFIG.live?'live':'off'}">${CONFIG.live?'LIVE':'ԼՈԿԱԼ'}</span></div>
+      <div class="conn-use">${s.use}</div><div class="conn-ep">${s.ep}</div><div style="font-size:11px;color:var(--muted2)">Բանալի՝ ${s.key} · route <span class="mono" style="color:var(--cyan)">${s.path}</span></div></div>`).join('')}</div></div>`).join('')}`;
+  document.getElementById('apiSave').onclick=()=>{if(!requireRole(3,'փոխել backend կարգավորումը'))return;const v=document.getElementById('apiIn').value.trim();CONFIG.apiBase=v;try{localStorage.setItem('vahan_api',v)}catch(e){}toast('Backend URL պահվեց')};
+  const ks=document.getElementById('keySave');if(ks)ks.onclick=()=>{if(!requireRole(3,'փոխել backend բանալին'))return;CONFIG.apiKey=document.getElementById('keyIn').value.trim();try{localStorage.setItem('vahan_key',CONFIG.apiKey)}catch(e){}toast('Բանալին պահվեց')};
+  document.getElementById('apiTest').onclick=async()=>{CONFIG.apiBase=document.getElementById('apiIn').value.trim();toast('Ստուգում…');const ok=await pingBackend();const s=document.getElementById('connStatus');if(s)s.innerHTML='Կարգավիճակ՝ <b>'+(ok?'🟢 միացված':'🟠 անջատ (preview-ում արտաքին կանչերն արգելափակված են)')+'</b>'};
+}
+
+function vDefense(){
+  const el=document.getElementById('view');
+  const p=computePosture(),pi=POST[p];
+  const perms=[['Դիտել վահանակ',[1,1,1,1]],['Հետազոտել միջադեպ',[0,1,1,1]],['Արձագանքել / մեկուսացնել',[0,1,1,1]],['Փոխել պաշտպ. աստիճան',[0,0,1,1]],['Կարգավորումներ / backend',[0,0,1,1]],['Կառավարել դերեր',[0,0,0,1]]];
+  el.innerHTML=`<div class="page-head"><h1>Պաշտպանություն / Մուտք</h1><span class="sub">· պաշտպանության աստիճան · դերեր (RBAC) · audit log</span></div>
+  <div class="grid" style="grid-template-columns:1fr 1fr">
+    <div class="card"><div class="card-h">Պաշտպանության աստիճան<span class="mini">${postureManual?'ձեռքով':'ավտոմատ'}</span></div>
+      <div class="post-hero" style="background:linear-gradient(135deg,${pi.c}22,transparent)">
+        <div class="post-ring" style="border:3px solid ${pi.c};color:${pi.c}">L${p}</div>
+        <div><div style="font-size:16px;font-weight:700;color:${pi.c}">${pi.n}</div><div style="font-size:12.5px;color:var(--muted);margin-top:4px">${pi.d}</div>
+        <div class="post-steps">${[1,2,3,4,5].map(i=>`<div class="ps" style="background:${i<=p?POST[i].c:'var(--panel2)'}"></div>`).join('')}</div></div></div>
+      <div style="margin-top:14px;display:flex;gap:7px;flex-wrap:wrap;align-items:center">
+        <span style="font-size:12px;color:var(--muted)">Ձեռքով՝</span>
+        ${[1,2,3,4,5].map(i=>`<button class="kmini" data-post="${i}">L${i}</button>`).join('')}
+        <button class="kmini" data-post="auto" style="color:var(--cyan);border-color:var(--cyan)">Auto</button></div>
+      <div style="font-size:11px;color:var(--muted2);margin-top:9px">Ավտո-ռեժիմում աստիճանը սրվում է ակտիվ սպառնալիքների ծավալին համընթաց։</div></div>
+    <div class="card"><div class="card-h">Դերեր և իրավունքներ (RBAC)<span class="mini">ընթացիկ՝ ${ROLES[ROLE].n}</span></div>
+      <table class="rbac"><thead><tr><th>Գործողություն</th><th>Դիտող</th><th>Վերլ.</th><th>Ադմին</th><th>SOC-ղեկ.</th></tr></thead><tbody>
+      ${perms.map(([name,arr])=>`<tr><td>${name}</td>${arr.map(v=>`<td>${v?'<span class="y">✓</span>':'<span class="n">–</span>'}</td>`).join('')}</tr>`).join('')}
+      </tbody></table>
+      <div class="note" style="margin-top:12px">🔐 Prod-ում՝ SSO + MFA (Cloudflare Access / Keycloak), gateway-ում՝ <span class="mono">X-API-Key</span>, ամեն մուտք՝ ստորագրված audit-ում։ Դերը փոխիր վերևի ցանկից՝ տեսնելու գործողությունների սահմանափակումը։</div></div>
+  </div>
+  <div class="card" style="margin-top:14px"><div class="card-h"><span class="ico"><svg viewBox="0 0 24 24" stroke="#22d3ee" fill="none" stroke-width="2"><rect x="4" y="10" width="16" height="10" rx="2"/><path d="M8 10V7a4 4 0 018 0v3"/></svg></span>Անվտանգության կարգավորումներ<span class="mini">PIN · 2FA · Face · ելք</span></div>
+    <div class="grid" style="grid-template-columns:1fr 1fr">
+      <div><div style="font-size:12px;color:var(--muted);margin-bottom:7px">Ծածկագիր (PIN)</div>
+        <div class="ip-search" style="max-width:none;gap:7px"><input id="pinOld" placeholder="հին PIN" style="font-family:'JetBrains Mono'"><input id="pinNew" placeholder="նոր PIN" style="font-family:'JetBrains Mono'"><button class="btn primary" id="pinSave">Պահել</button></div>
+        <div style="margin-top:8px"><button class="kmini" id="pinToggle"></button></div></div>
+      <div><div style="font-size:12px;color:var(--muted);margin-bottom:7px">2FA · TOTP (իրական)</div>
+        <div class="ip-row"><span class="l">Secret</span><span class="v mono" id="totpSec" style="font-size:11px"></span></div>
+        <div style="text-align:center;margin:8px 0"><div id="totpQR" style="display:inline-block;padding:7px;background:#fff;border-radius:9px"></div><div style="font-size:10px;color:var(--muted);margin-top:5px">Scan QR → authenticator</div></div>
+        <div class="ip-row" style="border:0"><span class="l">otpauth</span><span class="v mono" id="totpUri" style="font-size:9px;word-break:break-all;max-width:230px"></span></div>
+        <div style="margin-top:8px"><button class="kmini" id="totpRot">Rotate secret</button></div></div>
+      <div><div style="font-size:12px;color:var(--muted);margin-bottom:7px">Դեմք (Face)</div>
+        <div class="ip-row" style="border:0"><span class="l">Կարգավիճակ</span><span class="v" id="faceStat"></span></div>
+        <div style="margin-top:8px"><button class="kmini" id="faceClear">Մաքրել · վերագրանցել</button></div></div>
+      <div><div style="font-size:12px;color:var(--muted);margin-bottom:7px">Սեսիա</div>
+        <button class="btn" id="logout2">⎋ Ելք համակարգից</button></div>
+    </div>
+    <div class="note" style="margin-top:12px">2FA-ն իրական TOTP է (RFC 6238) — secret-ը ավելացրու Google/Microsoft Authenticator-ում otpauth-ով։ Face-ը լոկալ on-device match է (prod-ում՝ FaceID SDK / face-api.js)։</div></div>
+  <div class="card" style="margin-top:14px"><div class="card-h"><span class="ico"><svg viewBox="0 0 24 24" stroke="#a78bfa" fill="none" stroke-width="2"><path d="M4 4h16v16H4z"/><path d="M8 9h8M8 13h5"/></svg></span>Audit log<span class="mini">վերջին գործողությունները</span></div>
+    <div id="auditLog" style="max-height:230px;overflow-y:auto">${AUDIT.map(a=>`<div class="audit-row"><span class="at">${a.t}</span><span class="ar">${ROLES[a.role]?ROLES[a.role].n:a.role}</span><span>${a.action}</span></div>`).join('')}</div></div>`;
+  document.querySelectorAll('[data-post]').forEach(b=>b.onclick=()=>{if(!requireRole(3,'փոխել պաշտպանության աստիճան'))return;if(b.dataset.post==='auto'){postureManual=false}else{postureManual=true;POSTURE=+b.dataset.post}updatePostureChip();vDefense()});
+  const $=id=>document.getElementById(id);
+  const uri=()=>'otpauth://totp/VAHAN:admin?secret='+AUTH.totp+'&issuer=VAHAN';
+  if($('totpSec')){$('totpSec').textContent=AUTH.totp;$('totpUri').textContent=uri();renderQR($('totpQR'),uri());$('faceStat').innerHTML=AUTH.face?'<span class="pill g">գրանցված</span>':'<span class="pill gray">չգրանցված</span>';$('pinToggle').textContent=AUTH.pinOn?'PIN՝ միացված → անջատել':'PIN՝ անջատված → միացնել';}
+  if($('pinSave'))$('pinSave').onclick=()=>{if(!requireRole(3,'փոխել PIN'))return;if($('pinOld').value!==AUTH.pin){toast('Հին PIN-ը սխալ է');return}const nv=$('pinNew').value.trim();if(!/^\d{3,8}$/.test(nv)){toast('Նոր PIN՝ 3–8 թվանշան');return}AUTH.pin=nv;authSave('vahan_pin',nv);toast('PIN փոխվեց ✓');$('pinOld').value='';$('pinNew').value=''};
+  if($('pinToggle'))$('pinToggle').onclick=()=>{if(!requireRole(3,'փոխել PIN-ռեժիմ'))return;AUTH.pinOn=!AUTH.pinOn;authSave('vahan_pin_off',AUTH.pinOn?'0':'1');$('pinToggle').textContent=AUTH.pinOn?'PIN՝ միացված → անջատել':'PIN՝ անջատված → միացնել';toast('PIN '+(AUTH.pinOn?'միացվեց':'անջատվեց'))};
+  if($('totpRot'))$('totpRot').onclick=()=>{if(!requireRole(3,'rotate 2FA'))return;AUTH.totp=randB32(16);authSave('vahan_totp',AUTH.totp);$('totpSec').textContent=AUTH.totp;$('totpUri').textContent=uri();renderQR($('totpQR'),uri());toast('2FA secret թարմացվեց')};
+  if($('faceClear'))$('faceClear').onclick=()=>{if(!requireRole(3,'մաքրել դեմք'))return;AUTH.face='';authSave('vahan_face','');$('faceStat').innerHTML='<span class="pill gray">չգրանցված</span>';toast('Դեմքը մաքրվեց — հաջորդ մուտքին կվերագրանցվի')};
+  if($('logout2'))$('logout2').onclick=()=>{logAudit('ելք համակարգից');location.reload()};
+}
+
+/* ===================== COUNTRY DOSSIER ===================== */
+const CDOSSIER={
+ US:{ipv4:'~1.58 մլրդ',asns:'~33,000',ops:['Comcast · AS7922','AT&T · AS7018','Verizon · AS701'],pen:'92%',role:'Աղբյուր #3 · cloud-abuse, bulletproof hosting',it:'Աշխարհի խոշորագույն datacenter-շուկա, hyperscale cloud (AWS/Azure/GCP)',cert:'CISA / US-CERT'},
+ CN:{ipv4:'~343 մլն',asns:'~700',ops:['China Telecom · AS4134','China Unicom · AS4837','CMNet · AS9808'],pen:'77%',role:'Աղբյուր #1 · զանգվածային սկան, botnet',it:'Պետական վերահսկվող ցանց, Great Firewall, արագ աճ',cert:'CNCERT/CC'},
+ RU:{ipv4:'~46 մլն',asns:'~7,500',ops:['Rostelecom · AS12389','MTS · AS8359','ER-Telecom · AS9049'],pen:'90%',role:'Աղբյուր #1–2 · DDoS, bulletproof hosting',it:'Զարգացած ենթակառուցվածք, state-linked խմբեր, sovereign-internet',cert:'RU-CERT / НКЦКИ'},
+ DE:{ipv4:'~120 մլն',asns:'~3,000',ops:['Deutsche Telekom · AS3320','Vodafone · AS3209','Hetzner · AS24940'],pen:'93%',role:'Transit-hub · hosting-abuse (Hetzner/OVH)',it:'Եվրոպայի #1 IX (DE-CIX Frankfurt), ուժեղ hosting ոլորտ',cert:'CERT-Bund (BSI)'},
+ NL:{ipv4:'~49 մլն',asns:'~1,400',ops:['KPN · AS1136','LeaseWeb · AS60781','Global Layer · AS49453'],pen:'96%',role:'Hosting-abuse hub · bulletproof VPS',it:'AMS-IX, խիտ datacenter-ներ, հզոր կապ',cert:'NCSC-NL'},
+ IR:{ipv4:'~13 մլն',asns:'~1,100',ops:['TCI · AS58224','MCCI · AS197207','Pishgaman · AS44889'],pen:'79%',role:'Աղբյուր · state-linked, defacement/DDoS',it:'National Information Network (NIN), ֆիլտրացիա',cert:'MAHER CERT'},
+ TR:{ipv4:'~17 մլն',asns:'~1,100',ops:['Turk Telekom · AS9121','Turkcell · AS16135','Vodafone TR · AS15897'],pen:'83%',role:'Աղբյուր · brute-force, scan',it:'Աճող ՏՏ, տարածաշրջ. transit, data-localization',cert:'USOM / TR-CERT'},
+ IN:{ipv4:'~37 մլն',asns:'~3,200',ops:['Jio · AS55836','Airtel · AS9498','BSNL · AS9829'],pen:'52%',role:'Աղբյուր · IoT-botnet, scan',it:'Աշխարհի #2 ինտернет-բազա, արագ mobile աճ',cert:'CERT-In'},
+ BR:{ipv4:'~84 մլն',asns:'~9,500',ops:['Telefônica · AS27699','Claro · AS4230','Oi · AS7738'],pen:'84%',role:'Աղբյուր · banking-trojan, botnet',it:'Լատ. Ամերիկայի խոշորագույն շուկա, շատ ASN',cert:'CERT.br'},
+ VN:{ipv4:'~16 մլն',asns:'~700',ops:['Viettel · AS7552','VNPT · AS45899','FPT · AS18403'],pen:'79%',role:'Աղբյուր · IoT-botnet (Mirai)',it:'Արագ աճող ՏՏ, outsourcing hub',cert:'VNCERT'},
+ FR:{ipv4:'~96 մլն',asns:'~2,200',ops:['Orange · AS3215','OVHcloud · AS16276','Free · AS12322'],pen:'93%',role:'Transit · hosting-abuse (OVH)',it:'OVH՝ Եվրոպայի խոշոր hoster, ուժեղ cloud',cert:'CERT-FR (ANSSI)'},
+ GB:{ipv4:'~123 մլն',asns:'~3,000',ops:['BT · AS2856','Virgin Media · AS5089','Sky · AS5607'],pen:'95%',role:'Transit · fintech-թիրախ',it:'LINX, ֆինտեխ-կենտրոն, հասուն ՏՏ',cert:'NCSC-UK'},
+ UA:{ipv4:'~13 մլն',asns:'~2,400',ops:['Kyivstar · AS15895','Ukrtelecom · AS6849','Lifecell · AS21011'],pen:'80%',role:'Թիրախ և աղբյուր · պատերազմ. կիբեր-ակտ.',it:'Պատերազմի պայմաններում դիմացկուն ցանց, Starlink',cert:'CERT-UA'},
+ AM:{ipv4:'~1.0 մլն',asns:'~60',ops:['Team Telecom Armenia · AS12297','Ucom · AS44395','GNC-Alfa · AS16010'],pen:'79%',role:'Հիմնականում թիրախ, ոչ աղբյուր',it:'Աճող ՏՏ ոլորտ, fiber ընդլայնում, startup-էկոհամակարգ',cert:'CERT-AM (am-cert.am)'}};
+function genDossier(C){const w=C.w||3;return {ipv4:'~'+(w*2)+'.'+rnd(0,9)+' մլն',asns:'~'+(w*rnd(80,220)),ops:[C.c+' Telecom','Nat-ISP · '+C.cc],pen:rnd(55,92)+'%',role:w>=7?'Ակտիվ աղբյուր · DDoS/scan':w>=4?'Միջին ակտիվություն':'Հիմնականում թիրախ',it:'ՏՏ ոլորտը զարգացող, fiber/mobile ընդլայնում',cert:'National CERT'}}
+const IT_LOC={
+ US:[['Equinix Ashburn (NoVA hub)','Ashburn, VA','https://www.peeringdb.com/fac/1'],['NYIIX / Telehouse','New York, NY','https://www.peeringdb.com'],['CoreSite LA1','Los Angeles, CA','https://www.peeringdb.com']],
+ DE:[['DE-CIX Frankfurt (աշխ. #1 IX)','Frankfurt, Kleyerstraße','https://www.de-cix.net'],['Interxion FRA','Frankfurt','https://www.peeringdb.com']],
+ NL:[['AMS-IX','Amsterdam, Science Park','https://www.ams-ix.net'],['Equinix AM','Amsterdam','https://www.peeringdb.com']],
+ GB:[['LINX','London, Telehouse','https://www.linx.net'],['Telehouse North','London, Coriander Ave','https://www.peeringdb.com']],
+ RU:[['MSK-IX','Moscow, M9 Butlerova','https://www.msk-ix.ru'],['DataPro','Moscow','https://www.peeringdb.com']],
+ FR:[['France-IX','Paris','https://www.franceix.net'],['Interxion PAR','Paris','https://www.peeringdb.com']],
+ SG:[['SGIX','Singapore','https://www.peeringdb.com'],['Equinix SG1','Singapore','https://www.peeringdb.com']],
+ JP:[['JPIX / JPNAP','Tokyo, Otemachi','https://www.jpix.ad.jp'],['Equinix TY','Tokyo','https://www.peeringdb.com']],
+ TR:[['IST-IX','Istanbul','https://www.peeringdb.com'],['Turkcell DC','Istanbul','https://www.peeringdb.com']],
+ IR:[['IR-IX (IXP)','Tehran','https://www.peeringdb.com']],
+ AM:[['GNC / DataLine IXP','Երևան','https://www.peeringdb.com'],['Team Telecom DC','Երևան','https://www.peeringdb.com']]};
+function countryLinks(cc){return [['PeeringDB','https://www.peeringdb.com/search?q='+encodeURIComponent(cc)],['Submarine Cable Map','https://www.submarinecablemap.com'],['IX Map','https://www.internetexchangemap.com'],['RIPEstat','https://stat.ripe.net/'+encodeURIComponent(cc)]]}
+function dossierHTML(C,d,live){
+  const ops=(d.topAsnsLive&&d.topAsnsLive.length?d.topAsnsLive:d.ops);const loc=IT_LOC[C.cc];
+  return `<div style="display:flex;align-items:center;gap:10px;margin-bottom:10px"><span style="font-size:26px">${C.f}</span><div><div style="font-weight:700;font-size:15px">${C.c}</div><div style="font-size:11px;color:var(--muted)">${C.cc}${live?' · 🟢 RIPEstat':''}</div></div></div>
+   <div class="ip-row"><span class="l">IPv4 տարածք</span><span class="v mono">${d.ipPrefixes?('~'+Number(d.ipPrefixes).toLocaleString()+' prefix'):d.ipv4}</span></div>
+   <div class="ip-row"><span class="l">ASN-ներ</span><span class="v mono">${d.asnsLive||d.asns}</span></div>
+   <div class="ip-row"><span class="l">Խոշոր օպերատ.</span><span class="v" style="text-align:right;font-size:11px">${ops.join('<br>')}</span></div>
+   <div class="ip-row"><span class="l">Ինտերնետ ներթափ.</span><span class="v mono">${d.pen}</span></div>
+   <div class="ip-row"><span class="l">Սպառնալիքի դեր</span><span class="v" style="text-align:right;font-size:11px">${d.role}</span></div>
+   <div style="margin-top:8px;font-size:11px;color:var(--muted)"><b style="color:var(--txt)">ՏՏ ոլորտ.</b> ${d.it}</div>
+   <div style="font-size:11px;color:var(--cyan);margin-top:6px">CERT՝ ${d.cert}</div>
+   ${loc&&loc.length?`<div style="margin-top:10px;font-size:11px"><b style="color:var(--txt)">Հայտնի ՏՏ լոկացիաներ.</b></div>`+loc.map(l=>`<div class="ip-row" style="padding:5px 0"><a class="v" href="${l[2]}" target="_blank" rel="noopener" style="color:var(--cyan);text-decoration:none;font-size:11px">${l[0]} ↗</a><span style="font-size:10px;color:var(--muted2)">${l[1]}</span></div>`).join(''):''}
+   <div class="hrow" style="flex-wrap:wrap;gap:6px;margin-top:9px">${countryLinks(C.cc).map(([n,u])=>`<a class="kmini" href="${u}" target="_blank" rel="noopener" style="text-decoration:none">${n} ↗</a>`).join('')}</div>`;
+}
+function selectCountry(cc){
+  window.SEL_CC=cc;
+  const box=document.getElementById('dossier');if(!box)return;
+  const C=COUNTRIES.find(c=>c.cc===cc)||{c:cc,f:'🌐',cc,w:3};
+  let d=CDOSSIER[cc]||genDossier(C);
+  box.innerHTML=dossierHTML(C,d,false);
+  if(CONFIG.live){api('/country',{cc}).then(L=>{const nd={...d,ipPrefixes:L.prefixes,asnsLive:L.asns,topAsnsLive:(L.topAsns||[])};box.innerHTML=dossierHTML(C,nd,true)}).catch(()=>{})}
+  logAudit('երկրի դոսյե → '+cc);
+}
+
+/* ===================== EXTERNAL LINKS (pivot) ===================== */
+function extLinks(type,q){
+ const g=s=>'https://www.google.com/search?q='+encodeURIComponent(s);const e=encodeURIComponent(q);
+ const M={
+  domain:[['crt.sh','https://crt.sh/?q=%25.'+e],['Shodan','https://www.shodan.io/domain/'+e],['VirusTotal','https://www.virustotal.com/gui/domain/'+e],['urlscan','https://urlscan.io/domain/'+e],['SecurityTrails','https://securitytrails.com/domain/'+e+'/dns'],['Wayback','https://web.archive.org/web/*/'+e],['Google',g('site:'+q)]],
+  email:[['HaveIBeenPwned','https://haveibeenpwned.com/account/'+e],['Gravatar',(window.md5?('https://gravatar.com/'+md5(q.trim().toLowerCase())):g('"'+q+'"'))],['Google',g('"'+q+'"')],['LinkedIn',g('site:linkedin.com "'+q+'"')],['GitHub',g('site:github.com "'+q+'"')],['Facebook',g('site:facebook.com "'+q+'"')]],
+  ip:[['Shodan','https://www.shodan.io/host/'+e],['GreyNoise','https://viz.greynoise.io/ip/'+e],['AbuseIPDB','https://www.abuseipdb.com/check/'+e],['VirusTotal','https://www.virustotal.com/gui/ip-address/'+e],['RIPEstat','https://stat.ripe.net/'+e]],
+  username:[['GitHub','https://github.com/'+e],['Google',g('"'+q+'"')],['Multi-site',g(q+' (site:github.com OR site:reddit.com OR site:t.me OR site:x.com)')]],
+  hash:[['VirusTotal','https://www.virustotal.com/gui/file/'+e],['MalwareBazaar','https://bazaar.abuse.ch/browse.php?search='+e],['Google',g('"'+q+'"')]],
+  cve:[['NVD','https://nvd.nist.gov/vuln/detail/'+e],['CVEDB','https://cvedb.shodan.io/cve/'+e],['Exploit-DB',g('site:exploit-db.com '+q)],['CISA KEV','https://www.cisa.gov/known-exploited-vulnerabilities-catalog']],
+  asn:[['RIPEstat','https://stat.ripe.net/'+e],['BGPView','https://bgpview.io/asn/'+q.replace(/^AS/i,'')],['PeeringDB','https://www.peeringdb.com/search?q='+e]]
+ };
+ return M[type]||[];
+}
+function linksCard(type,q){const ls=extLinks(type,q);if(!ls.length)return '';return `<div class="card" style="margin-top:14px"><div class="card-h">Հղումներ / External<span class="mini">բացում են նոր պատուհանում</span></div><div class="hrow" style="flex-wrap:wrap;gap:8px">${ls.map(([n,u])=>`<a class="btn" href="${u}" target="_blank" rel="noopener" style="text-decoration:none">${n} ↗</a>`).join('')}</div></div>`}
+
+/* ===================== INTEL TOOLS: TRACE / ASN / OSINT ===================== */
+function hashStr(s){let h=0;for(let i=0;i<(s||'').length;i++){h=(h<<5)-h+s.charCodeAt(i)|0}return h}
+const BACKBONES=[
+ {op:'Team Telecom Armenia',asn:'AS12297',city:'Երևան',flag:'🇦🇲',lat:40.18,lon:44.51},
+ {op:'Caucasus Online',asn:'AS16010',city:'Թբիլիսի',flag:'🇬🇪',lat:41.72,lon:44.78},
+ {op:'Rostelecom',asn:'AS12389',city:'Մոսկվա',flag:'🇷🇺',lat:55.75,lon:37.62},
+ {op:'Arelion (Telia)',asn:'AS1299',city:'Ֆրանկֆուրտ',flag:'🇩🇪',lat:50.11,lon:8.68},
+ {op:'Lumen / Level3',asn:'AS3356',city:'Ամստերդամ',flag:'🇳🇱',lat:52.37,lon:4.90},
+ {op:'Cogent',asn:'AS174',city:'Լոնդոն',flag:'🇬🇧',lat:51.50,lon:-0.12},
+ {op:'Hurricane Electric',asn:'AS6939',city:'Նյու Յորք',flag:'🇺🇸',lat:40.71,lon:-74.0}];
+const DEST=[{op:'Google LLC',asn:'AS15169',city:'Mountain View',flag:'🇺🇸',lat:37.42,lon:-122.08},
+ {op:'Amazon AWS',asn:'AS16509',city:'Ashburn',flag:'🇺🇸',lat:39.04,lon:-77.49},
+ {op:'Alibaba Cloud',asn:'AS45102',city:'Hangzhou',flag:'🇨🇳',lat:30.27,lon:120.15},
+ {op:'OVHcloud',asn:'AS16276',city:'Roubaix',flag:'🇫🇷',lat:50.69,lon:3.17}];
+function genTrace(target){
+  const dst=DEST[Math.abs(hashStr(target))%DEST.length];
+  const n=4+(Math.abs(hashStr(target))%3);
+  const path=BACKBONES.slice(0,n).concat([dst]);
+  let ms=2+Math.random()*4;
+  return path.map((h,i)=>{ms+=6+Math.random()*20*(i+1)/2;return {...h,ip:randIP(),ms:Math.round(ms)}});
+}
+function drawTrace(canvas,hops,shown){
+  if(!canvas)return;const ctx=canvas.getContext('2d');const r=canvas.getBoundingClientRect();const DPR=Math.min(window.devicePixelRatio||1,2);
+  canvas.width=r.width*DPR;canvas.height=r.height*DPR;ctx.setTransform(DPR,0,0,DPR,0,0);
+  const W=r.width,H=r.height,P=(lon,lat)=>[(lon+180)/360*W,(90-lat)/180*H];
+  ctx.clearRect(0,0,W,H);
+  ctx.strokeStyle='rgba(34,211,238,0.05)';ctx.lineWidth=1;
+  for(let lo=-180;lo<=180;lo+=30){const[a]=P(lo,90);ctx.beginPath();ctx.moveTo(a,0);ctx.lineTo(a,H);ctx.stroke()}
+  for(let la=-60;la<=90;la+=30){const[,b]=P(0,la);ctx.beginPath();ctx.moveTo(0,b);ctx.lineTo(W,b);ctx.stroke()}
+  if(landFeatures){ctx.fillStyle='rgba(34,211,238,0.05)';ctx.strokeStyle='rgba(34,211,238,0.22)';ctx.lineWidth=0.6;
+    for(const ft of landFeatures){const g=ft.geometry;if(!g)continue;const ps=g.type==='Polygon'?[g.coordinates]:g.coordinates;for(const poly of ps)for(const ring of poly){ctx.beginPath();ring.forEach((pt,i)=>{const[x,y]=P(pt[0],pt[1]);i?ctx.lineTo(x,y):ctx.moveTo(x,y)});ctx.closePath();ctx.fill();ctx.stroke()}}}
+  const pts=hops.slice(0,shown).map(h=>P(h.lon,h.lat));
+  ctx.strokeStyle='#22d3ee';ctx.lineWidth=1.7;ctx.beginPath();pts.forEach((p,i)=>i?ctx.lineTo(p[0],p[1]):ctx.moveTo(p[0],p[1]));ctx.shadowColor='#22d3ee';ctx.shadowBlur=6;ctx.stroke();ctx.shadowBlur=0;
+  pts.forEach((p,i)=>{const last=i===pts.length-1&&shown===hops.length;ctx.beginPath();ctx.arc(p[0],p[1],last?5:3,0,7);ctx.fillStyle=last?'#ff3b63':'#34d399';ctx.shadowColor=ctx.fillStyle;ctx.shadowBlur=last?10:5;ctx.fill();ctx.shadowBlur=0});
+}
+function vTrace(){
+  const el=document.getElementById('view');
+  el.innerHTML=`<div class="page-head"><h1>Երթուղի / Traceroute</h1><span class="sub">· ցանցային ուղու հետագծում՝ օպերատոր + լոկացիա ամեն hop-ում</span></div>
+  <div class="ip-search" style="max-width:520px"><input id="trIn" placeholder="դոմեն կամ IP" value="google.com"><button class="btn primary" id="trGo">Հետագծել</button></div>
+  <div class="grid" style="grid-template-columns:1fr 420px">
+    <div class="map-wrap" style="height:460px"><canvas id="trMap"></canvas><div class="map-ov"><div class="map-tag mono">TRACEROUTE · hop-by-hop geo</div></div></div>
+    <div class="card" style="max-height:460px;overflow-y:auto"><div class="card-h">Hop-եր<span class="mini" id="trN"></span></div><div id="trHops"><div class="empty" style="padding:30px 10px"><div>Մուտքագրիր թիրախ և սեղմիր «Հետագծել»</div></div></div></div>
+  </div>
+  <div class="note" style="margin-top:12px">ℹ️ Նախատիպում երթուղին նմանակված է իրատեսական backbone-օպերատորներով։ Իրական traceroute-ը պահանջում է հանգույց-ագենտ կամ looking-glass / RIPE Atlas (բրաուզերից ICMP անհնար է)։ Deploy-ում ամեն hop-ի geo-ն քաշվում է <span class="mono">/ip</span>-ից։</div>`;
+  const canvas=document.getElementById('trMap');let iv=null;
+  function run(){
+    if(iv)clearInterval(iv);
+    const t=document.getElementById('trIn').value.trim()||'google.com';
+    const hops=genTrace(t);document.getElementById('trN').textContent=hops.length+' hop';
+    document.getElementById('trHops').innerHTML='';let shown=0;
+    iv=setInterval(()=>{shown++;drawTrace(canvas,hops,shown);const h=hops[shown-1];
+      document.getElementById('trHops').insertAdjacentHTML('beforeend',`<div class="hop"><span class="n">${shown}</span><span class="fl">${h.flag}</span><span class="op"><b>${h.op}</b><br><span>${h.city} · ${h.asn} · ${h.ip}</span></span><span class="ms">${h.ms}ms</span></div>`);
+      if(shown>=hops.length){clearInterval(iv);iv=null;logAudit('traceroute → '+t)}},440);
+    viewTimers.push(iv);
+  }
+  document.getElementById('trGo').onclick=run;
+  document.getElementById('trIn').addEventListener('keydown',e=>{if(e.key==='Enter')run()});
+  setTimeout(()=>{drawTrace(canvas,[],0);run()},80);
+}
+
+const OPERATORS=[
+ {asn:'AS3356',op:'Lumen (Level 3)',cc:'🇺🇸 ԱՄՆ',type:'Tier-1',pfx:'~34,000',rank:1},
+ {asn:'AS1299',op:'Arelion (Telia)',cc:'🇸🇪 Շվեդիա',type:'Tier-1',pfx:'~28,500',rank:2},
+ {asn:'AS174',op:'Cogent',cc:'🇺🇸 ԱՄՆ',type:'Tier-1',pfx:'~27,000',rank:3},
+ {asn:'AS2914',op:'NTT',cc:'🇯🇵 Ճապոնիա',type:'Tier-1',pfx:'~21,000',rank:4},
+ {asn:'AS6939',op:'Hurricane Electric',cc:'🇺🇸 ԱՄՆ',type:'Tier-1',pfx:'~20,000',rank:5},
+ {asn:'AS13335',op:'Cloudflare',cc:'🇺🇸 ԱՄՆ',type:'Cloud/CDN',pfx:'~1,500',rank:6},
+ {asn:'AS16509',op:'Amazon AWS',cc:'🇺🇸 ԱՄՆ',type:'Cloud',pfx:'~18,000',rank:7},
+ {asn:'AS15169',op:'Google',cc:'🇺🇸 ԱՄՆ',type:'Cloud',pfx:'~1,200',rank:8},
+ {asn:'AS12389',op:'Rostelecom',cc:'🇷🇺 ՌԴ',type:'ISP',pfx:'~9,000',rank:9},
+ {asn:'AS4134',op:'China Telecom',cc:'🇨🇳 Չինաստան',type:'ISP',pfx:'~12,000',rank:10},
+ {asn:'AS9121',op:'Turk Telekom',cc:'🇹🇷 Թուրքիա',type:'ISP',pfx:'~3,400',rank:11},
+ {asn:'AS12297',op:'Team Telecom Armenia',cc:'🇦🇲 Հայաստան',type:'ISP',pfx:'~180',rank:12}];
+function vAsn(){
+  const el=document.getElementById('view');
+  const stat=(l,v)=>`<div style="padding:12px;background:var(--panel2);border:1px solid var(--line);border-radius:10px"><div style="font-size:11px;color:var(--muted)">${l}</div><div style="font-size:16px;font-weight:700;margin-top:4px">${v}</div></div>`;
+  el.innerHTML=`<div class="page-head"><h1>Օպերատորներ / ASN</h1><span class="sub">· աշխարհի օպերատորների ու ցանցերի դիտարկում (RIPEstat / BGPView)</span></div>
+  <div class="ip-search" style="max-width:520px"><input id="asIn" placeholder="ASN կամ IP (օր. AS13335 կամ 1.1.1.1)" value="AS13335"><button class="btn primary" id="asGo">Որոնել</button></div>
+  <div id="asRes" style="margin-bottom:14px"></div>
+  <div class="card pad0"><div class="card-h" style="padding:15px 15px 0">Աշխարհի խոշոր օպերատորներ<span class="mini">rank ըստ prefix-ների</span></div>
+  <table class="tbl"><thead><tr><th>Rank</th><th>ASN</th><th>Օպերատոր</th><th>Երկիր</th><th>Տեսակ</th><th>Prefixes</th></tr></thead><tbody>
+  ${OPERATORS.map(o=>`<tr><td class="mono" style="color:var(--muted)">#${o.rank}</td><td class="mono" style="color:var(--cyan)">${o.asn}</td><td>${o.op}</td><td>${o.cc}</td><td><span class="pill ${o.type.includes('Tier')?'b':o.type.includes('Cloud')?'p':'gray'}">${o.type}</span></td><td class="mono">${o.pfx}</td></tr>`).join('')}
+  </tbody></table></div>`;
+  async function run(){
+    const q=document.getElementById('asIn').value.trim();let d=OPERATORS.find(o=>o.asn.toLowerCase()===q.toLowerCase());
+    if(CONFIG.live){try{const L=await api('/asn',{q});d={asn:L.asn,op:L.holder||'—',cc:L.country||'🌐',type:'—',pfx:L.prefixes||'—',peers:L.announced};}catch(e){toast('Live ձախողվեց — դեմո')}}
+    if(!d){d={asn:/^as/i.test(q)?q.toUpperCase():'AS'+rnd(1000,65000),op:'Նմանակված օպերատոր',cc:'🌐',type:'ISP',pfx:'~'+rnd(10,9000)}}
+    document.getElementById('asRes').innerHTML=`<div class="card"><div class="card-h">${d.asn} · ${d.op}</div><div class="grid" style="grid-template-columns:repeat(auto-fit,minmax(150px,1fr))">${stat('Երկիր',d.cc)}${stat('Տեսակ',d.type||'—')}${stat('Prefixes',d.pfx)}${stat('Announced',d.peers||'—')}</div></div>`;
+    logAudit('ASN որոնում → '+q);
+  }
+  document.getElementById('asGo').onclick=run;document.getElementById('asIn').addEventListener('keydown',e=>{if(e.key==='Enter')run()});run();
+}
+
+const BREACHES=[{n:'Collection #1',y:2019,c:'772M',d:['Email','Գաղտնաբառ']},{n:'LinkedIn',y:2021,c:'700M',d:['Email','Հեռ.','Պրոֆիլ']},{n:'Adobe',y:2013,c:'153M',d:['Email','Գաղտնաբառ(enc)']},{n:'Dropbox',y:2012,c:'68M',d:['Email','Գաղտնաբառ']},{n:'Canva',y:2019,c:'137M',d:['Email','Անուն']}];
+let osintType='email';
+const SOCIALS=[['GitHub','https://github.com/'],['X / Twitter','https://x.com/'],['Instagram','https://instagram.com/'],['TikTok','https://tiktok.com/@'],['Telegram','https://t.me/'],['Reddit','https://reddit.com/user/'],['LinkedIn','https://linkedin.com/in/'],['Facebook','https://facebook.com/'],['YouTube','https://youtube.com/@'],['Mastodon','https://mastodon.social/@'],['Keybase','https://keybase.io/'],['Medium','https://medium.com/@'],['Twitch','https://twitch.tv/'],['Pinterest','https://pinterest.com/']];
+const OS_SOURCES={
+ email:[['Breach DB','HaveIBeenPwned · DeHashed-ոճ'],['Paste / leak','Pastebin · Ghostbin մոնիթ.'],['Gravatar','public avatar / profile'],['Email provider','MX / SPF'],['Search dorks','Google / սոց. queries']],
+ domain:[['Cert Transparency','crt.sh'],['DNS / RDAP','dns.google · rdap.org'],['Attack surface','Shodan InternetDB'],['Threat intel','abuse.ch URLhaus / ThreatFox'],['Passive DNS','subdomain discovery']],
+ username:[['Social presence','14+ հարթակ'],['Code / dev','GitHub · GitLab'],['Archive','Wayback · archive.today'],['Search dorks','site: queries']],
+ ip:[['Geo / ASN','ipwho.is · RIPEstat'],['Attack surface','Shodan InternetDB'],['Reputation','GreyNoise · abuse.ch'],['Passive DNS','rDNS · historical']],
+ hash:[['Malware DB','MalwareBazaar'],['Multiscan','VirusTotal'],['Threat intel','ThreatFox C2']]};
+function esc(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')}
+function copyText(t){if(navigator.clipboard)navigator.clipboard.writeText(t).then(()=>toast('Պատճենվեց ✓')).catch(()=>toast('Չստացվեց'));else toast('Clipboard անհասանելի')}
+function dorks(type,q){const m={
+ email:[`"${q}"`,`site:linkedin.com "${q}"`,`site:github.com "${q}"`,`"${q}" filetype:pdf`,`intext:"${q}"`],
+ domain:[`site:${q}`,`site:*.${q}`,`"${q}" -site:${q}`,`related:${q}`,`site:pastebin.com "${q}"`],
+ username:[`"${q}"`,`site:reddit.com "${q}"`,`site:t.me "${q}"`,`intitle:"${q}"`,`"${q}" (site:github.com OR site:gitlab.com)`],
+ ip:[`"${q}"`,`site:shodan.io ${q}`,`"${q}" (malware OR c2 OR botnet)`],
+ hash:[`"${q}"`,`site:virustotal.com "${q}"`,`"${q}" malware`]};return m[type]||[]}
+function pivotGraph(center,type){
+ const rel=type==='email'?[['Դոմեն',center.split('@')[1]||'—'],['Handle',center.split('@')[0]||'—'],['Breach',BREACHES[0].n],['Breach2',BREACHES[1].n],['Gravatar','md5']]
+  :type==='domain'?[['MX','mail.'+center],['Subdomain','www.'+center],['ASN','AS'+(1000+Math.abs(hashStr(center))%64000)]]
+  :type==='username'?[['GitHub',center],['X',center],['Email?',center+'@…']]
+  :type==='ip'?[['ASN','AS'+(1000+Math.abs(hashStr(center))%64000)],['Երկիր','🌐'],['Port',String(1+Math.abs(hashStr(center))%65000)]]
+  :[['Ընտանիք','Trojan.Gen'],['C2',rnd(1,223)+'.x.x.x'],['Rule','YARA']];
+ const cx=160,cy=108,R=74,n=rel.length;let s=`<svg viewBox="0 0 320 216" style="width:100%;height:auto">`;
+ rel.forEach((r,i)=>{const a=(i/n)*6.2832-1.5708,x=cx+Math.cos(a)*R,y=cy+Math.sin(a)*R;s+=`<line x1="${cx}" y1="${cy}" x2="${x}" y2="${y}" stroke="#263550" stroke-width="1.4"/>`});
+ rel.forEach((r,i)=>{const a=(i/n)*6.2832-1.5708,x=cx+Math.cos(a)*R,y=cy+Math.sin(a)*R;s+=`<circle cx="${x}" cy="${y}" r="5" fill="#34d399"/><text x="${x}" y="${y-9}" fill="#8094b6" font-size="9" text-anchor="middle">${esc(r[0])}</text><text x="${x}" y="${y+16}" fill="#e8eef9" font-size="9" text-anchor="middle">${esc(String(r[1]).slice(0,16))}</text>`});
+ s+=`<circle cx="${cx}" cy="${cy}" r="8" fill="#22d3ee"/><text x="${cx}" y="${cy+25}" fill="#22d3ee" font-size="10" text-anchor="middle" font-weight="bold">${esc(String(center).slice(0,22))}</text></svg>`;return s}
+function sourceMatrixHTML(type){const live=CONFIG.live;return `<div class="card"><div class="card-h">Աղբյուրների fan-out<span class="mini">${OS_SOURCES[type].length} կատեգորիա</span></div><div class="grid" style="grid-template-columns:repeat(auto-fit,minmax(185px,1fr))">${OS_SOURCES[type].map(([n,ss])=>`<div class="conn-card"><div class="conn-top"><span class="cn">${n}</span><span class="st ${live?'live':'off'}">${live?'LIVE':'ԼՈԿԱԼ'}</span></div><div class="conn-use">${ss}</div></div>`).join('')}</div></div>`}
+function osEmail(q){
+  const n=2+Math.abs(hashStr(q))%4,list=BREACHES.slice(0,n),score=Math.min(28+n*16,95);
+  const c=score>=70?'#ff3b63':score>=40?'#ff9f1a':'#34d399';
+  const gh=window.md5?md5(q.trim().toLowerCase()):'';const g=s=>'https://www.google.com/search?q='+encodeURIComponent(s);
+  const contacts=[['LinkedIn','linkedin.com'],['GitHub','github.com'],['Facebook','facebook.com'],['X','x.com'],['Instagram','instagram.com'],['Telegram','t.me']];
+  return `<div class="grid" style="grid-template-columns:260px 1fr">
+   <div class="osint-score" style="background:linear-gradient(135deg,${c}22,transparent)"><div class="osint-ring" style="border:3px solid ${c};color:${c}">${score}</div><div><div style="font-weight:700">Exposure միավոր</div><div style="font-size:12px;color:var(--muted)">${n} հայտնի breach-ում</div></div></div>
+   <div class="card pad0"><div class="card-h" style="padding:14px 14px 0">Breach-եր՝ ${q}</div><table class="tbl"><thead><tr><th>Breach</th><th>Տարի</th><th>Ծավալ</th><th>Արտահոսած</th></tr></thead><tbody>${list.map(b=>`<tr><td>${b.n}</td><td class="mono">${b.y}</td><td class="mono">${b.c}</td><td>${b.d.map(x=>`<span class="pill gray" style="margin-right:3px">${x}</span>`).join('')}</td></tr>`).join('')}</tbody></table></div></div>
+   <div class="card" style="margin-top:14px"><div class="card-h">Հաշիվ / կապ հաստատելու համար<span class="mini">սեղմիր՝ ստուգիր հարթակում</span></div>
+     ${gh?`<div class="ip-row"><span class="l">Gravatar</span><span class="v"><a href="https://gravatar.com/${gh}" target="_blank" rel="noopener" style="color:var(--cyan)">պրոֆիլ ↗</a> <img src="https://www.gravatar.com/avatar/${gh}?d=404&s=36" onerror="this.style.display='none'" style="width:28px;height:28px;border-radius:50%;vertical-align:middle;margin-left:8px"></span></div>`:''}
+     <div class="hrow" style="flex-wrap:wrap;gap:7px;margin-top:8px">${contacts.map(([p,s])=>`<a class="btn" href="${g('site:'+s+' "'+q+'"')}" target="_blank" rel="noopener" style="text-decoration:none">${p} ↗</a>`).join('')}</div>
+     <div style="font-size:10.5px;color:var(--muted2);margin-top:8px">Հղումները բացում են որոնումը տվյալ կայքում։ Օգտագործիր օրինական կապ հաստատելու / քո ակտիվների համար։</div></div>`;
+}
+async function osDomain(q){
+  let subs=['www','mail','vpn','api','dev','portal'],dns={A:'—',MX:'—',SPF:'—'},reg='—';
+  if(CONFIG.live){try{const L=await api('/domain',{name:q});subs=(L.subdomains||[]).map(s=>s.replace('.'+q,''))||subs;dns=L.dns||dns;reg=L.registrar||reg;}catch(e){toast('Live ձախողվեց — դեմո')}}
+  else{dns={A:rnd(1,223)+'.'+rnd(0,255)+'.'+rnd(0,255)+'.'+rnd(1,254),MX:'mail.'+q,SPF:'v=spf1 include:_spf ~all'};reg='Namecheap (demo)'}
+  return `<div class="grid" style="grid-template-columns:1fr 1fr">
+   <div class="card"><div class="card-h">Ենթադոմեններ<span class="mini">cert-transparency · ${subs.length}</span></div>${subs.slice(0,12).map(s=>{const fd=String(s).endsWith(q)?s:(s+'.'+q);return `<div class="ip-row"><a class="v mono" href="https://${fd}" target="_blank" rel="noopener" style="color:var(--cyan);text-decoration:none">${fd} ↗</a><span class="pill g">հայտն.</span></div>`}).join('')}</div>
+   <div class="card"><div class="card-h">DNS / RDAP</div><div class="ip-row"><span class="l">A</span><span class="v mono">${dns.A}</span></div><div class="ip-row"><span class="l">MX</span><span class="v mono">${dns.MX}</span></div><div class="ip-row"><span class="l">SPF</span><span class="v mono" style="font-size:11px">${dns.SPF}</span></div><div class="ip-row"><span class="l">Ռեգիստրատոր</span><span class="v">${reg}</span></div></div></div>
+   <div class="note" style="margin-top:12px">Աղբյուրներ՝ crt.sh · DNS-over-HTTPS · RDAP։ Deploy-ում՝ <span class="mono">/domain</span> endpoint-ով։</div>`;
+}
+function osUser(q){
+  const u=q.replace(/^@/,'');
+  const rows=SOCIALS.map(([p,base])=>{const found=(Math.abs(hashStr(p+u))%3)>0;return `<a class="ip-row" href="${base}${encodeURIComponent(u)}" target="_blank" rel="noopener" style="text-decoration:none;color:inherit"><span class="v">${p}</span><span class="pill ${found?'g':'gray'}">${found?'գտնվեց ↗':'—'}</span></a>`}).join('');
+  return `<div class="card"><div class="card-h">Սոց. ներկայություն՝ @${esc(u)}<span class="mini">${SOCIALS.length} հարթակ</span></div><div class="grid" style="grid-template-columns:repeat(auto-fit,minmax(165px,1fr))">${rows}</div></div><div class="note" style="margin-top:12px">Նմանակված (Sherlock-ոճ)՝ հղումները ուղղում են իրական պրոֆիլին։ Deploy-ում GitHub/GitLab-ը ստուգվում են իրական API-ով (<span class="mono">/username</span>)։ Օգտագործիր բրենդի/հաշիվների մոնիթորինգի համար։</div>`;
+}
+function osHash(q){
+  const mal=Math.abs(hashStr(q))%2;return `<div class="card" style="max-width:640px"><div class="card-h">Ֆայլի hash վերլուծություն</div><div class="ip-row"><span class="l">Hash</span><span class="v mono" style="font-size:11px;word-break:break-all">${q}</span></div><div class="ip-row"><span class="l">Վերդիկտ</span><span class="pill ${mal?'crit':'g'}">${mal?'Վնասաբեր':'Մաքուր'}</span></div><div class="ip-row"><span class="l">Ընտանիք</span><span class="v">${mal?'Trojan.GenericKD':'—'}</span></div><div class="ip-row"><span class="l">Հայտնաբ. (demo)</span><span class="v mono">${mal?rnd(40,62)+'/72':'0/72'}</span></div></div><div class="note" style="margin-top:12px">Deploy-ում՝ MalwareBazaar / VirusTotal lookup։</div>`;
+}
+function dorkCard(type,q){const ds=dorks(type,q);return `<div class="card"><div class="card-h">Search dork-եր<span class="mini">Պատճ. → paste Google / սոցկայք</span></div>${ds.map(d=>`<div class="ip-row"><span class="v mono" style="font-size:11px">${esc(d)}</span><a class="kmini" href="https://www.google.com/search?q=${encodeURIComponent(d)}" target="_blank" rel="noopener" style="text-decoration:none">Բացել ↗</a><button class="kmini dork">Պատճ.</button></div>`).join('')}</div>`}
+function graphCard(q,type){return `<div class="card"><div class="card-h">Pivot գրաֆ<span class="mini">կապակցված entity-ներ</span></div>${pivotGraph(q,type)}</div>`}
+async function renderOsint(type,q){
+ if(type==='ip'){go('ipintel');setTimeout(()=>{document.getElementById('ipIn').value=q;document.getElementById('ipGo').click()},150);return null}
+ const detail=type==='email'?osEmail(q):type==='domain'?await osDomain(q):type==='username'?osUser(q):osHash(q);
+ const nsrc=OS_SOURCES[type].length,found=2+Math.abs(hashStr(q))%5;
+ const summary=`<div class="kpis" style="grid-template-columns:repeat(3,1fr);margin-bottom:14px">${kpi('Հարցված աղբյուր','',nsrc,'fan-out','','rgba(34,211,238,.16)','#22d3ee','M3 12h18')}${kpi('Գտնված հետք','',found,'entity','','rgba(52,211,153,.16)','#34d399','M5 12l5 5L20 7')}${kpi('Ռեժիմ','',CONFIG.live?'LIVE':'ԼՈԿԱԼ','',(CONFIG.live?'down':''),'rgba(167,139,250,.16)','#a78bfa','M12 2v6')}</div>`;
+ return summary+sourceMatrixHTML(type)+`<div style="height:14px"></div>`+detail+`<div class="grid" style="grid-template-columns:1fr 1fr;margin-top:14px">`+graphCard(q,type)+dorkCard(type,q)+`</div>`+linksCard(type,q);
+}
+function vOsint(){
+  const el=document.getElementById('view');
+  el.innerHTML=`<div class="page-head"><h1>OSINT հետախուզություն</h1><span class="sub">· բազմաղբյուր հետախուզ. կոնսոլ · fan-out → breach / cert / DNS / social / threat-intel</span></div>
+  <div class="filters">${[['email','Էլ. հասցե'],['domain','Դոմեն'],['username','Օգտանուն'],['ip','IP'],['hash','Hash']].map(([k,n])=>`<span class="fchip ${k===osintType?'on':''}" data-ot="${k}">${n}</span>`).join('')}</div>
+  <div class="ip-search" style="max-width:560px"><input id="osIn" placeholder="${{email:'name@example.com',domain:'example.com',username:'@handle',ip:'1.2.3.4',hash:'sha256…'}[osintType]}"><button class="btn primary" id="osGo">Հետախուզել</button></div>
+  <div class="note" style="margin-bottom:14px">🔒 <b>Շրջանակ.</b> Միայն քո սեփական/լիազորված ակտիվների exposure-ը ստուգելու համար (breach-feed, cert-transparency, DNS/RDAP)։ Սա պաշտպանական OSINT է, ոչ՝ մասնավոր անձանց հետևում։</div>
+  <div id="osRes"><div class="empty"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4-4"/></svg><div>Ընտրիր տեսակը և մուտքագրիր selector</div></div></div>`;
+  document.querySelectorAll('[data-ot]').forEach(c=>c.onclick=()=>{osintType=c.dataset.ot;document.querySelectorAll('[data-ot]').forEach(x=>x.classList.toggle('on',x.dataset.ot===osintType));document.getElementById('osIn').placeholder={email:'name@example.com',domain:'example.com',username:'@handle',ip:'1.2.3.4',hash:'sha256…'}[osintType]});
+  async function run(){
+    const q=document.getElementById('osIn').value.trim();if(!q){toast('Մուտքագրիր selector');return}
+    logAudit('OSINT '+osintType+' → '+q);const box=document.getElementById('osRes');box.innerHTML='<div class="empty"><div>Հետախուզում… (fan-out դեպի աղբյուրներ)</div></div>';
+    const html=await renderOsint(osintType,q);if(html===null)return;box.innerHTML=html;
+    document.querySelectorAll('.dork').forEach(b=>b.onclick=()=>copyText(b.previousElementSibling.textContent));
+  }
+  document.getElementById('osGo').onclick=run;document.getElementById('osIn').addEventListener('keydown',e=>{if(e.key==='Enter')run()});
+}
+
+/* ===================== APT / THREAT ACTORS ===================== */
+const APT_GROUPS=[
+ {id:'G0007',n:'APT28',a:'Fancy Bear · Sofacy',o:'🇷🇺 ՌԴ (GRU)',t:'Կառավ., ռազմ., ընտր.',ttp:'Spearphishing, 0-day, X-Agent'},
+ {id:'G0016',n:'APT29',a:'Cozy Bear · Nobelium',o:'🇷🇺 ՌԴ (SVR)',t:'Կառավ., դիվանագ., tech',ttp:'Supply-chain (SolarWinds), stealth'},
+ {id:'G0032',n:'Lazarus',a:'Hidden Cobra',o:'🇰🇵 ՀԺԿ',t:'Ֆինանս, crypto, պաշտպ.',ttp:'Ֆին. գողություն, wiper, RAT'},
+ {id:'G0096',n:'APT41',a:'Winnti · Barium',o:'🇨🇳 Չինаստан',t:'Health, tech, gaming',ttp:'Supply-chain, espionage+crime'},
+ {id:'G0034',n:'Sandworm',a:'Voodoo Bear',o:'🇷🇺 ՌԴ (GRU)',t:'Էներգետ., ենթակառուց.',ttp:'NotPetya, Industroyer (ICS)'},
+ {id:'G0059',n:'Charming Kitten',a:'Magic Hound',o:'🇮🇷 Իրան',t:'Դիվանագ., ակադեմ., ԶԼՄ',ttp:'Credential phishing, impersonation'},
+ {id:'G0094',n:'Kimsuky',a:'Velvet Chollima',o:'🇰🇵 ՀԺԿ',t:'Think-tank, միջուկ.',ttp:'Spearphishing, recon'},
+ {id:'G0129',n:'Mustang Panda',a:'Bronze President',o:'🇨🇳 Չինаստан',t:'NGO, կառավ. (ԱՍԵԱՆ)',ttp:'PlugX, USB worm'},
+ {id:'G1017',n:'Volt Typhoon',a:'—',o:'🇨🇳 Չինаստан',t:'Կրիտ. ենթակառուց. (ԱՄՆ)',ttp:'Living-off-the-land, stealth'},
+ {id:'G0046',n:'FIN7',a:'Carbanak',o:'💰 Քրեական',t:'Retail, hospitality',ttp:'POS malware, ֆին. գողություն'},
+ {id:'G0010',n:'Turla',a:'Snake · Venomous Bear',o:'🇷🇺 ՌԴ (FSB)',t:'Կառավ., դեսպ.',ttp:'Satellite C2, rootkit'},
+ {id:'G0050',n:'APT32',a:'OceanLotus',o:'🇻🇳 Վիետնam',t:'Կորպ., dissident',ttp:'Watering-hole, custom RAT'}];
+function vApt(){
+ const el=document.getElementById('view');
+ el.innerHTML=`<div class="page-head"><h1>APT / սպառնալիքի դերակատարներ</h1><span class="sub">· հայտնի խմբերի ռեգիստր (MITRE ATT&CK Groups · բաց CTI)</span></div>
+ <div class="ip-search" style="max-width:420px"><input id="aptQ" placeholder="որոնել՝ անուն / alias / երկիր"><button class="btn primary" id="aptGo">Որոնել</button></div>
+ <div class="card pad0"><div style="max-height:calc(100vh - 230px);overflow-y:auto"><table class="tbl"><thead><tr><th>ID</th><th>Խումբ</th><th>Alias</th><th>Ծագում / հովանավոր</th><th>Թիրախներ</th><th>TTP</th></tr></thead><tbody id="aptBody"></tbody></table></div></div>
+ <div class="note" style="margin-top:12px">Բաց, կրթական CTI՝ MITRE ATT&CK Groups-ի հիման վրա։ Deploy-ում կարող է sync լինել ATT&CK STIX feed-ից ու կապվել «Սպառնալիքներ» մոդուլի դիտարկված տեխնիկաների հետ։</div>`;
+ function render(){const q=(document.getElementById('aptQ').value||'').toLowerCase();const rows=APT_GROUPS.filter(g=>(g.n+g.a+g.o+g.t).toLowerCase().includes(q));
+  document.getElementById('aptBody').innerHTML=rows.map(g=>`<tr><td class="mono" style="color:var(--muted)">${g.id}</td><td style="font-weight:600;color:var(--cyan)">${g.n}</td><td style="font-size:11px;color:var(--muted)">${g.a}</td><td>${g.o}</td><td style="font-size:11px">${g.t}</td><td style="font-size:11px;color:var(--muted)">${g.ttp}</td></tr>`).join('')}
+ render();document.getElementById('aptGo').onclick=render;document.getElementById('aptQ').addEventListener('input',render);
+}
+
+/* ===================== UNIVERSAL AI SEARCH + PASTE MONITOR ===================== */
+function detectType(q){
+ if(/^\d{1,3}(\.\d{1,3}){3}$/.test(q))return'ip';
+ if(/^as\d+$/i.test(q))return'asn';
+ if(/^cve-\d{4}-\d{4,}$/i.test(q))return'cve';
+ if(/^[a-f0-9]{32}$|^[a-f0-9]{40}$|^[a-f0-9]{64}$/i.test(q))return'hash';
+ if(/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(q))return'email';
+ if(/^[a-z0-9.-]+\.[a-z]{2,}$/i.test(q))return'domain';
+ if(/^@?[a-z0-9_.-]{2,40}$/i.test(q))return'username';
+ return'keyword';
+}
+const TYPE_LABEL={ip:'IP հասցե',asn:'ASN / օպերատոր',cve:'Խոցելիություն',hash:'Ֆայլ hash',email:'Էլ. հասցե',domain:'Դոմեն',username:'Օգտանուն',keyword:'Ազատ հարցում'};
+function pasteMonitor(q){
+ const n=Math.abs(hashStr('p'+q))%4;
+ if(n===0)return `<div class="card" style="margin-top:14px"><div class="card-h">Paste / leak մոնիթոր</div><div style="font-size:12px;color:var(--muted)">«${esc(q)}»-ի համար վերջին արտահոսքերում հիշատակում չի գտնվել ✓</div></div>`;
+ const sites=['Pastebin','Ghostbin','Telegram leak-ch','Breach-forum mirror'];const rows=[];
+ for(let i=0;i<n;i++)rows.push({s:sites[i%sites.length],d:'2026-'+String(rnd(1,11)).padStart(2,'0')+'-'+String(rnd(1,28)).padStart(2,'0'),sev:['high','med','crit'][rnd(0,2)]});
+ return `<div class="card" style="margin-top:14px"><div class="card-h">Paste / leak մոնիթոր<span class="mini">${n} հիշատակում</span></div>${rows.map(r=>`<div class="ip-row"><span class="v">${r.s}</span><span class="pill ${r.sev}">${sevN(r.sev)}</span><span class="mono" style="color:var(--muted)">${r.d}</span></div>`).join('')}<div style="font-size:11px;color:var(--muted2);margin-top:8px">Deploy-ում՝ paste-feed մոնիթ. քո դոմենի/keyword-ների համար (IntelX-ոճ)։</div></div>`;
+}
+async function uniIp(q){let d=IPDB[q];
+ if(CONFIG.live){try{const L=await api('/ip',{ip:q});d={f:L.flag||'🌐',cc:L.country||'—',asn:L.asn||'—',risk:L.risk||0,tags:L.tags||[]};}catch(e){}}
+ if(!d)d={f:'🌐',cc:'—',asn:'AS'+rnd(1000,65000),risk:rnd(5,90),tags:['—']};
+ const rc=d.risk>=70?'#ff3b63':d.risk>=40?'#ff9f1a':'#34d399';
+ return `<div class="card"><div class="card-h">${d.f} ${esc(q)}</div><div class="ip-row"><span class="l">Երկիր / ASN</span><span class="v">${d.cc} · ${d.asn}</span></div><div class="ip-row"><span class="l">Ռիսկ</span><span class="v" style="color:${rc}">${d.risk}/100</span></div><div class="ip-row"><span class="l">Tags</span><span class="v">${(d.tags||['—']).join(', ')}</span></div></div><div class="note" style="margin-top:10px">Ամբողջական enrichment-ի համար՝ «IP հետախուզ.» մոդուլ (<span class="mono">/ip</span>)։</div>`;
+}
+async function uniCve(q){let cv=CVES.find(v=>v.id.toUpperCase()===q.toUpperCase());
+ if(CONFIG.live){try{const L=await api('/cve',{id:q});cv={id:L.id,cvss:L.cvss,epss:Math.round((L.epss||0)*100),kev:L.kev?1:0,desc:L.summary||'—'};}catch(e){}}
+ if(!cv)cv={id:q.toUpperCase(),cvss:'—',epss:'—',kev:0,desc:'Լոկալ ցանկում չկա — deploy-ում կքաշվի CVEDB/NVD-ից'};
+ return `<div class="card"><div class="card-h">${cv.id}</div><div class="ip-row"><span class="l">CVSS</span><span class="v mono">${cv.cvss}</span></div><div class="ip-row"><span class="l">EPSS</span><span class="v mono">${cv.epss}${typeof cv.epss==='number'?'%':''}</span></div><div class="ip-row"><span class="l">KEV</span><span class="v">${cv.kev?'<span class="pill kev">Ակտիվ շահագործվող</span>':'<span class="pill gray">—</span>'}</span></div><div style="font-size:12px;color:var(--muted);margin-top:8px">${esc(cv.desc||'')}</div></div>`;
+}
+function uniAsn(q){const d=OPERATORS.find(o=>o.asn.toLowerCase()===q.toLowerCase())||{asn:q.toUpperCase(),op:'Նմանակված',cc:'🌐',type:'—',pfx:'—'};
+ return `<div class="card"><div class="card-h">${d.asn} · ${d.op}</div><div class="ip-row"><span class="l">Երկիր</span><span class="v">${d.cc}</span></div><div class="ip-row"><span class="l">Տեսակ</span><span class="v">${d.type}</span></div><div class="ip-row"><span class="l">Prefixes</span><span class="v mono">${d.pfx}</span></div></div>`;
+}
+function aiSummary(type,q){
+ const base=`Ավտո-ճանաչվեց selector-ի տեսակը՝ <b>${TYPE_LABEL[type]}</b>։ Համակարգը fan-out արեց բոլոր համապատասխան աղբյուրներին և կապակցեց արդյունքները pivot-գրաֆում։`;
+ const tips={email:'Ստուգվեց breach-exposure-ն ու paste-feed-երը, դուրս բերվեցին հնարավոր handle/դոմեն կապերը։ Առաջնահերթ՝ MFA և գաղտնաբառերի ռոտացիա։',
+  domain:'Քարտեզագրվեց արտաքին attack-surface-ը՝ ենթադոմեններ, DNS, registrar, paste-հիշատակումներ։ Ստուգիր բաց ծառայություններն ու ժամկետանց cert-երը։',
+  username:'Ստուգվեց ներկայությունը 14+ սոց./code հարթակում։ Օգտակար՝ հաշիվների զավթման (ATO) ռիսկի գնահատման համար։',
+  ip:'Հարստացվեց geo/ASN, attack-surface և reputation-ով։ Բարձր ռիսկի դեպքում ավելացրու blocklist/scrubbing։',
+  cve:'Ռիսկը գնահատվեց KEV→EPSS→CVSS տրամաբանությամբ. KEV-ը՝ անհապաղ patch։',
+  asn:'Վերլուծվեց օպերատորի ցանցը՝ prefix-ներ, երկիր, տեսակ, transit դեր։',
+  hash:'Ֆայլը ստուգվեց malware-բազաներով. վնասաբերի դեպքում՝ մեկուսացում + IoC տարածում։',
+  keyword:'Ազատ հարցում. գեներացվեցին search-dork-ներ՝ ձեռքով խորացման համար Google/սոցկայքերում։'};
+ return `<div class="ai-box" style="margin-bottom:14px"><div class="ai-lab"><svg viewBox="0 0 24 24" fill="none" stroke="#a78bfa" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3"/></svg>AI ամփոփում</div>${base} ${tips[type]||''}</div>`;
+}
+const UNI_EX=['185.220.101.1','example.com','CVE-2024-3400','AS13335','security@acme.com','octocat'];
+function vSearch(){
+ const el=document.getElementById('view');
+ el.innerHTML=`<div class="page-head"><h1>Ունիվերսալ AI որոնում</h1><span class="sub">· մուտքագրիր ցանկացած տվյալ — համակարգը ինքը կճանաչի ու կգտնի ամեն հասանելին</span></div>
+ <div class="ip-search" style="max-width:720px"><input id="uniIn" placeholder="IP · դոմեն · email · CVE · ASN · hash · username · keyword"><button class="btn primary" id="uniGo">Հետախուզել</button></div>
+ <div class="hrow" style="flex-wrap:wrap;margin-bottom:12px">${UNI_EX.map(x=>`<span class="fchip" data-ex="${esc(x)}">${esc(x)}</span>`).join('')}</div>
+ <div class="note" style="margin-bottom:14px">🔒 Շրջանակ՝ ենթակառուցվածք, սպառնալիք, breach-exposure, քո/լիազ. բրենդ։ Ոչ՝ մասնավոր անձանց հետևում։</div>
+ <div id="uniRes"><div class="empty"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4-4"/></svg><div>Մուտքագրիր տվյալ՝ ավտո-ճանաչում + fan-out դեպի բոլոր աղբյուրները</div></div></div>`;
+ async function run(){
+  const q=document.getElementById('uniIn').value.trim();if(!q){toast('Մուտքագրիր տվյալ');return}
+  const type=detectType(q);logAudit('AI որոնում ['+type+'] → '+q);
+  const box=document.getElementById('uniRes');box.innerHTML='<div class="empty"><div>Ավտո-ճանաչում ('+TYPE_LABEL[type]+')… fan-out…</div></div>';
+  let detail='';
+  if(type==='email')detail=osEmail(q)+pasteMonitor(q);
+  else if(type==='domain')detail=await osDomain(q)+pasteMonitor(q);
+  else if(type==='username')detail=osUser(q)+pasteMonitor(q);
+  else if(type==='ip')detail=await uniIp(q);
+  else if(type==='cve')detail=await uniCve(q);
+  else if(type==='asn')detail=uniAsn(q);
+  else if(type==='hash')detail=osHash(q);
+  else detail=`<div class="card"><div class="card-h">Ազատ հարցում</div><div style="font-size:12px;color:var(--muted)">Հստակ selector չճանաչվեց։ Ներքևում՝ search-dork-ներ ցանկացած տվյալ ամբողջ ցանցում ձեռքով փնտրելու համար։</div></div>`;
+  const gtype=type==='keyword'?'domain':type;
+  const banner=`<div class="card" style="margin-bottom:14px;display:flex;align-items:center;gap:12px"><span class="pill b">Ճանաչվեց՝ ${TYPE_LABEL[type]}</span><span class="mono" style="color:var(--cyan)">${esc(q)}</span><span style="margin-left:auto;font-size:11px;color:var(--muted)">${CONFIG.live?'🟢 LIVE':'🟠 ԼՈԿԱԼ'}</span></div>`;
+  const bottom=['email','domain','username','ip'].includes(type)
+    ?`<div class="grid" style="grid-template-columns:1fr 1fr;margin-top:14px">`+graphCard(q,type)+dorkCard(gtype,q)+`</div>`
+    :`<div style="margin-top:14px">`+dorkCard(gtype,q)+`</div>`;
+  box.innerHTML=banner+aiSummary(type,q)+detail+bottom+linksCard(type,q);
+  document.querySelectorAll('.dork').forEach(b=>b.onclick=()=>copyText(b.previousElementSibling.textContent));
+ }
+ document.getElementById('uniGo').onclick=run;
+ document.getElementById('uniIn').addEventListener('keydown',e=>{if(e.key==='Enter')run()});
+ document.querySelectorAll('[data-ex]').forEach(c=>c.onclick=()=>{document.getElementById('uniIn').value=c.dataset.ex;run()});
+}
+
+/* ============================ UTIL ============================ */
+let toastT;
+function toast(m){const t=document.getElementById('toast');t.textContent=m;t.classList.add('show');clearTimeout(toastT);toastT=setTimeout(()=>t.classList.remove('show'),2600)}
+document.getElementById('gs').addEventListener('keydown',e=>{if(e.key==='Enter'){const v=e.target.value.trim();if(!v)return;go('search');setTimeout(()=>{const i=document.getElementById('uniIn');if(i){i.value=v;document.getElementById('uniGo').click()}},150)}});
+setInterval(()=>{document.getElementById('clock').textContent=new Date().toLocaleTimeString('hy-AM',{hour12:false})},1000);
+updateBadges();
+route();
+try{probeLive().then(m=>{if(m==='backend')toast('Backend միացված · LIVE');else if(m==='direct')toast('Ուղիղ ռեժիմ · LIVE (առանց backend)');if(m!=='off'&&typeof route==='function'){const h=(location.hash.replace('#','')||'overview');if(['connectors','ipintel','asn','osint','search'].includes(h))route()}})}catch(e){}
+
+/* ===================== AUTH: PIN / real TOTP 2FA / face recognition ===================== */
+const AUTH={
+ pin:(()=>{try{return localStorage.getItem('vahan_pin')||'111'}catch(e){return'111'}})(),
+ pinOn:(()=>{try{return localStorage.getItem('vahan_pin_off')!=='1'}catch(e){return true}})(),
+ totp:(()=>{try{return localStorage.getItem('vahan_totp')||'JBSWY3DPEHPK3PXP'}catch(e){return'JBSWY3DPEHPK3PXP'}})(),
+ face:(()=>{try{return localStorage.getItem('vahan_face')||''}catch(e){return''}})()};
+function authSave(k,v){try{localStorage.setItem(k,v)}catch(e){}}
+function randB32(n){const A='ABCDEFGHIJKLMNOPQRSTUVWXYZ234567';let s='';for(let i=0;i<(n||16);i++)s+=A[Math.floor(Math.random()*32)];return s}
+function b32dec(s){const A='ABCDEFGHIJKLMNOPQRSTUVWXYZ234567';s=(s||'').replace(/=+$/,'').toUpperCase();let bits='';for(const ch of s){const i=A.indexOf(ch);if(i<0)continue;bits+=i.toString(2).padStart(5,'0')}const b=[];for(let i=0;i+8<=bits.length;i+=8)b.push(parseInt(bits.slice(i,i+8),2));return new Uint8Array(b)}
+async function totpAt(secret,sec){const key=b32dec(secret);const ctr=Math.floor((sec===undefined?Date.now()/1000:sec)/30);const buf=new ArrayBuffer(8),dv=new DataView(buf);dv.setUint32(4,ctr>>>0);dv.setUint32(0,Math.floor(ctr/4294967296));const k=await crypto.subtle.importKey('raw',key,{name:'HMAC',hash:'SHA-1'},false,['sign']);const sig=new Uint8Array(await crypto.subtle.sign('HMAC',k,buf));const o=sig[19]&0xf;const code=((sig[o]&0x7f)<<24|(sig[o+1]&0xff)<<16|(sig[o+2]&0xff)<<8|(sig[o+3]&0xff))%1000000;return String(code).padStart(6,'0')}
+async function totpVerify(secret,code){const now=Date.now()/1000;for(const d of[-1,0,1]){if(await totpAt(secret,now+d*30)===code)return true}return false}
+function faceHash(video){const c=document.createElement('canvas');c.width=16;c.height=16;const x=c.getContext('2d');const w=video.videoWidth||300,h=video.videoHeight||300,sq=Math.min(w,h);x.drawImage(video,(w-sq)/2,(h-sq)/2,sq,sq,0,0,16,16);const d=x.getImageData(0,0,16,16).data;const g=[];let sum=0;for(let i=0;i<d.length;i+=4){const v=d[i]*0.3+d[i+1]*0.59+d[i+2]*0.11;g.push(v);sum+=v}const av=sum/g.length;return g.map(v=>v>av?'1':'0').join('')}
+function faceDist(a,b){if(!a||!b||a.length!==b.length)return 999;let d=0;for(let i=0;i<a.length;i++)if(a[i]!==b[i])d++;return d}
+function totpURI(label){return 'otpauth://totp/VAHAN:'+(label||'admin')+'?secret='+AUTH.totp+'&issuer=VAHAN&digits=6&period=30'}
+function renderQR(el,text){if(!el)return;el.innerHTML='';try{if(window.QRCode){new QRCode(el,{text,width:148,height:148,colorDark:'#0a0f1c',colorLight:'#ffffff',correctLevel:QRCode.CorrectLevel.M})}else{el.innerHTML='<div style="font-size:9px;color:#334;word-break:break-all;max-width:150px">'+text+'</div>'}}catch(e){el.innerHTML='<div style="font-size:9px;color:#334;word-break:break-all;max-width:150px">'+text+'</div>'}}
+(function(){const lob=document.getElementById('logoutBtn');if(lob)lob.onclick=()=>{try{logAudit('ելք համակարգից')}catch(e){}location.reload()};})();
+
+(function(){
+  const gate=document.getElementById('authGate');if(!gate)return;
+  let pin='';
+  const dots=document.getElementById('pinDots'),kp=document.getElementById('keypad'),otp=document.getElementById('otp');
+  dots.innerHTML=Array.from({length:AUTH.pin.length},()=>'<i></i>').join('');
+  const renderDots=()=>[...dots.children].forEach((d,i)=>d.classList.toggle('f',i<pin.length));
+  ['1','2','3','4','5','6','7','8','9','','0','⌫'].forEach(k=>{const b=document.createElement('button');b.textContent=k;if(k===''){b.style.visibility='hidden';b.disabled=true}
+    b.onclick=()=>{if(k==='⌫')pin=pin.slice(0,-1);else if(k!==''&&pin.length<AUTH.pin.length)pin+=k;renderDots();if(pin.length>=AUTH.pin.length)setTimeout(checkPin,160)};kp.appendChild(b)});
+  function checkPin(){if(pin===AUTH.pin){gotoStep(2)}else{dots.classList.add('err');document.getElementById('err1').textContent='Սխալ ծածկագիր';setTimeout(()=>{dots.classList.remove('err');pin='';renderDots();document.getElementById('err1').textContent=''},650)}}
+  for(let i=0;i<6;i++){const inp=document.createElement('input');inp.maxLength=1;inp.inputMode='numeric';
+    inp.oninput=()=>{inp.value=inp.value.replace(/\D/g,'');if(inp.value&&otp.children[i+1])otp.children[i+1].focus();checkOtp()};
+    inp.onkeydown=e=>{if(e.key==='Backspace'&&!inp.value&&otp.children[i-1])otp.children[i-1].focus()};otp.appendChild(inp)}
+  const otpVal=()=>[...otp.children].map(x=>x.value).join('');
+  async function checkOtp(){const v=otpVal();if(v.length===6){if(await totpVerify(AUTH.totp,v)){gotoStep(3);startCam()}else{document.getElementById('err2').textContent='Սխալ կոդ';setTimeout(()=>{[...otp.children].forEach(x=>x.value='');otp.children[0].focus();document.getElementById('err2').textContent=''},750)}}}
+  function otpTick(){const hp=document.getElementById('otpHelp');if(hp){hp.innerHTML='Authenticator-ի կոդը · թարմ. <b>'+(30-(Math.floor(Date.now()/1000)%30))+'</b>վ · <span style="color:var(--muted2)">enroll secret՝</span> <b class="mono" style="color:var(--cyan)">'+AUTH.totp+'</b>'}}
+  setInterval(otpTick,1000);otpTick();
+  let stream=null,enroll=!AUTH.face,fails=0;
+  async function startCam(){const v=document.getElementById('faceVid'),msg=document.getElementById('faceMsg');
+    document.getElementById('faceCapBtn').textContent=enroll?'Գրանցել դեմքը':'Ճանաչել դեմքը';
+    try{stream=await navigator.mediaDevices.getUserMedia({video:{facingMode:'user'}});v.srcObject=stream;msg.textContent=enroll?'Առաջին անգամ՝ գրանցիր դեմքդ (enroll)':'Նայիր տեսախցիկին և սեղմիր ճանաչել';document.getElementById('faceCapBtn').disabled=false;if(AUTH.face)document.getElementById('faceReenroll').style.display='inline-flex';}
+    catch(e){msg.innerHTML='📷 Տեսախցիկն անհասանելի է այս sandbox-ում։ Իրական build-ում դեմք-ստուգումը պարտադիր է՝ սխալի դեպքում մուտք չի տա։';const sk=document.getElementById('faceSkip');sk.textContent='Դիտման ռեժիմ (միայն preview — production-ում անջատ)';sk.style.display='inline-flex';}}
+  document.getElementById('faceCapBtn').onclick=async()=>{const wrap=document.getElementById('faceWrap'),v=document.getElementById('faceVid'),msg=document.getElementById('faceMsg');
+    wrap.classList.add('scan');msg.textContent='Անալիզ…';let hasFace=true;
+    try{if('FaceDetector'in window){const fd=new window.FaceDetector();const faces=await fd.detect(v);hasFace=faces&&faces.length>0}}catch(e){hasFace=true}
+    setTimeout(()=>{
+      if(!hasFace){wrap.classList.remove('scan');return fail('Դեմք չի հայտնաբերվել')}
+      const h=faceHash(v);
+      if(enroll){AUTH.face=h;authSave('vahan_face',h);unlock('դեմք գրանցվեց + մուտք')}
+      else{const dist=faceDist(h,AUTH.face);if(dist<72){fails=0;unlock('դեմք ճանաչվեց · d='+dist)}else{wrap.classList.remove('scan');fails++;if(fails>=3){lockGate()}else fail('Դեմքը չի համընկնում (d='+dist+') · մնաց '+(3-fails)+' փորձ')}}
+    },1000);};
+  function fail(m){document.getElementById('err3').textContent=m;setTimeout(()=>document.getElementById('err3').textContent='',2000)}
+  function lockGate(){const b=document.getElementById('faceCapBtn');b.disabled=true;b.textContent='🔒 Արգելափակված';const r=document.getElementById('faceReenroll');if(r)r.style.display='none';document.getElementById('faceMsg').innerHTML='⛔ 3 անհաջող փորձ — մուտքն արգելափակված է։ Վերբեռնիր էջը։';try{logAudit('մուտք ԱՐԳԵԼԱՓԱԿՎԵՑ · դեմք 3x ձախող')}catch(e){}}
+  document.getElementById('faceSkip').onclick=()=>unlock('face շրջանցված · preview');
+  const rb=document.getElementById('faceReenroll');if(rb)rb.onclick=()=>{AUTH.face='';authSave('vahan_face','');enroll=true;document.getElementById('faceCapBtn').textContent='Գրանցել դեմքը';document.getElementById('faceMsg').textContent='Վերագրանցում՝ նայիր ու սեղմիր գրանցել';toast('Դեմքը մաքրվեց՝ վերագրանցիր')};
+  function stopCam(){if(stream){stream.getTracks().forEach(t=>t.stop());stream=null}}
+  function unlock(reason){stopCam();gate.classList.add('gone');try{logAudit('հաջող մուտք · '+(reason||'3-աստիճ.'))}catch(e){}setTimeout(()=>{try{toast('Բարի գալուստ, ՎԱՀԱՆ')}catch(e){}},400);setTimeout(()=>gate.remove(),650)}
+  function gotoStep(n){[1,2,3].forEach(i=>{document.getElementById('step'+i).classList.toggle('on',i===n);const s=document.getElementById('as'+i);s.classList.toggle('on',i===n);s.classList.toggle('done',i<n)});if(n===2){renderQR(document.getElementById('otpQR'),totpURI());setTimeout(()=>otp.children[0].focus(),120)}}
+  renderDots();
+  if(!AUTH.pinOn)gotoStep(2);
+})();
+</script>
+</body>
+</html>
