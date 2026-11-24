@@ -348,9 +348,29 @@ button{font-family:inherit}
 .otp{display:flex;gap:9px;justify-content:center;margin-bottom:14px}
 .otp input{width:42px;height:52px;text-align:center;font-size:21px;font-family:'JetBrains Mono',monospace;background:var(--bg);border:1px solid var(--line2);border-radius:10px;color:var(--txt)}
 .otp input:focus{outline:none;border-color:var(--cyan);box-shadow:0 0 0 3px rgba(34,211,238,.12)}
-.face-wrap{width:188px;height:188px;margin:0 auto 14px;border-radius:50%;overflow:hidden;border:3px solid var(--line2);position:relative;background:#05080f;transition:.2s}
-.face-wrap.scan{border-color:var(--cyan);box-shadow:0 0 0 4px rgba(34,211,238,.16)}
+.face-wrap{width:196px;height:196px;margin:0 auto 10px;border-radius:12px;overflow:hidden;border:2px solid var(--line2);position:relative;background:#05080f;transition:.2s}
+.face-wrap.scan{border-color:var(--cyan);box-shadow:0 0 0 3px rgba(34,211,238,.18),0 0 26px rgba(34,211,238,.25)}
 .face-wrap video{width:100%;height:100%;object-fit:cover;transform:scaleX(-1)}
+.face-hud{position:absolute;inset:0;z-index:3;pointer-events:none}
+.fh-grid{position:absolute;inset:0;background:linear-gradient(rgba(34,211,238,.13) 1px,transparent 1px) 0 0/100% 16px,linear-gradient(90deg,rgba(34,211,238,.13) 1px,transparent 1px) 0 0/16px 100%;opacity:0;transition:.25s}
+.fh-line{position:absolute;left:0;right:0;height:3px;background:linear-gradient(90deg,transparent,#22d3ee,transparent);top:4%;opacity:0}
+.face-wrap.scan .fh-grid{opacity:1}
+.face-wrap.scan .fh-line{opacity:1;animation:fscan 1.1s linear infinite}
+@keyframes fscan{0%{top:3%}100%{top:95%}}
+.fh-corner{position:absolute;width:20px;height:20px;border:2px solid rgba(34,211,238,.55)}
+.fh-corner.tl{top:7px;left:7px;border-right:0;border-bottom:0}
+.fh-corner.tr{top:7px;right:7px;border-left:0;border-bottom:0}
+.fh-corner.bl{bottom:7px;left:7px;border-right:0;border-top:0}
+.fh-corner.br{bottom:7px;right:7px;border-left:0;border-top:0}
+.face-read{text-align:center;font-family:'JetBrains Mono',ui-monospace,monospace;font-size:11px;color:var(--cyan);letter-spacing:1px;margin:0 0 8px;min-height:14px}
+.app-bg{position:fixed;inset:0;background:url(assets/dash.jpg) center/cover no-repeat;opacity:.05;z-index:0;pointer-events:none}
+.app{position:relative;z-index:1}
+.hero-banner{position:relative;height:172px;border-radius:14px;overflow:hidden;background-size:cover;background-position:center 35%;margin-bottom:14px;border:1px solid var(--line)}
+.hero-ov{position:absolute;inset:0;background:linear-gradient(90deg,rgba(4,8,16,.9),rgba(4,8,16,.3) 65%,rgba(4,8,16,.75))}
+.hero-txt{position:absolute;left:22px;bottom:16px;z-index:2}
+.hero-t{font-size:22px;font-weight:800;letter-spacing:1px;color:#eaf6ff}
+.hero-t span{color:var(--cyan)}
+.hero-s{font-size:12.5px;color:#9fbce0;margin-top:4px}
 .auth-hint{text-align:center;font-size:11px;color:var(--muted2);margin-top:12px}
 .auth-hint b{color:var(--cyan)}
 .auth-err{text-align:center;color:var(--red);font-size:12px;margin-top:9px;min-height:15px}
@@ -391,21 +411,21 @@ button{font-family:inherit}
     </g>
   </svg></div>
   <div class="org">
-    <div class="lab big l-d" style="left:50%;top:7%;transform:translateX(-50%)">Գլխավոր Տնօրեն · Անվտանգության Կենտրոն</div>
-    <div class="lab l-d" style="left:50%;top:24%;transform:translateX(-50%)">Տեխնոլոգիաներ</div>
-    <div class="lab l-r" style="left:3%;top:37%">Տեսչություն</div>
-    <div class="lab l-r" style="left:3%;top:44%">Տեղեկատվական շտաբ</div>
-    <div class="lab l-r" style="left:3%;top:51%">Իրավաբանական</div>
-    <div class="lab l-r" style="left:3%;top:58%">Հանրային կապեր</div>
-    <div class="lab l-r" style="left:3%;top:65%">Վերլուծական շտաբ</div>
-    <div class="lab l-l" style="right:3%;top:37%">Գործառնություններ</div>
-    <div class="lab l-l" style="right:3%;top:44%">Սպառնալիքներ</div>
-    <div class="lab l-l" style="right:3%;top:51%">Ազգային հետախուզ.</div>
-    <div class="lab l-l" style="right:3%;top:58%">Կառավարում</div>
-    <div class="lab l-u" style="left:46%;top:75%;transform:translateX(-50%)">Հետազոտական կենտրոն</div>
-    <div class="lab l-u" style="right:19%;top:81%">Վերահսկողություն</div>
-    <div class="lab l-u" style="right:17%;top:87%">Կադրային շտաբ</div>
-    <div class="lab l-u" style="right:21%;top:93%">Օպերատիվ շտաբ</div>
+    <div class="lab big l-d" style="left:50%;top:7%;transform:translateX(-50%)">ՎԱՀԱՆ · Անվտանգության Հարթակ</div>
+    <div class="lab l-d" style="left:50%;top:24%;transform:translateX(-50%)">Անվտանգային պատկեր</div>
+    <div class="lab l-r" style="left:3%;top:37%">Հարձակ. քարտեզ</div>
+    <div class="lab l-r" style="left:3%;top:44%">Գեո քարտեզ</div>
+    <div class="lab l-r" style="left:3%;top:51%">SIEM · Լոգեր</div>
+    <div class="lab l-r" style="left:3%;top:58%">Սպառնալիքներ</div>
+    <div class="lab l-r" style="left:3%;top:65%">Խոցելիություն</div>
+    <div class="lab l-l" style="right:3%;top:37%">IP հետախուզ.</div>
+    <div class="lab l-l" style="right:3%;top:44%">OSINT հետախուզ.</div>
+    <div class="lab l-l" style="right:3%;top:51%">APT խմբեր</div>
+    <div class="lab l-l" style="right:3%;top:58%">Օպերատորներ</div>
+    <div class="lab l-u" style="left:46%;top:75%;transform:translateX(-50%)">Online գործիքներ</div>
+    <div class="lab l-u" style="right:19%;top:81%">Գիտելիք · Ուսուցում</div>
+    <div class="lab l-u" style="right:17%;top:87%">Հանրային տեսախցիկ</div>
+    <div class="lab l-u" style="right:21%;top:93%">Պաշտպ. մակարդակներ</div>
   </div>
   <div class="auth-card">
     <div class="auth-steps"><i id="as1" class="on"></i><i id="as2"></i><i id="as3"></i></div>
@@ -431,7 +451,8 @@ button{font-family:inherit}
     </div>
     <div class="astep" id="step3">
       <h3>Քայլ 3 · Դեմքի հաստատում</h3><div class="d">Նայիր վեբ-տեսախցիկին</div>
-      <div class="face-wrap" id="faceWrap"><video id="faceVid" autoplay playsinline muted></video></div>
+      <div class="face-wrap" id="faceWrap"><video id="faceVid" autoplay playsinline muted></video><div class="face-hud"><span class="fh-corner tl"></span><span class="fh-corner tr"></span><span class="fh-corner bl"></span><span class="fh-corner br"></span><div class="fh-grid"></div><div class="fh-line"></div></div></div>
+      <div class="face-read" id="faceRead"></div>
       <div id="faceMsg" class="auth-hint">Տեսախցիկը միանում է…</div>
       <button class="btn primary" id="faceCapBtn" style="width:100%;justify-content:center;margin-top:8px" disabled>Սկանավորել դեմքը</button>
       <button class="btn" id="faceSkip" style="width:100%;justify-content:center;margin-top:8px;display:none">Շրջանցել (preview)</button>
@@ -441,6 +462,7 @@ button{font-family:inherit}
   </div>
   <div class="term-leave" onclick="location.reload()"><span class="pw">⏻</span> Լքել ՎԱՀԱՆ տերմինալը</div>
 </div>
+<div class="app-bg"></div>
 <div class="app">
   <div class="topbar">
     <div class="logo" onclick="go('overview')">
@@ -735,6 +757,7 @@ const sevN=s=>({crit:'Կրիտիկ',high:'Բարձր',med:'Միջին',low:'Ցա
 function vOverview(){
   const el=document.getElementById('view');
   el.innerHTML=`
+  <div class="hero-banner" style="background-image:url(assets/room.jpg)"><div class="hero-ov"></div><div class="hero-txt"><div class="hero-t">ՎԱ<span>ՀԱՆ</span> · Գործառնական կենտրոն</div><div class="hero-s">Հեռահար մոնիթորինգ · առանց ագենտի · իրական աղբյուրներ · AI վերլուծություն</div></div></div>
   <div class="page-head"><h1>Անվտանգային պատկեր</h1><span class="sub">· վերջին 24 ժ · ավտոմատ ագրեգացիա</span><span class="live"><span class="dot"></span>ԿԵՆԴԱՆԻ</span></div>
   ${kpiRow()}
   <div class="grid" style="grid-template-columns:1fr 400px;margin-top:14px">
@@ -1747,19 +1770,31 @@ function renderQR(el,text){if(!el)return;el.innerHTML='';try{if(window.QRCode){n
     btn.textContent=enroll?'Գրանցել դեմքը':'Ճանաչել դեմքը';
     try{stream=await navigator.mediaDevices.getUserMedia({video:{facingMode:'user'}});v.srcObject=stream;
       if(!FACE.ready){msg.textContent='Բեռնվում է դեմք-ճանաչման մոդելը…';await faceInit()}
-      msg.innerHTML=(FACE.mode==='embedding'?'🧠 Neural face-recognition · ':'')+(enroll?'Առաջին անգամ՝ գրանցիր դեմքդ':'Նայիր ուղիղ տեսախցիկին և սեղմիր ճանաչել');
-      btn.disabled=false;if(enrolled)document.getElementById('faceReenroll').style.display='inline-flex';}
+      msg.innerHTML=(FACE.mode==='embedding'?'🧠 Neural face-recognition · ':'')+(enroll?'Առաջին անգամ՝ ավտո-գրանցում…':'Ավտոմատ սկանավորում…');
+      btn.disabled=false;btn.textContent=enroll?'Գրանցել ձեռքով':'Սկանավորել ձեռքով';if(enrolled)document.getElementById('faceReenroll').style.display='inline-flex';
+      setTimeout(()=>{if(!gate.classList.contains('gone'))doScan(true)},1700);}
     catch(e){msg.innerHTML='📷 Տեսախցիկն անհասանելի է այս sandbox-ում։ Իրական (deploy) build-ում դեմք-ստուգումը պարտադիր է՝ սխալի դեպքում մուտք չի տա։';const sk=document.getElementById('faceSkip');sk.textContent='Դիտման ռեժիմ (միայն preview — production-ում անջատ)';sk.style.display='inline-flex';}}
-  document.getElementById('faceCapBtn').onclick=async()=>{const wrap=document.getElementById('faceWrap'),v=document.getElementById('faceVid'),msg=document.getElementById('faceMsg');
-    wrap.classList.add('scan');msg.textContent='Անալիզ…';
-    if(FACE.mode!=='embedding'){msg.textContent='Բեռնվում է ճանաչման մոդելը…';await faceInit();if(FACE.mode!=='embedding'){wrap.classList.remove('scan');return fail('Նեյրոնային մոդելը դեռ բեռնված չէ — թարմացրու էջը / ստուգիր կապը (առանց դրա մուտք չի տրվի)')}}
+  let scanning=false;
+  async function doScan(auto){
+    if(scanning)return;scanning=true;
+    const wrap=document.getElementById('faceWrap'),v=document.getElementById('faceVid'),msg=document.getElementById('faceMsg'),btn=document.getElementById('faceCapBtn'),rd=document.getElementById('faceRead');
+    btn.disabled=true;wrap.classList.add('scan');
+    try{v.pause()}catch(e){}          /* ստոպ-կադր */
+    const reads=['▣ ԿԱԴՐ ՖԻՔՍՎԱԾ','◈ ԴԻՄԱԳԾԵՐ · հայտնաբերում','▧ EMBEDDING · 128-D','⟳ ՀԱՄԵՄԱՏՈՒՄ…'];let si=0;
+    const ri=setInterval(()=>{if(rd)rd.textContent=reads[si++%reads.length]},430);
+    msg.textContent='Անալիզ…';
+    const done=(ok)=>{clearInterval(ri);scanning=false;if(!ok){try{v.play()}catch(e){}btn.disabled=false;const b2=document.getElementById('faceSkip');}};
+    await new Promise(r=>setTimeout(r,950));   /* տեսանելի անալիզ */
+    if(FACE.mode!=='embedding'){msg.textContent='Բեռնվում է ճանաչման մոդելը…';await faceInit();if(FACE.mode!=='embedding'){if(rd)rd.textContent='';wrap.classList.remove('scan');done(false);return fail('Նեյրոնային մոդելը դեռ բեռնված չէ — ստուգիր կապը'+(auto?' · ապա սեղմիր ձեռքով':''))}}
     const desc=await getFaceDesc(v);
-    if(!desc){wrap.classList.remove('scan');return fail('Դեմք չի հայտնաբերվել — նայիր ուղիղ, լավ լույսի տակ')}
-    if(enroll){enrolled=desc;AUTH.face=JSON.stringify(desc);authSave('vahan_face',AUTH.face);enroll=false;unlock('դեմք գրանցվեց (neural) + մուտք')}
-    else{if(!enrolled||enrolled.m!=='embedding'){wrap.classList.remove('scan');enroll=true;document.getElementById('faceCapBtn').textContent='Գրանցել դեմքը';return fail('Վերագրանցիր դեմքը նոր նեյրոնային մոդելով')}
+    if(!desc){if(rd)rd.textContent='';wrap.classList.remove('scan');done(false);return fail('Դեմք չի հայտնաբերվել — նայիր ուղիղ, լավ լույսի տակ'+(auto?' · ապա սեղմիր ձեռքով':''))}
+    if(enroll){enrolled=desc;AUTH.face=JSON.stringify(desc);authSave('vahan_face',AUTH.face);enroll=false;if(rd)rd.textContent='✓ ԳՐԱՆՑՎԱԾ · 128-D';clearInterval(ri);scanning=false;unlock('դեմք գրանցվեց (neural) + մուտք')}
+    else{if(!enrolled||enrolled.m!=='embedding'){wrap.classList.remove('scan');if(rd)rd.textContent='';enroll=true;document.getElementById('faceCapBtn').textContent='Գրանցել ձեռքով';done(false);return fail('Վերագրանցիր դեմքը նոր նեյրոնային մոդելով')}
       const dist=faceMatch(desc,enrolled);
-      if(dist<0.5){fails=0;unlock('դեմք ճանաչվեց · d='+dist.toFixed(3))}
-      else{wrap.classList.remove('scan');fails++;if(fails>=3){lockGate()}else fail('Դեմքը չի համընկնում (d='+dist.toFixed(3)+') · մնաց '+(3-fails)+' փորձ')}}};
+      if(dist<0.5){clearInterval(ri);scanning=false;fails=0;if(rd)rd.textContent='✓ ՀԱՄԸՆԿՆՈՒՄ · d='+dist.toFixed(3);unlock('դեմք ճանաչվեց · d='+dist.toFixed(3))}
+      else{wrap.classList.remove('scan');if(rd)rd.textContent='✕ ՉԻ ՀԱՄԸՆԿՆՈՒՄ · d='+dist.toFixed(3);done(false);fails++;if(fails>=3){lockGate()}else fail('Դեմքը չի համընկնում · մնաց '+(3-fails)+' փորձ')}}
+  }
+  document.getElementById('faceCapBtn').onclick=()=>doScan(false);
   function fail(m){const e=document.getElementById('err3');if(e){e.textContent=m;setTimeout(()=>{if(e)e.textContent=''},2200)}}
   function lockGate(){const b=document.getElementById('faceCapBtn');b.disabled=true;b.textContent='🔒 Արգելափակված';const r=document.getElementById('faceReenroll');if(r)r.style.display='none';document.getElementById('faceMsg').innerHTML='⛔ 3 անհաջող փորձ — մուտքն արգելափակված է։ Սեղմիր «⎋ Ելք» կամ վերբեռնիր։';try{logAudit('մուտք ԱՐԳԵԼԱՓԱԿՎԵՑ · դեմք 3x ձախող')}catch(e){}}
   document.getElementById('faceSkip').onclick=()=>unlock('face շրջանցված · preview');
