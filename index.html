@@ -411,7 +411,8 @@ button{font-family:inherit}
     <div class="nav-item" data-v="search"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4-4M11 8v6M8 11h6"/></svg><span class="label">AI որոնում</span><span class="badge p">★</span></div>
     <div class="nav-item" data-v="image"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21"/></svg><span class="label">Նկար փնտրում</span></div>
     <div class="nav-item" data-v="cams"><svg viewBox="0 0 24 24"><path d="M3 7h11v10H3z"/><path d="M14 10l7-3v10l-7-3"/></svg><span class="label">Հանր. տեսախցիկ</span></div>
-    <div class="nav-item" data-v="tools"><svg viewBox="0 0 24 24"><path d="M14 7l3 3M5 19l6-6M14 7a4 4 0 115 5l-3-3zM5 19l-2 2"/></svg><span class="label">Online գործիքներ</span><span class="badge">30+</span></div>
+    <div class="nav-item" data-v="tools"><svg viewBox="0 0 24 24"><path d="M14 7l3 3M5 19l6-6M14 7a4 4 0 115 5l-3-3zM5 19l-2 2"/></svg><span class="label">Online գործիքներ</span><span class="badge">45+</span></div>
+    <div class="nav-item" data-v="learn"><svg viewBox="0 0 24 24"><path d="M3 6l9-3 9 3-9 3z"/><path d="M21 6v6M7 8v6c0 1.5 2.3 3 5 3s5-1.5 5-3V8"/></svg><span class="label">Գիտելիք / Ուսուցում</span><span class="badge p">հայ</span></div>
     <div class="nav-item" data-v="trace"><svg viewBox="0 0 24 24"><circle cx="5" cy="19" r="2"/><circle cx="19" cy="5" r="2"/><path d="M6.5 17.5 17 7M8 6H5v3M16 18h3v-3"/></svg><span class="label">Traceroute</span></div>
     <div class="nav-item" data-v="asn"><svg viewBox="0 0 24 24"><circle cx="12" cy="5" r="2.5"/><circle cx="5" cy="19" r="2.5"/><circle cx="19" cy="19" r="2.5"/><path d="M12 7.5v4M10 13l-3.5 4M14 13l3.5 4"/></svg><span class="label">Օպերատորներ</span></div>
     <div class="nav-item" data-v="osint"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4-4M8 11h6M11 8v6"/></svg><span class="label">OSINT</span></div>
@@ -570,7 +571,7 @@ setInterval(()=>{if(Math.random()<0.35)for(let i=0;i<4;i++)setTimeout(tick,i*140
 /* ============================ ROUTER ============================ */
 let viewTimers=[],rafId=null;
 function clearView(){viewTimers.forEach(t=>clearInterval(t));viewTimers=[];if(rafId)cancelAnimationFrame(rafId);rafId=null;listeners=[]}
-const VIEWS={overview:vOverview,map:vMap,siem:vSiem,intel:vIntel,vuln:vVuln,ipintel:vIp,incidents:vInc,ai:vAi,reports:vReports,connectors:vConnectors,defense:vDefense,trace:vTrace,asn:vAsn,osint:vOsint,search:vSearch,apt:vApt,image:vImage,geo:vGeo,cams:vCams,tools:vTools};
+const VIEWS={overview:vOverview,map:vMap,siem:vSiem,intel:vIntel,vuln:vVuln,ipintel:vIp,incidents:vInc,ai:vAi,reports:vReports,connectors:vConnectors,defense:vDefense,trace:vTrace,asn:vAsn,osint:vOsint,search:vSearch,apt:vApt,image:vImage,geo:vGeo,cams:vCams,tools:vTools,learn:vLearn};
 function go(v){location.hash=v}
 function route(){
   const v=(location.hash.replace('#','')||'overview');
@@ -1344,11 +1345,14 @@ function pasteMonitor(q){
  for(let i=0;i<n;i++)rows.push({s:sites[i%sites.length],d:'2026-'+String(rnd(1,11)).padStart(2,'0')+'-'+String(rnd(1,28)).padStart(2,'0'),sev:['high','med','crit'][rnd(0,2)]});
  return `<div class="card" style="margin-top:14px"><div class="card-h">Paste / leak մոնիթոր<span class="mini">${n} հիշատակում</span></div>${rows.map(r=>`<div class="ip-row"><span class="v">${r.s}</span><span class="pill ${r.sev}">${sevN(r.sev)}</span><span class="mono" style="color:var(--muted)">${r.d}</span></div>`).join('')}<div style="font-size:11px;color:var(--muted2);margin-top:8px">Deploy-ում՝ paste-feed մոնիթ. քո դոմենի/keyword-ների համար (IntelX-ոճ)։</div></div>`;
 }
-async function uniIp(q){let d=IPDB[q];
- if(CONFIG.live){try{const L=await api('/ip',{ip:q});d={f:L.flag||'🌐',cc:L.country||'—',asn:L.asn||'—',risk:L.risk||0,tags:L.tags||[]};}catch(e){}}
+async function uniIp(q){let d=IPDB[q];let ports=[],vulns=[],isp='';
+ if(CONFIG.live){try{const L=await api('/ip',{ip:q});d={f:L.flag||'🌐',cc:L.country||'—',asn:L.asn||'—',risk:L.risk||0,tags:L.tags||[]};ports=L.ports||[];vulns=L.vulns||[];isp=L.isp||'';}catch(e){}}
  if(!d)d={f:'🌐',cc:'—',asn:'AS'+rnd(1000,65000),risk:rnd(5,90),tags:['—']};
  const rc=d.risk>=70?'#ff3b63':d.risk>=40?'#ff9f1a':'#34d399';
- return `<div class="card"><div class="card-h">${d.f} ${esc(q)}</div><div class="ip-row"><span class="l">Երկիր / ASN</span><span class="v">${d.cc} · ${d.asn}</span></div><div class="ip-row"><span class="l">Ռիսկ</span><span class="v" style="color:${rc}">${d.risk}/100</span></div><div class="ip-row"><span class="l">Tags</span><span class="v">${(d.tags||['—']).join(', ')}</span></div></div><div class="note" style="margin-top:10px">Ամբողջական enrichment-ի համար՝ «IP հետախուզ.» մոդուլ (<span class="mono">/ip</span>)։</div>`;
+ const psvc={21:'FTP',22:'SSH',23:'Telnet',25:'SMTP',53:'DNS',80:'HTTP',110:'POP3',143:'IMAP',443:'HTTPS',445:'SMB',1433:'MSSQL',3306:'MySQL',3389:'RDP',5432:'Postgres',6379:'Redis',8080:'HTTP-alt',27017:'MongoDB'};
+ const portHtml=ports.length?`<div class="ip-row"><span class="l">Բաց պորտեր (${ports.length})</span><span class="v" style="text-align:right">${ports.slice(0,24).map(p=>`<span class="pill gray" style="margin:1px">${p}${psvc[p]?'·'+psvc[p]:''}</span>`).join(' ')}</span></div>`:'';
+ const vulnHtml=vulns.length?`<div class="ip-row"><span class="l">Խոցելիություն (${vulns.length})</span><span class="v" style="text-align:right">${vulns.slice(0,16).map(v=>`<span class="pill kev" style="margin:1px;cursor:pointer" onclick="go('search');setTimeout(()=>{var i=document.getElementById('uniIn');if(i){i.value='${v}';document.getElementById('uniGo').click()}},150)">${v}</span>`).join(' ')}</span></div>`:'';
+ return `<div class="card"><div class="card-h">${d.f} ${esc(q)} <span class="mini">· սարքի տեսանելիություն</span></div><div class="ip-row"><span class="l">Երկիր / ASN</span><span class="v">${d.cc} · ${d.asn}${isp?' · '+esc(isp):''}</span></div><div class="ip-row"><span class="l">Ռիսկ</span><span class="v" style="color:${rc}">${d.risk}/100 · ${d.risk>=70?'վտանգավոր':d.risk>=40?'կասկածելի':'անվնաս'}</span></div>${portHtml}${vulnHtml}<div class="ip-row"><span class="l">Tags</span><span class="v">${(d.tags||['—']).join(', ')}</span></div></div>${!ports.length&&!vulns.length?'<div class="note" style="margin-top:10px">Պորտ/vuln տվյալը հասանելի է live ռեժիմում (Shodan InternetDB)։</div>':''}`;
 }
 async function uniCve(q){let cv=CVES.find(v=>v.id.toUpperCase()===q.toUpperCase());
  if(CONFIG.live){try{const L=await api('/cve',{id:q});cv={id:L.id,cvss:L.cvss,epss:Math.round((L.epss||0)*100),kev:L.kev?1:0,desc:L.summary||'—'};}catch(e){}}
@@ -1447,30 +1451,88 @@ function vTools(){
 }
 
 /* ===================== PUBLIC WEBCAMS (intentionally-public only) ===================== */
+/* ===================== ԳԻՏԵԼԻՔ / ՈՒՍՈՒՑՈՒՄ (in-app) ===================== */
+const KB=[
+ {c:'ATT&CK',t:'Reconnaissance · Հետախուզություն',d:'Հարձակվողը հավաքում է թիրախի մասին տվյալներ մինչ հարձակումը՝ դոմեյններ, աշխատակիցներ, տեխնոլոգիաներ, բաց պորտեր։<br><b>Օրինակ.</b> OSINT, սկանավորում (nmap), էլ-հասցեների հավաք։<br><b>Պաշտպանություն՝</b><ul><li>Նվազագույնի հասցրու հրապարակային տեխ-տվյալները (banner, metadata)</li><li>Մոնիթորինգ՝ զանգվածային սկան փնտրող IDS/GreyNoise</li><li>Attack-surface աուդիտ (Shodan/Censys քո ակտիվների վրա)</li></ul>'},
+ {c:'ATT&CK',t:'Initial Access · Առաջին մուտք',d:'Ներթափանցման առաջին կետը՝ phishing, գողացված կրեդենշլ, բաց ծառայություն, supply-chain։<br><b>Պաշտպանություն՝</b><ul><li>MFA ամենուր (հատկապես VPN/մեյլ)</li><li>Phishing-ի ուսուցում + մեյլ-ֆիլտրում</li><li>Արտաքին ծառայությունների նվազեցում, patch</li></ul>'},
+ {c:'ATT&CK',t:'Execution · Կատարում',d:'Վնասակար կոդի գործարկում թիրախում՝ script, LOLBins (powershell, wmic), makro։<br><b>Պաշտպանություն՝</b><ul><li>Application allow-listing</li><li>PowerShell logging + constrained language mode</li><li>Office makro-ների արգելափակում ինտերնետից</li></ul>'},
+ {c:'ATT&CK',t:'Persistence · Կայունություն',d:'Հարձակվողը պահում է մուտքը reboot-ից հետո՝ ավտոբեռնում, scheduled task, նոր հաշիվ, service։<br><b>Պաշտպանություն՝</b><ul><li>Baseline autorun-ների մոնիթորինգ (Sysmon 13)</li><li>Նոր հաշիվ/ծառայություն՝ ահազանգ</li><li>EDR՝ persistence-տեխնիկաների հայտնաբերում</li></ul>'},
+ {c:'ATT&CK',t:'Privilege Escalation · Իրավունքների բարձրացում',d:'User→admin/root անցում՝ exploit, misconfig, token theft։<br><b>Պաշտպանություն՝</b><ul><li>Նվազագույն արտոնության սկզբունք (least privilege)</li><li>Արագ patch (local priv-esc CVE)</li><li>LAPS / admin-հաշիվների կառավարում</li></ul>'},
+ {c:'ATT&CK',t:'Defense Evasion · Պաշտպանության շրջանցում',d:'Հայտնաբերումից խուսափում՝ լոգերի մաքրում, ստորագրված բինար, obfuscation, AV անջատում։<br><b>Պաշտպանություն՝</b><ul><li>Լոգերի անփոփոխ պահոց (WORM/SIEM forward)</li><li>Tamper-protection EDR-ում</li><li>Անոմալիաների հայտնաբերում, ոչ միայն ստորագրություն</li></ul>'},
+ {c:'ATT&CK',t:'Credential Access · Կրեդենշլների գողություն',d:'Գաղտնաբառեր/հեշեր՝ LSASS dump (Mimikatz), keylogger, brute-force, բրաուզերի պահոց։<br><b>Պաշտպանություն՝</b><ul><li>Credential Guard / LSASS protection</li><li>Երկար եզակի գաղտնաբառեր + MFA</li><li>Service-հաշիվների ռոտացիա, gMSA</li></ul>'},
+ {c:'ATT&CK',t:'Lateral Movement · Կողմնային տեղաշարժ',d:'Ցանցի ներսում մեքենայից մեքենա՝ RDP, SMB, PsExec, pass-the-hash։<br><b>Պաշտպանություն՝</b><ul><li>Ցանցի սեգմենտացիա + micro-segmentation</li><li>SMB/RDP սահմանափակում ներքին firewall-ով</li><li>Անոմալ login-ների հայտնաբերում (նոր ուղղություն)</li></ul>'},
+ {c:'ATT&CK',t:'Exfiltration & Impact · Արտահոսք և վնաս',d:'Տվյալների դուրսբերում կամ ransomware/կործանում։<br><b>Պաշտպանություն՝</b><ul><li>DLP + ելքային տրաֆիկի մոնիթորինգ (մեծ/անսովոր)</li><li>Offline + immutable backup, վերականգնման թեստ</li><li>Ransom-ի դեպքում՝ մեկուսացում, ոչ վճարում, IR-պլան</li></ul>'},
+ {c:'Հարձակման տեսակ',t:'Phishing · Ֆիշինգ',d:'Կեղծ մեյլ/հաղորդագրություն՝ կրեդենշլ գողանալու կամ malware բացելու համար։<br><b>Նշաններ՝</b> շտապեցնող տոն, կեղծ դոմեյն, անսպասելի հավելված/հղում։<br><b>Playbook՝</b><ol><li>Մի՛ սեղմիր, ստուգիր ուղարկողի իրական հասցեն</li><li>Հաշվետվություն անվտանգության թիմին</li><li>Եթե սեղմել ես՝ փոխիր գաղտնաբառը, MFA, տեղեկացրու SOC</li></ol>'},
+ {c:'Հարձակման տեսակ',t:'Ransomware · Փրկագին',d:'Կոդավորում է ֆայլերը, պահանջում վճար։<br><b>Կանխարգելում՝</b> backup (3-2-1), patch, MFA, phishing-ուսուցում, EDR։<br><b>Եթե արդեն՝</b><ol><li>Մեկուսացրու վարակված հանգույցները ցանցից</li><li>Պահպանիր ապացույցներ (ոչ reboot)</li><li>Վերականգնիր մաքուր backup-ից</li><li>Մի՛ վճարիր առանց IR/իրավական խորհրդի</li></ol>'},
+ {c:'Հարձակման տեսակ',t:'DDoS · Ծառայության մերժում',d:'Տրաֆիկի ջրհեղեղ՝ ծառայությունը գցելու համար (volumetric / app-layer)։<br><b>Պաշտպանություն՝</b><ul><li>CDN/anti-DDoS (Cloudflare-ոճ) առջևում</li><li>Rate-limiting, WAF app-layer-ի դեմ</li><li>Upstream-ի հետ scrubbing պայմանավորվածություն</li></ul>'},
+ {c:'Հարձակման տեսակ',t:'SQL Injection · SQLi',d:'Չֆիլտրված մուտքով տվյալների բազայի մանիպուլյացիա։<br><b>Պաշտպանություն՝</b><ul><li>Parameterized queries / prepared statements</li><li>ORM + input validation (allow-list)</li><li>Նվազագույն DB-իրավունք, WAF</li></ul>'},
+ {c:'Հարձակման տեսակ',t:'XSS · Cross-Site Scripting',d:'Վնասակար JS ներարկում էջ՝ այլ օգտատերերի բրաուզերում կատարելու համար։<br><b>Պաշտպանություն՝</b><ul><li>Output encoding + input sanitization</li><li>Content-Security-Policy (CSP)</li><li>HttpOnly/SameSite cookie-ներ</li></ul>'},
+ {c:'Հարձակման տեսակ',t:'MITM · Միջնորդի հարձակում',d:'Հաղորդակցության գաղտնալսում/փոփոխում (public WiFi, ARP-spoof, կեղծ AP)։<br><b>Պաշտպանություն՝</b><ul><li>TLS ամենուր + HSTS, վկայագրերի ստուգում</li><li>VPN անվստահ ցանցերում</li><li>WPA3, 802.1X ձեռնարկ-WiFi-ում</li></ul>'},
+ {c:'Պաշտպանական playbook',t:'Միջադեպի արձագանք (IR) · 6 փուլ',d:'<b>NIST-ոճ IR՝</b><ol><li><b>Պատրաստում</b>՝ պլան, թիմ, գործիքներ, backup</li><li><b>Հայտնաբերում</b>՝ ահազանգ, triage, scope</li><li><b>Զսպում</b>՝ մեկուսացում (short/long-term)</li><li><b>Վերացում</b>՝ malware/մուտքի հեռացում, patch</li><li><b>Վերականգնում</b>՝ մաքուր վերադարձ, մոնիթորինգ</li><li><b>Դասեր</b>՝ post-mortem, բարելավումներ</li></ol>'},
+ {c:'Պաշտպանական playbook',t:'Hardening · Համակարգի կարծրացում',d:'<ul><li>Չօգտագործվող ծառայություն/պորտ՝ անջատել</li><li>Default կրեդենշլ՝ փոխել, MFA</li><li>Patch-management ցիկլ</li><li>Լոգավորում կենտրոնացված (SIEM)</li><li>Backup + վերականգնման թեստ</li><li>Least-privilege, ցանցի սեգմենտացիա</li></ul>'},
+ {c:'Հիմունք',t:'CIA եռյակ · Անվտանգության հիմք',d:'<b>Confidentiality</b> (գաղտնիություն)՝ միայն իրավասուները տեսնեն։ <b>Integrity</b> (ամբողջականություն)՝ տվյալը չփոփոխվի չթույլատրված։ <b>Availability</b> (հասանելիություն)՝ ծառայությունը հասանելի մնա։ Ամեն կարգավորում գնահատիր այս երեքով։'},
+ {c:'Հիմունք',t:'Defense in Depth · Շերտավոր պաշտպանություն',d:'Մեկ պաշտպանություն բավարար չէ — շերտեր՝ պերիմետր (firewall/WAF) → ցանց (սեգմենտ) → հանգույց (EDR) → հավելված (secure code) → տվյալ (կոդավորում) → մարդ (ուսուցում)։ Մեկ շերտը խախտվելիս մնացածը պահում են։'},
+ {c:'Հիմունք',t:'Zero Trust · Զրո վստահություն',d:'«Երբեք մի վստահիր, միշտ ստուգիր»։ Ոչ մի օգտատեր/սարք չի վստահվում դիրքով (ներքին ցանց ≠ վստահելի)։ Ամեն մուտք՝ ինքնություն + սարքի վիճակ + նվազագույն իրավունք, անընդհատ վերագնահատում։'}
+];
+function vLearn(){
+ const el=document.getElementById('view');
+ const cats=[...new Set(KB.map(k=>k.c))];
+ el.innerHTML=`<div class="page-head"><h1>Գիտելիք / Ուսուցում</h1><span class="sub">· կիբեռանվտանգության հայերեն բազա՝ ամբողջը համակարգում</span></div>
+ <div class="ip-search" style="max-width:560px"><input id="kbQ" placeholder="Փնտրիր թեմա (օր. ransomware, phishing, zero trust)"></div>
+ <div class="hrow" id="kbCats" style="flex-wrap:wrap;gap:7px;margin:12px 0 14px"><span class="fchip on" data-c="">Բոլորը</span>${cats.map(c=>`<span class="fchip" data-c="${esc(c)}">${esc(c)}</span>`).join('')}</div>
+ <div id="kbList" class="grid" style="grid-template-columns:1fr;gap:10px"></div>`;
+ let fc='';
+ function render(){const q=(document.getElementById('kbQ').value||'').toLowerCase().trim();
+  const rows=KB.filter(k=>(!fc||k.c===fc)&&(!q||(k.t+k.d+k.c).toLowerCase().includes(q)));
+  document.getElementById('kbList').innerHTML=rows.length?rows.map((k,i)=>`<div class="conn-card" style="cursor:pointer" data-kb="${KB.indexOf(k)}"><div class="conn-top"><span class="cn">${esc(k.t)}</span><span class="badge">${esc(k.c)}</span></div><div class="kbBody" style="display:none;margin-top:8px;font-size:13px;line-height:1.55;color:var(--muted)">${k.d}</div></div>`).join(''):`<div class="note">Ոչինչ չգտնվեց «${esc(q)}»-ով</div>`;
+  document.querySelectorAll('[data-kb]').forEach(c=>c.onclick=()=>{const b=c.querySelector('.kbBody');b.style.display=b.style.display==='none'?'block':'none'})}
+ document.getElementById('kbQ').addEventListener('input',render);
+ document.querySelectorAll('#kbCats [data-c]').forEach(x=>x.onclick=()=>{fc=x.dataset.c;document.querySelectorAll('#kbCats .fchip').forEach(y=>y.classList.remove('on'));x.classList.add('on');render()});
+ render();
+}
+
 function vCams(){
  const el=document.getElementById('view');const g=s=>'https://www.google.com/search?q='+encodeURIComponent(s);
  const nets=[['Windy Webcams','Համաշխ. քարտեզ՝ եղանակով','https://www.windy.com/webcams'],['EarthCam','«Where the world watches the world»','https://www.earthcam.com/'],['Skyline Webcams','HD live քաղաքներ/բնություն','https://www.skylinewebcams.com/'],['WorldCams','Համաշխ. live հոսքեր','https://worldcams.tv/'],['HDonTAP','HD բնություն/քաղաք','https://www.hdontap.com/'],['Webcam Taxi','Վիրտ. ճամփորդություն','https://www.webcamtaxi.com/']];
- const picks=[['🗽 Times Square','4qyZLflp-sI']];
+ const picks=[['🗽 Times Square NYC',{t:'v',id:'4qyZLflp-sI'}]];
+ const load=()=>{try{return JSON.parse(localStorage.getItem('vahan_cams')||'[]')}catch(e){return[]}};
+ const save=a=>localStorage.setItem('vahan_cams',JSON.stringify(a));
  el.innerHTML=`<div class="page-head"><h1>Հանրային տեսախցիկներ</h1><span class="sub">· live հոսքը բացվում է հենց համակարգում</span></div>
  <div class="note" style="margin-bottom:14px">🔒 Միայն միտումնավոր-հանրային հոսքեր։ Անպաշտպան մասնավոր կամերաներ չկան։</div>
  <div class="map-wrap" style="height:460px;background:#000"><iframe id="camPlayer" style="width:100%;height:100%;border:0" allow="autoplay; encrypted-media; fullscreen" allowfullscreen></iframe></div>
- <div class="ip-search" style="max-width:660px;margin-top:12px"><input id="camUrl" placeholder="Փակցրու հանրային YouTube live հղում/ID (youtube.com/watch?v=… )"><button class="btn primary" id="camPlay">Նվագարկիր ներսում</button></div>
- <div class="hrow" style="flex-wrap:wrap;gap:7px;margin:10px 0 4px">${picks.map(([n,id])=>`<span class="fchip" data-id="${id}">${n}</span>`).join('')}<span class="mini" style="align-self:center;color:var(--muted2)">· ուրիշ cam՝ վերցրու հղումը ցանցերից ↓, փակցրու վերևում, նվագարկվում է ներսում</span></div>
- <div class="ip-search" style="max-width:560px;margin-top:8px"><input id="camQ" placeholder="լոկացիա (օր. Yerevan, Paris)"><button class="btn" id="camGo">Գտնել հղումներ</button></div>
+ <div class="ip-search" style="max-width:720px;margin-top:12px"><input id="camUrl" placeholder="Փակցրու YouTube live հղում/ID կամ ալիքի հղում (/channel/UC… — ավտոմատ ընթացիկ live)"><button class="btn primary" id="camPlay">Նվագարկիր ներսում</button><button class="btn" id="camSave" title="Պահել ընթացիկը">★ Պահել</button></div>
+ <div class="mini" style="color:var(--muted2);margin:7px 0 2px">⭐ Իմ հոսքերը <span style="opacity:.6">· պահվում են համակարգում (localStorage), նվագարկվում ներսում</span></div>
+ <div class="hrow" id="camFav" style="flex-wrap:wrap;gap:7px;margin:4px 0 2px"></div>
+ <div class="mini" style="color:var(--muted2);margin:10px 0 2px">Պատրաստի՝</div>
+ <div class="hrow" style="flex-wrap:wrap;gap:7px;margin:2px 0 4px">${picks.map((p,i)=>`<span class="fchip" data-pick="${i}">${p[0]}</span>`).join('')}</div>
+ <div class="ip-search" style="max-width:560px;margin-top:10px"><input id="camQ" placeholder="լոկացիա (օր. Yerevan, Paris)"><button class="btn" id="camGo">Գտնել հղումներ</button></div>
  <div id="camLinks" style="margin:10px 0 18px"></div>
- <div class="card-h" style="margin-bottom:10px">Հանրային webcam ցանցեր (բացիր, վերցրու հղումը)</div>
+ <div class="card-h" style="margin-bottom:10px">Հանրային webcam ցանցեր (բացիր, վերցրու հղումը, փակցրու վերևում)</div>
  <div class="grid" style="grid-template-columns:repeat(auto-fit,minmax(230px,1fr))">
   ${nets.map(([n,d,u])=>`<a class="conn-card" href="${u}" target="_blank" rel="noopener" style="text-decoration:none;color:inherit"><div class="conn-top"><span class="cn">${n} ↗</span><span class="st live">LIVE</span></div><div class="conn-use">${d}</div><div class="conn-ep">${u.replace('https://','')}</div></a>`).join('')}
  </div>`;
- const ytId=s=>{s=(s||'').trim();let m;if(/^[\w-]{11}$/.test(s))return s;if(m=s.match(/[?&]v=([\w-]{11})/))return m[1];if(m=s.match(/youtu\.be\/([\w-]{11})/))return m[1];if(m=s.match(/\/(?:live|embed|shorts)\/([\w-]{11})/))return m[1];return ''};
- function play(id){if(!id){toast('Չստացվեց ID — փակցրու վավեր YouTube live հղում');return}document.getElementById('camPlayer').src='https://www.youtube.com/embed/'+id+'?autoplay=1&mute=1&rel=0';logAudit('cam play '+id)}
- play(picks[0][1]);
- document.getElementById('camPlay').onclick=()=>play(ytId(document.getElementById('camUrl').value));
+ const parse=s=>{s=(s||'').trim();let m;
+  if(m=s.match(/\/channel\/(UC[\w-]{20,})/))return{t:'c',id:m[1]};
+  if(/^UC[\w-]{20,}$/.test(s))return{t:'c',id:s};
+  if(/^[\w-]{11}$/.test(s))return{t:'v',id:s};
+  if(m=s.match(/[?&]v=([\w-]{11})/))return{t:'v',id:m[1]};
+  if(m=s.match(/youtu\.be\/([\w-]{11})/))return{t:'v',id:m[1]};
+  if(m=s.match(/\/(?:live|embed|shorts)\/([\w-]{11})/))return{t:'v',id:m[1]};
+  return null};
+ const src=o=>o.t==='c'?'https://www.youtube.com/embed/live_stream?channel='+o.id+'&autoplay=1&mute=1':'https://www.youtube.com/embed/'+o.id+'?autoplay=1&mute=1&rel=0';
+ function play(o){if(!o){toast('Չստացվեց — փակցրու վավեր YouTube live/ալիքի հղում');return}document.getElementById('camPlayer').src=src(o);logAudit('cam play '+o.t+':'+o.id)}
+ let cur=picks[0][1];
+ function renderFav(){const f=load();document.getElementById('camFav').innerHTML=f.length?f.map((x,i)=>`<span class="fchip" data-fav="${i}" style="display:inline-flex;gap:6px;align-items:center">${esc(x.n)}<b data-del="${i}" style="color:var(--bad);cursor:pointer">✕</b></span>`).join(''):`<span class="mini" style="color:var(--muted2)">— դեռ դատարկ է. բացիր հոսք, սեղմիր ★ Պահել</span>`;
+  document.querySelectorAll('[data-fav]').forEach(c=>c.onclick=e=>{if(e.target.dataset.del!==undefined)return;const x=load()[+c.dataset.fav];cur=x.o;play(x.o)});
+  document.querySelectorAll('[data-del]').forEach(b=>b.onclick=e=>{e.stopPropagation();const a=load();a.splice(+b.dataset.del,1);save(a);renderFav();toast('Հեռացվեց')})}
+ renderFav();play(cur);
+ document.getElementById('camPlay').onclick=()=>{const o=parse(document.getElementById('camUrl').value);if(o){cur=o;play(o)}};
  document.getElementById('camUrl').addEventListener('keydown',e=>{if(e.key==='Enter')document.getElementById('camPlay').click()});
- document.querySelectorAll('[data-id]').forEach(c=>c.onclick=()=>play(c.dataset.id));
+ document.getElementById('camSave').onclick=()=>{const o=parse(document.getElementById('camUrl').value)||cur;if(!o){toast('Նախ բացիր հոսք');return}const n=(prompt('Անուն այս հոսքին՝',o.t==='c'?'Ալիք '+o.id.slice(0,6):'Cam '+o.id.slice(0,6))||'').trim();if(!n)return;const a=load();a.unshift({n,o});save(a);renderFav();toast('Պահվեց ⭐')};
+ document.querySelectorAll('[data-pick]').forEach(c=>c.onclick=()=>{cur=picks[+c.dataset.pick][1];play(cur)});
  function run(){const q=document.getElementById('camQ').value.trim();if(!q){toast('Մուտքագրիր լոկացիա');return}logAudit('հանրային cams → '+q);
   const links=[['Google live cam',g(q+' live webcam')],['EarthCam',g('site:earthcam.com '+q)],['Skyline',g('site:skylinewebcams.com '+q)],['Windy',g('site:windy.com/webcams '+q)],['YouTube live',g(q+' live cam')]];
-  document.getElementById('camLinks').innerHTML=`<div style="font-size:11px;color:var(--muted);margin-bottom:7px">«${esc(q)}» — գտիր հղում, փակցրու վերևում՝</div><div class="hrow" style="flex-wrap:wrap;gap:7px">${links.map(([n,l])=>`<a class="btn" href="${l}" target="_blank" rel="noopener" style="text-decoration:none">${n} ↗</a>`).join('')}</div>`}
+  document.getElementById('camLinks').innerHTML=`<div style="font-size:11px;color:var(--muted);margin-bottom:7px">«${esc(q)}» — գտիր հղում, փակցրու վերևում, նվագարկվում է ներսում՝</div><div class="hrow" style="flex-wrap:wrap;gap:7px">${links.map(([n,l])=>`<a class="btn" href="${l}" target="_blank" rel="noopener" style="text-decoration:none">${n} ↗</a>`).join('')}</div>`}
  document.getElementById('camGo').onclick=run;document.getElementById('camQ').addEventListener('keydown',e=>{if(e.key==='Enter')run()});
 }
 
