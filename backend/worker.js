@@ -71,6 +71,8 @@ export default {
       if (path === "/breach") return json(await breach(url.searchParams.get("email"), env));
       if (path === "/country") return json(await country(url.searchParams.get("cc")));
       if (path === "/username") return json(await username(url.searchParams.get("u")));
+      if (path === "/wifi") return json(await wifi(url.searchParams.get("ssid"), env));
+      if (path === "/greynoise") return json(await greynoise(url.searchParams.get("ip"), env));
 
       return json({ error: "not_found", path }, 404);
     } catch (e) {
@@ -279,4 +281,39 @@ async function username(u) {
   } catch (e) { platforms["GitHub"] = null; }
   return { username: u, platforms,
     note: "Հուսալի՝ GitHub API (200/404)։ Մնացած հարթակները client-side best-effort են CORS-ի պատճառով", source: "VAHAN" };
+}
+
+/* WiGLE WiFi SSID search — needs env.WIGLE_AUTH ("Encoded for use" Basic token from wigle.net/account) */
+async function wifi(ssid, env) {
+  if (!ssid) throw new Error("ssid required");
+  const auth = env && env.WIGLE_AUTH;
+  if (!auth) return { error: "no_key", note: "Ավելացրու WIGLE_AUTH env (WiGLE 'Encoded for use' token)", results: [] };
+  const r = await fetch(`https://api.wigle.net/api/v2/network/search?ssid=${encodeURIComponent(ssid)}&resultsPerPage=20`,
+    { headers: { "Authorization": "Basic " + auth, "Accept": "application/json", "User-Agent": UA } });
+  if (!r.ok) return { error: "wigle_" + r.status, results: [] };
+  const j = await r.json();
+  const results = (j.results || []).map(n => ({
+    ssid: n.ssid, encryption: n.encryption, country: n.country,
+    city: n.city || n.region || "", lat: n.trilat, lon: n.trilong, lastseen: n.lastupdt,
+  }));
+  return { ssid, total: j.totalResults || results.length, results, source: "WiGLE" };
+}
+
+/* GreyNoise — context (v2) if env.GREYNOISE_KEY, else free community (v3) */
+async function greynoise(ip, env) {
+  if (!isIP(ip)) throw new Error("valid IP required");
+  const key = env && env.GREYNOISE_KEY;
+  if (key) {
+    const r = await fetch(`https://api.greynoise.io/v2/noise/context/${ip}`,
+      { headers: { "key": key, "Accept": "application/json", "User-Agent": UA } });
+    if (r.ok) {
+      const j = await r.json();
+      return { ip, seen: j.seen, classification: j.classification,
+        name: (j.metadata && j.metadata.organization) || j.actor, tags: j.tags, source: "GreyNoise" };
+    }
+  }
+  const r2 = await fetch(`https://api.greynoise.io/v3/community/${ip}`,
+    { headers: { "Accept": "application/json", "User-Agent": UA } });
+  const j2 = await r2.json();
+  return { ip, noise: j2.noise, riot: j2.riot, classification: j2.classification, name: j2.name, source: "GreyNoise-community" };
 }

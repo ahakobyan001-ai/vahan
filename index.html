@@ -1622,30 +1622,32 @@ function vTools(){
 /* ===================== ԿԱՊԵՐԻ ԳՐԱՖ (influence/connection) ===================== */
 function vGraph(){
  const el=document.getElementById('view');
- const CATS={alias:['Այլանուն','#a78bfa'],origin:['Ծագում','#ff3b63'],target:['Թիրախ','#ff9f1a'],ttp:['Տեխնիկա','#22d3ee']};
- el.innerHTML=`<div class="page-head"><h1>Կապերի գրաֆ</h1><span class="sub">· դերակատար → այլանուններ · ծագում · թիրախներ · տեխնիկաներ (ինտերակտիվ)</span></div>
- <div class="hrow" style="gap:10px;margin-bottom:12px;flex-wrap:wrap"><select class="role-sel" id="gSel" style="min-width:240px">${APT_GROUPS.map(a=>`<option value="${a.id}">${a.n} · ${a.a!=='—'?a.a:a.o}</option>`).join('')}</select>
-   <span class="hrow" id="gFilt" style="gap:6px;flex-wrap:wrap">${Object.entries(CATS).map(([k,v])=>`<span class="fchip on" data-c="${k}" style="border-color:${v[1]}66"><i style="display:inline-block;width:8px;height:8px;border-radius:50%;background:${v[1]};margin-right:5px"></i>${v[0]}</span>`).join('')}</span></div>
+ const CATS={alias:['Այլանուն','#a78bfa'],origin:['Ծագում','#ff3b63'],target:['Թիրախ','#ff9f1a'],ttp:['Տեխնիկա','#22d3ee'],subdomain:['Ենթադոմեն','#34d399'],port:['Պորտ','#22d3ee'],vuln:['Խոցել.','#ff3b63'],platform:['Հարթակ','#a78bfa'],host:['Հոսթ','#ffd23f']};
+ el.innerHTML=`<div class="page-head"><h1>Կապերի գրաֆ</h1><span class="sub">· APT դերակատար կամ իրական OSINT (դոմեն→ենթադոմեններ · IP→պորտեր/vulns · username→հարթակներ)</span></div>
+ <div class="hrow" style="gap:10px;margin-bottom:12px;flex-wrap:wrap">
+   <select class="role-sel" id="gSel" style="min-width:230px">${APT_GROUPS.map(a=>`<option value="${a.id}">${a.n} · ${a.a!=='—'?a.a:a.o}</option>`).join('')}</select>
+   <div class="ip-search" style="margin:0;max-width:360px"><input id="gOsint" placeholder="OSINT՝ դոմեն / IP / username"><button class="btn primary" id="gOsintGo">Գրաֆ OSINT-ից</button></div>
+   <span class="hrow" id="gFilt" style="gap:6px;flex-wrap:wrap">${['alias','origin','target','ttp'].map(k=>`<span class="fchip on" data-c="${k}" style="border-color:${CATS[k][1]}66"><i style="display:inline-block;width:8px;height:8px;border-radius:50%;background:${CATS[k][1]};margin-right:5px"></i>${CATS[k][0]}</span>`).join('')}</span></div>
  <div class="grid" style="grid-template-columns:1fr 320px;gap:14px;align-items:start">
    <div class="card" style="padding:6px"><div class="map-wrap" style="height:560px;background:radial-gradient(circle at 50% 45%,#0a1830,#060c18)"><svg id="gSvg" viewBox="0 0 740 560" style="width:100%;height:100%"></svg></div></div>
    <div class="grid" style="gap:14px;align-content:start" id="gInfo"></div>
  </div>`;
  const hidden={};
  const stat=(l,v)=>`<div style="padding:11px;background:var(--panel2);border:1px solid var(--line);border-radius:9px"><div style="font-size:11px;color:var(--muted)">${l}</div><div style="font-size:14px;font-weight:700;margin-top:3px">${v}</div></div>`;
- function build(id){const a=APT_GROUPS.find(x=>x.id===id);if(!a)return;
-   const items=[];
-   if(a.a!=='—')a.a.split(/·|,/).forEach(s=>s.trim()&&items.push({l:s.trim(),c:'alias'}));
-   items.push({l:a.o,c:'origin'});
-   a.t.split(/,|·/).forEach(s=>s.trim()&&items.push({l:s.trim(),c:'target'}));
-   a.ttp.split(/,|·/).forEach(s=>s.trim()&&items.push({l:s.trim(),c:'ttp'}));
-   const vis=items.filter(it=>!hidden[it.c]);const cx=360,cy=278,n=vis.length||1;
-   let svg='';
+ function draw(cl,cs,items,onNode){const cx=360,cy=278,vis=items.filter(it=>!hidden[it.c]),n=vis.length||1;
    const pts=vis.map((it,i)=>{const ang=-Math.PI/2+i/n*2*Math.PI;const r=(i%2?252:188);return {x:cx+Math.cos(ang)*r,y:cy+Math.sin(ang)*r,it}});
-   pts.forEach(p=>{svg+=`<line x1="${cx}" y1="${cy}" x2="${p.x.toFixed(0)}" y2="${p.y.toFixed(0)}" stroke="${CATS[p.it.c][1]}" stroke-opacity="0.28" stroke-width="1.2"/>`});
-   svg+=`<circle cx="${cx}" cy="${cy}" r="46" fill="#0b1f3a" stroke="#22d3ee" stroke-width="2"/><circle cx="${cx}" cy="${cy}" r="56" fill="none" stroke="#22d3ee" stroke-opacity="0.3"><animate attributeName="r" values="56;64;56" dur="3s" repeatCount="indefinite"/></circle><text x="${cx}" y="${cy-2}" text-anchor="middle" fill="#eaf6ff" font-size="15" font-weight="700">${esc(a.n)}</text><text x="${cx}" y="${cy+15}" text-anchor="middle" fill="#7fa6d6" font-size="10">${a.id}</text>`;
-   pts.forEach((p,i)=>{const col=CATS[p.it.c][1],side=p.x>=cx;svg+=`<g class="gnode" data-i="${i}" style="cursor:pointer"><circle cx="${p.x.toFixed(0)}" cy="${p.y.toFixed(0)}" r="6" fill="${col}"/><circle cx="${p.x.toFixed(0)}" cy="${p.y.toFixed(0)}" r="11" fill="none" stroke="${col}" stroke-opacity="0.4"/><text x="${(p.x+(side?9:-9)).toFixed(0)}" y="${(p.y+4).toFixed(0)}" text-anchor="${side?'start':'end'}" fill="#cfe0f2" font-size="11">${esc(p.it.l).slice(0,22)}</text></g>`});
-   document.getElementById('gSvg').innerHTML=svg;info(a);
-   document.querySelectorAll('.gnode').forEach(g=>g.onclick=()=>nodeInfo(a,pts[+g.dataset.i].it));
+   let svg='';pts.forEach(p=>{svg+=`<line x1="${cx}" y1="${cy}" x2="${p.x.toFixed(0)}" y2="${p.y.toFixed(0)}" stroke="${(CATS[p.it.c]||['','#888'])[1]}" stroke-opacity="0.28" stroke-width="1.2"/>`});
+   svg+=`<circle cx="${cx}" cy="${cy}" r="48" fill="#0b1f3a" stroke="#22d3ee" stroke-width="2"/><circle cx="${cx}" cy="${cy}" r="58" fill="none" stroke="#22d3ee" stroke-opacity="0.3"><animate attributeName="r" values="58;66;58" dur="3s" repeatCount="indefinite"/></circle><text x="${cx}" y="${cy-1}" text-anchor="middle" fill="#eaf6ff" font-size="13" font-weight="700">${esc(cl).slice(0,16)}</text><text x="${cx}" y="${cy+15}" text-anchor="middle" fill="#7fa6d6" font-size="9.5">${esc(cs)}</text>`;
+   pts.forEach((p,i)=>{const col=(CATS[p.it.c]||['','#888'])[1],side=p.x>=cx;svg+=`<g class="gnode" data-i="${i}" style="cursor:pointer"><circle cx="${p.x.toFixed(0)}" cy="${p.y.toFixed(0)}" r="6" fill="${col}"/><circle cx="${p.x.toFixed(0)}" cy="${p.y.toFixed(0)}" r="11" fill="none" stroke="${col}" stroke-opacity="0.4"/><text x="${(p.x+(side?9:-9)).toFixed(0)}" y="${(p.y+4).toFixed(0)}" text-anchor="${side?'start':'end'}" fill="#cfe0f2" font-size="11">${esc(p.it.l).slice(0,24)}</text></g>`});
+   document.getElementById('gSvg').innerHTML=svg;
+   document.querySelectorAll('.gnode').forEach(g=>g.onclick=()=>onNode(pts[+g.dataset.i].it));
+ }
+ /* ---- APT режим ---- */
+ function build(id){const a=APT_GROUPS.find(x=>x.id===id);if(!a)return;const items=[];
+   if(a.a!=='—')a.a.split(/·|,/).forEach(s=>s.trim()&&items.push({l:s.trim(),c:'alias'}));
+   items.push({l:a.o,c:'origin'});a.t.split(/,|·/).forEach(s=>s.trim()&&items.push({l:s.trim(),c:'target'}));
+   a.ttp.split(/,|·/).forEach(s=>s.trim()&&items.push({l:s.trim(),c:'ttp'}));
+   draw(a.n,a.id,items,it=>nodeInfo(a.n,it));info(a);
  }
  function info(a){const rel=APT_GROUPS.filter(x=>x.o===a.o&&x.id!==a.id);
    document.getElementById('gInfo').innerHTML=`<div class="card"><div class="card-h">${esc(a.n)}<span class="mini">${a.id}</span></div><div class="grid" style="grid-template-columns:1fr 1fr;gap:9px">${stat('Ծագում',a.o)}${stat('Այլանուն',a.a)}</div><div style="margin-top:10px;font-size:12.5px;color:var(--muted);line-height:1.5"><b style="color:var(--txt)">Թիրախներ՝</b> ${esc(a.t)}<br><b style="color:var(--txt)">TTP՝</b> ${esc(a.ttp)}</div></div>
@@ -1653,9 +1655,24 @@ function vGraph(){
    <div class="card"><div class="card-h">Ակտիվություն<span class="mini">12 ամիս (մոդել)</span></div><canvas id="gSpark" height="60" style="width:100%"></canvas></div>`;
    document.querySelectorAll('[data-rel]').forEach(r=>r.onclick=()=>{document.getElementById('gSel').value=r.dataset.rel;build(r.dataset.rel)});spark(a);
  }
- function nodeInfo(a,it){const cat=CATS[it.c];document.getElementById('gInfo').innerHTML=`<div class="card" style="border-color:${cat[1]}66"><div class="card-h"><span style="color:${cat[1]}">${cat[0]}</span><span class="mini">հանգույց</span></div><div style="font-size:15px;font-weight:700;margin:4px 0 8px">${esc(it.l)}</div><div style="font-size:12px;color:var(--muted)">Կապված՝ <b style="color:var(--txt)">${esc(a.n)}</b> (${a.id})</div><button class="btn" id="gBack" style="margin-top:12px">← Վերադառնալ դերակատարին</button></div>`;document.getElementById('gBack').onclick=()=>info(a);}
+ function nodeInfo(cl,it){const cat=CATS[it.c]||['Հանգույց','#888'];document.getElementById('gInfo').innerHTML=`<div class="card" style="border-color:${cat[1]}66"><div class="card-h"><span style="color:${cat[1]}">${cat[0]}</span><span class="mini">հանգույց</span></div><div style="font-size:15px;font-weight:700;margin:4px 0 8px;word-break:break-all">${esc(it.l)}</div><div style="font-size:12px;color:var(--muted)">Կապված՝ <b style="color:var(--txt)">${esc(cl)}</b></div>${it.url?`<a class="btn" href="${it.url}" target="_blank" rel="noopener" style="margin-top:12px;text-decoration:none">Բացել ↗</a>`:''}</div>`;}
  function spark(a){const c=document.getElementById('gSpark');if(!c)return;const w=c.width=c.offsetWidth||280,h=c.height,ctx=c.getContext('2d');let s=a.id.charCodeAt(a.id.length-1)+a.n.length;const vals=Array.from({length:12},()=>{s=(s*9301+49297)%233280;return 18+s/233280*44});ctx.clearRect(0,0,w,h);ctx.beginPath();ctx.strokeStyle='#22d3ee';ctx.lineWidth=2;vals.forEach((v,i)=>{const x=i/11*w,y=h-v/70*h;i?ctx.lineTo(x,y):ctx.moveTo(x,y)});ctx.stroke();ctx.lineTo(w,h);ctx.lineTo(0,h);ctx.fillStyle='rgba(34,211,238,.12)';ctx.fill();}
+ /* ---- OSINT режим (իրական տվյալ) ---- */
+ async function buildOsint(q){q=q.trim();if(!q)return;const type=detectType(q);logAudit('գրաֆ OSINT ['+type+'] → '+q);
+   document.getElementById('gSvg').innerHTML=`<text x="370" y="278" text-anchor="middle" fill="#7fa6d6" font-size="13">բեռնվում է…</text>`;
+   document.getElementById('gInfo').innerHTML=`<div class="card"><div style="text-align:center;padding:16px"><div class="spin"></div></div></div>`;
+   let items=[],sub=type,note='';
+   try{
+     if(type==='domain'){const r=await fetch('https://crt.sh/?q='+encodeURIComponent('%.'+q)+'&output=json');const j=await r.json();const set=new Set();j.forEach(x=>(x.name_value||'').split('\n').forEach(nm=>{nm=nm.trim().replace(/^\*\./,'');if(nm&&!nm.includes(' ')&&nm.endsWith(q))set.add(nm)}));[...set].slice(0,20).forEach(s=>items.push({l:s,c:'subdomain',url:'https://'+s}));sub='domain · crt.sh';note=set.size+' ենթադոմեն (crt.sh)';}
+     else if(type==='ip'){const L=await api('/ip',{ip:q});(L.ports||[]).slice(0,18).forEach(p=>items.push({l:'port '+p,c:'port'}));(L.vulns||[]).slice(0,10).forEach(v=>items.push({l:v,c:'vuln',url:'https://nvd.nist.gov/vuln/detail/'+v}));if(L.country)items.push({l:(L.flag||'')+' '+L.country,c:'host'});if(L.asn)items.push({l:L.asn,c:'host'});sub='IP · InternetDB';note=(L.ports||[]).length+' պորտ · '+(L.vulns||[]).length+' vuln';}
+     else{const u=q.replace(/^@/,'');[['GitHub','https://github.com/'+u],['X (Twitter)','https://x.com/'+u],['Instagram','https://instagram.com/'+u],['Reddit','https://reddit.com/user/'+u],['Telegram','https://t.me/'+u],['TikTok','https://tiktok.com/@'+u],['GitLab','https://gitlab.com/'+u],['Keybase','https://keybase.io/'+u]].forEach(([n,url])=>items.push({l:n,c:'platform',url}));sub='username · հարթակներ';note=u+' · 8 հարթակ';}
+   }catch(e){note='⚠ live կանչը ձախողվեց (CORS/preview) — փորձիր deploy-ված կայքում'}
+   draw(q,sub,items,it=>nodeInfo(q,it));
+   document.getElementById('gInfo').innerHTML=`<div class="card"><div class="card-h">OSINT · ${esc(q)}<span class="mini">${type}</span></div><div style="font-size:12.5px;color:var(--muted)">${note||'—'}</div>${items.length?`<div class="mini" style="margin-top:8px;color:var(--muted2)">Սեղմիր հանգույցին՝ բացելու/մանրամասների համար</div>`:'<div class="note" style="margin-top:8px">Արդյունք չստացվեց։</div>'}</div>`;
+ }
  document.getElementById('gSel').onchange=e=>build(e.target.value);
+ document.getElementById('gOsintGo').onclick=()=>buildOsint(document.getElementById('gOsint').value);
+ document.getElementById('gOsint').addEventListener('keydown',e=>{if(e.key==='Enter')buildOsint(e.target.value)});
  document.querySelectorAll('#gFilt [data-c]').forEach(x=>x.onclick=()=>{hidden[x.dataset.c]=!hidden[x.dataset.c];x.classList.toggle('on');x.style.opacity=hidden[x.dataset.c]?'0.4':'1';build(document.getElementById('gSel').value)});
  build(APT_GROUPS[0].id);
 }
@@ -1770,7 +1787,18 @@ const KB=[
  {c:'Պաշտպանական playbook',t:'Hardening · Համակարգի կարծրացում',d:'<ul><li>Չօգտագործվող ծառայություն/պորտ՝ անջատել</li><li>Default կրեդենշլ՝ փոխել, MFA</li><li>Patch-management ցիկլ</li><li>Լոգավորում կենտրոնացված (SIEM)</li><li>Backup + վերականգնման թեստ</li><li>Least-privilege, ցանցի սեգմենտացիա</li></ul>'},
  {c:'Հիմունք',t:'CIA եռյակ · Անվտանգության հիմք',d:'<b>Confidentiality</b> (գաղտնիություն)՝ միայն իրավասուները տեսնեն։ <b>Integrity</b> (ամբողջականություն)՝ տվյալը չփոփոխվի չթույլատրված։ <b>Availability</b> (հասանելիություն)՝ ծառայությունը հասանելի մնա։ Ամեն կարգավորում գնահատիր այս երեքով։'},
  {c:'Հիմունք',t:'Defense in Depth · Շերտավոր պաշտպանություն',d:'Մեկ պաշտպանություն բավարար չէ — շերտեր՝ պերիմետր (firewall/WAF) → ցանց (սեգմենտ) → հանգույց (EDR) → հավելված (secure code) → տվյալ (կոդավորում) → մարդ (ուսուցում)։ Մեկ շերտը խախտվելիս մնացածը պահում են։'},
- {c:'Հիմունք',t:'Zero Trust · Զրո վստահություն',d:'«Երբեք մի վստահիր, միշտ ստուգիր»։ Ոչ մի օգտատեր/սարք չի վստահվում դիրքով (ներքին ցանց ≠ վստահելի)։ Ամեն մուտք՝ ինքնություն + սարքի վիճակ + նվազագույն իրավունք, անընդհատ վերագնահատում։'}
+ {c:'Հիմունք',t:'Zero Trust · Զրո վստահություն',d:'«Երբեք մի վստահիր, միշտ ստուգիր»։ Ոչ մի օգտատեր/սարք չի վստահվում դիրքով (ներքին ցանց ≠ վստահելի)։ Ամեն մուտք՝ ինքնություն + սարքի վիճակ + նվազագույն իրավունք, անընդհատ վերագնահատում։'},
+ {c:'ATT&CK տեխնիկա',t:'T1566 · Phishing',d:'<b>Մարտ.՝ Initial Access.</b> Վնասակար email/հղում/հավելված՝ կրեդենշլ կամ կոդ կատարելու համար (spearphishing attachment/link/service)։<br><b>Հայտնաբերում՝</b> mail-gateway, URL-detonation, նոր ուղարկող-անոմալիա։<br><b>Մեղմացում՝</b> MFA, attachment-sandbox, օգտատերերի ուսուցում, DMARC/SPF/DKIM։'},
+ {c:'ATT&CK տեխնիկա',t:'T1059 · Command & Scripting',d:'<b>Մարտ.՝ Execution.</b> PowerShell, cmd, bash, WScript, Python՝ կոդ կատարելու համար։<br><b>Հայտնաբերում՝</b> process-command-line logging (Sysmon 1), script-block logging։<br><b>Մեղմացում՝</b> constrained language mode, allow-listing, makro-արգելափակում։'},
+ {c:'ATT&CK տեխնիկա',t:'T1078 · Valid Accounts',d:'<b>Մարտ.՝ Persistence/Priv-Esc/Access.</b> Օրինական գողացված հաշիվներ՝ հայտնաբերումից խուսափելու համար։<br><b>Հայտնաբերում՝</b> անոմալ login (ժամ/գեո), impossible-travel, քնած հաշիվների ակտիվացում։<br><b>Մեղմացում՝</b> MFA, least-privilege, հաշիվների ռոտացիա/ստուգում։'},
+ {c:'ATT&CK տեխնիկա',t:'T1053 · Scheduled Task/Job',d:'<b>Մարտ.՝ Persistence/Execution.</b> schtasks, cron, at՝ կայունության ու կրկնվող կատարման համար։<br><b>Հայտնաբերում՝</b> նոր task (Sysmon), Security 4698, cron-ի փոփոխ.։<br><b>Մեղմացում՝</b> սահմանափակ task-ստեղծման իրավունք, baseline-մոնիթորինգ։'},
+ {c:'ATT&CK տեխնիկա',t:'T1055 · Process Injection',d:'<b>Մարտ.՝ Defense Evasion/Priv-Esc.</b> Կոդի ներարկում օրինական պրոցեսի մեջ (DLL/hollowing)։<br><b>Հայտնաբերում՝</b> CreateRemoteThread, անսովոր memory-region, EDR։<br><b>Մեղմացում՝</b> EDR behavior-rules, attack-surface-reduction։'},
+ {c:'ATT&CK տեխնիկա',t:'T1003 · Credential Dumping',d:'<b>Մարտ.՝ Credential Access.</b> LSASS, SAM, NTDS.dit, /etc/shadow՝ հեշերի/գաղտնաբառերի հանում (Mimikatz)։<br><b>Հայտնաբերում՝</b> LSASS-ի հասանելիություն, procdump-անոմալիա։<br><b>Մեղմացում՝</b> Credential Guard, LSASS protection, PtH-դեմ միջոցներ։'},
+ {c:'ATT&CK տեխնիկա',t:'T1021 · Remote Services',d:'<b>Մարտ.՝ Lateral Movement.</b> RDP, SMB, SSH, WinRM, VNC՝ ցանցում տեղաշարժվելու համար։<br><b>Հայտնաբերում՝</b> անսովոր ներքին login-ուղղություն, նոր admin-session։<br><b>Մեղմացում՝</b> սեգմենտացիա, MFA, RDP-սահմանափակում, jump-host։'},
+ {c:'ATT&CK տեխնիկա',t:'T1486 · Data Encrypted (Ransomware)',d:'<b>Մարտ.՝ Impact.</b> Ֆայլերի զանգվածային կոդավորում՝ փրկագին պահանջելու համար։<br><b>Հայտնաբերում՝</b> զանգվածային file-rename/entropy-աճ, shadow-copy ջնջում։<br><b>Մեղմացում՝</b> offline/immutable backup, EDR ransomware-rules, least-privilege։'},
+ {c:'ATT&CK տեխնիկա',t:'T1490 · Inhibit System Recovery',d:'<b>Մարտ.՝ Impact.</b> vssadmin delete shadows, bcdedit՝ վերականգնումը բացառելու համար (ransomware-ի նախաքայլ)։<br><b>Հայտնաբերում՝</b> vssadmin/wbadmin/bcdedit command-line։<br><b>Մեղմացում՝</b> պաշտպանված backup, այդ հրամանների սահմանափակում։'},
+ {c:'ATT&CK տեխնիկա',t:'T1047 · WMI',d:'<b>Մարտ.՝ Execution/Lateral.</b> Windows Management Instrumentation՝ հեռահար կատարում ու հետախուզություն (living-off-the-land)։<br><b>Հայտնաբերում՝</b> wmic/WMI-event logging, անսովոր WMI-consumer։<br><b>Մեղմացում՝</b> WMI-activity մոնիթորինգ, least-privilege։'},
+ {c:'ATT&CK տեխնիկա',t:'T1105 · Ingress Tool Transfer',d:'<b>Մարտ.՝ Command & Control.</b> Գործիքների ներբեռնում դրսից (certutil, bitsadmin, curl, PowerShell)։<br><b>Հայտնաբերում՝</b> certutil/bitsadmin-download, անսովոր ելքային կապ։<br><b>Մեղմացում՝</b> ելքային-ֆիլտրում, allow-listing, proxy-ստուգում։'}
 ];
 function vLearn(){
  const el=document.getElementById('view');
