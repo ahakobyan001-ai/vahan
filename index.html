@@ -321,6 +321,8 @@ button{font-family:inherit}
 .gs-item:last-child{border:0}
 .gs-item:hover{background:rgba(34,211,238,.09)}
 .gs-item .ty{margin-left:auto;font-size:10px;color:var(--muted2)}
+.spin{width:34px;height:34px;border:3px solid var(--line2);border-top-color:var(--cyan);border-radius:50%;display:inline-block;animation:spin .8s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
 </style>
 </head>
 <body>
@@ -413,6 +415,7 @@ button{font-family:inherit}
 <script src="https://cdn.jsdelivr.net/npm/@vladmandic/face-api/dist/face-api.min.js"></script>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/exif-js/2.3.0/exif.min.js"></script>
 <script>
 /* ============================ DATA ============================ */
 const TARGET={lon:44.51,lat:40.18};
@@ -1428,6 +1431,7 @@ function vGeo(){
     info.textContent=d[0].display_name.slice(0,70);logAudit('geo որոնում → '+q);
    }catch(e){info.textContent='Սխալ (preview-ում արգելափակված, deploy-ում կաշխատի)'}}
   document.getElementById('geoGo').onclick=geo;document.getElementById('geoQ').addEventListener('keydown',e=>{if(e.key==='Enter')geo()});
+  if(window.GEO_GOTO){const G=window.GEO_GOTO;window.GEO_GOTO=null;map.setView([G.lat,G.lon],14);if(marker)map.removeLayer(marker);marker=L.marker([G.lat,G.lon]).addTo(map).bindPopup(G.label||'').openPopup();if(info)info.textContent=G.label||(G.lat.toFixed(5)+', '+G.lon.toFixed(5))}
   setTimeout(()=>{try{map.invalidateSize()}catch(e){}},200);
  },140);
 }
@@ -1435,26 +1439,38 @@ function vGeo(){
 /* ===================== REVERSE IMAGE SEARCH ===================== */
 function vImage(){
  const el=document.getElementById('view');const enc=s=>encodeURIComponent(s);
- const engines=u=>[['Google Lens','https://lens.google.com/uploadbyurl?url='+enc(u)],['Yandex','https://yandex.com/images/search?rpt=imageview&url='+enc(u)],['TinEye','https://tineye.com/search?url='+enc(u)],['Bing','https://www.bing.com/images/search?view=detailv2&iss=sbi&q=imgurl:'+enc(u)]];
- el.innerHTML=`<div class="page-head"><h1>Նկարով փնտրում (reverse image)</h1><span class="sub">· գտիր որտեղ է հայտնվում նկարը համացանցում · 4 շարժիչ</span></div>
- <div class="note" style="margin-bottom:14px">🔒 Շրջանակ. բրենդ/լոգո-չարաշահում, ֆիշինգ-սքրինշոթ, կեղծ պրոֆիլի նկար, ապրանք/լոկացիա ստուգելու համար (bellingcat-ոճ OSINT)։ Ոչ՝ մասնավոր անձի դեմքով հետախուզում։</div>
- <div class="grid" style="grid-template-columns:1fr 1fr">
-   <div class="card"><div class="card-h">Ա · Նկարի URL-ով</div>
-     <div class="ip-search" style="max-width:none"><input id="imgUrl" placeholder="https://.../photo.jpg (ուղիղ նկարի հղում)"><button class="btn primary" id="imgGo">Փնտրել</button></div>
-     <div id="imgLinks" style="margin-top:12px"><div style="font-size:11.5px;color:var(--muted2)">Մուտքագրիր ուղիղ նկար-URL → կստանաս 4 շարժիչի հղումները</div></div></div>
-   <div class="card"><div class="card-h">Բ · Ֆայլ վերբեռնելով</div>
+ const byUrl=u=>[['Google Lens','https://lens.google.com/uploadbyurl?url='+enc(u)],['Yandex','https://yandex.com/images/search?rpt=imageview&url='+enc(u)],['TinEye','https://tineye.com/search?url='+enc(u)],['Bing','https://www.bing.com/images/search?view=detailv2&iss=sbi&q=imgurl:'+enc(u)]];
+ const upload=[['Google','https://images.google.com/'],['Yandex','https://yandex.com/images/'],['TinEye','https://tineye.com/'],['Bing','https://www.bing.com/visualsearch']];
+ el.innerHTML=`<div class="page-head"><h1>Նկարի անալիզ & փնտրում</h1><span class="sub">· in-app EXIF / GPS / hash անալիզ + reverse-image որոնում</span></div>
+ <div class="note" style="margin-bottom:14px">🔒 Reverse-image՝ բրենդ/ֆիշինգ/աղբյուր ստուգելու համար, ոչ՝ մասնավոր անձի դեմքով հետախուզում։</div>
+ <div class="grid" style="grid-template-columns:330px 1fr">
+   <div class="card"><div class="card-h">Վերբեռնիր նկար</div>
      <input type="file" id="imgFile" accept="image/*" style="font-size:12px;color:var(--muted);width:100%">
-     <div id="imgPrev" style="margin-top:10px"></div>
-     <div style="font-size:11px;color:var(--muted);margin-top:10px">Բացիր շարժիչի upload-էջը և քաշիր նկարը՝</div>
-     <div class="hrow" style="flex-wrap:wrap;gap:7px;margin-top:7px">
-       <a class="btn" href="https://images.google.com/" target="_blank" rel="noopener">Google Images ↗</a>
-       <a class="btn" href="https://yandex.com/images/" target="_blank" rel="noopener">Yandex ↗</a>
-       <a class="btn" href="https://tineye.com/" target="_blank" rel="noopener">TinEye ↗</a>
-       <a class="btn" href="https://www.bing.com/visualsearch" target="_blank" rel="noopener">Bing ↗</a></div></div>
+     <div id="imgPrev" style="margin-top:12px"></div>
+     <div class="card-h" style="font-size:12px;margin-top:14px">Կամ URL-ով</div>
+     <div class="ip-search" style="max-width:none"><input id="imgUrl" placeholder="https://.../photo.jpg"><button class="btn primary" id="imgGo">Փնտրել</button></div></div>
+   <div class="card" id="imgRes"><div class="empty" style="padding:40px 10px"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21"/></svg><div>Վերբեռնիր նկար՝ in-app անալիզի համար (չափ · EXIF · GPS · SHA-256 · գույն)</div></div></div>
  </div>`;
- function run(){const u=document.getElementById('imgUrl').value.trim();if(!/^https?:\/\//.test(u)){toast('Մուտքագրիր նկարի ուղիղ URL');return}logAudit('reverse-image → '+u.slice(0,50));document.getElementById('imgLinks').innerHTML=`<div style="font-size:11px;color:var(--muted);margin-bottom:7px">Բացիր շարժիչներից՝</div><div class="hrow" style="flex-wrap:wrap;gap:7px">${engines(u).map(([n,l])=>`<a class="btn" href="${l}" target="_blank" rel="noopener" style="text-decoration:none">${n} ↗</a>`).join('')}</div>`}
- document.getElementById('imgGo').onclick=run;document.getElementById('imgUrl').addEventListener('keydown',e=>{if(e.key==='Enter')run()});
- document.getElementById('imgFile').onchange=e=>{const f=e.target.files[0];if(!f)return;const rd=new FileReader();rd.onload=()=>{document.getElementById('imgPrev').innerHTML='<img src="'+rd.result+'" style="max-width:100%;max-height:190px;border-radius:9px;border:1px solid var(--line)">'};rd.readAsDataURL(f)};
+ const spinner=t=>`<div style="text-align:center;padding:36px"><div class="spin"></div><div style="margin-top:12px;color:var(--muted);font-size:12.5px">${t||'Վերլուծվում է…'}</div></div>`;
+ const uploadLinks=()=>`<div class="card-h" style="margin-top:14px;font-size:12.5px">Reverse-image (վերբեռնիր շարժիչում)</div><div class="hrow" style="flex-wrap:wrap;gap:7px">${upload.map(([n,l])=>`<a class="btn" href="${l}" target="_blank" rel="noopener" style="text-decoration:none">${n} ↗</a>`).join('')}</div>`;
+ async function analyzeFile(f){
+   const res=document.getElementById('imgRes');res.innerHTML=spinner('Բեռնվում ու վերլուծվում է…');document.getElementById('imgPrev').innerHTML='';
+   const url=URL.createObjectURL(f);const img=new Image();
+   await new Promise(r=>{img.onload=r;img.onerror=r;img.src=url});
+   document.getElementById('imgPrev').innerHTML='<img src="'+url+'" style="max-width:100%;max-height:230px;border-radius:9px;border:1px solid var(--line)">';
+   let hash='—';try{const buf=await f.arrayBuffer();const h=await crypto.subtle.digest('SHA-256',buf);hash=[...new Uint8Array(h)].map(b=>b.toString(16).padStart(2,'0')).join('')}catch(e){}
+   let col='—';try{const c=document.createElement('canvas');c.width=1;c.height=1;const cx=c.getContext('2d');cx.drawImage(img,0,0,1,1);const d=cx.getImageData(0,0,1,1).data;col='#'+[d[0],d[1],d[2]].map(x=>x.toString(16).padStart(2,'0')).join('')}catch(e){}
+   let exif={},gps=null;
+   await new Promise(r=>{try{if(window.EXIF){EXIF.getData(img,function(){exif={mk:EXIF.getTag(this,'Make'),md:EXIF.getTag(this,'Model'),dt:EXIF.getTag(this,'DateTimeOriginal')||EXIF.getTag(this,'DateTime')};const la=EXIF.getTag(this,'GPSLatitude'),laR=EXIF.getTag(this,'GPSLatitudeRef'),lo=EXIF.getTag(this,'GPSLongitude'),loR=EXIF.getTag(this,'GPSLongitudeRef');if(la&&lo){const dec=(a,ref)=>{let v=a[0]+a[1]/60+a[2]/3600;if(ref==='S'||ref==='W')v=-v;return v};gps={lat:dec(la,laR),lon:dec(lo,loR)}}r()})}else r()}catch(e){r()}});
+   const rows=[['Ֆայլ',esc(f.name)+' · '+(f.type||'?')],['Չափ (px)',(img.naturalWidth||'?')+' × '+(img.naturalHeight||'?')],['Ծավալ',(f.size/1024).toFixed(1)+' KB'],['Գերիշխ. գույն',`<span style="display:inline-block;width:14px;height:14px;border-radius:3px;background:${col};vertical-align:middle;margin-right:6px;border:1px solid var(--line2)"></span>${col}`],['SHA-256',`<span class="mono" style="font-size:9px;word-break:break-all">${hash}</span>`],['Camera',(exif.mk||exif.md)?esc(((exif.mk||'')+' '+(exif.md||'')).trim()):'—'],['Ամսաթիվ (EXIF)',exif.dt?esc(exif.dt):'—']];
+   const gpsHtml=gps?`<div class="ip-row"><span class="l">📍 GPS (EXIF)</span><span class="v mono">${gps.lat.toFixed(5)}, ${gps.lon.toFixed(5)}</span></div><div class="hrow" style="gap:7px;margin:8px 0"><a class="btn" href="https://www.google.com/maps?q=${gps.lat},${gps.lon}" target="_blank" rel="noopener" style="text-decoration:none">Google Maps ↗</a><button class="btn primary" id="imgGeo">Բացել Գեո քարտեզում</button></div>`:'<div class="ip-row"><span class="l">📍 GPS</span><span class="v" style="color:var(--muted)">նկարում GPS չկա</span></div>';
+   res.innerHTML=`<div class="card-h">In-app անալիզ${gps?' · <span class="pill crit" style="margin-left:6px">GPS գտնվեց</span>':''}</div>${rows.map(([l,v])=>`<div class="ip-row"><span class="l">${l}</span><span class="v">${v}</span></div>`).join('')}${gpsHtml}<div class="ip-row" style="border:0"><span class="l">Hash lookup</span><span class="v"><a href="https://www.virustotal.com/gui/file/${hash}" target="_blank" rel="noopener" style="color:var(--cyan)">VirusTotal ↗</a> · <a href="https://bazaar.abuse.ch/browse.php?search=sha256:${hash}" target="_blank" rel="noopener" style="color:var(--cyan)">MalwareBazaar ↗</a></span></div>${uploadLinks()}`;
+   if(gps){const gb=document.getElementById('imgGeo');if(gb)gb.onclick=()=>{window.GEO_GOTO={lat:gps.lat,lon:gps.lon,label:'EXIF GPS · '+f.name};go('geo')}}
+   logAudit('նկար անալիզ · '+f.name+(gps?' · GPS!':''));
+ }
+ document.getElementById('imgFile').onchange=e=>{const f=e.target.files[0];if(f)analyzeFile(f)};
+ document.getElementById('imgGo').onclick=()=>{const u=document.getElementById('imgUrl').value.trim();if(!/^https?:\/\//.test(u)){toast('Մուտքագրիր նկարի URL');return}logAudit('reverse-image → '+u.slice(0,50));document.getElementById('imgRes').innerHTML=`<div class="card-h">Reverse-image (URL)</div><div class="hrow" style="flex-wrap:wrap;gap:7px">${byUrl(u).map(([n,l])=>`<a class="btn" href="${l}" target="_blank" rel="noopener" style="text-decoration:none">${n} ↗</a>`).join('')}</div>`};
+ document.getElementById('imgUrl').addEventListener('keydown',e=>{if(e.key==='Enter')document.getElementById('imgGo').click()});
 }
 
 /* ============================ UTIL ============================ */
