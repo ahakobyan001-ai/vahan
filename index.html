@@ -400,6 +400,7 @@ button{font-family:inherit}
 <script src="https://cdn.jsdelivr.net/npm/topojson-client@3/dist/topojson-client.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/blueimp-md5/2.19.0/js/md5.min.js"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/@vladmandic/face-api/dist/face-api.min.js"></script>
 <script>
 /* ============================ DATA ============================ */
 const TARGET={lon:44.51,lat:40.18};
@@ -1016,7 +1017,7 @@ function vDefense(){
   if($('pinToggle'))$('pinToggle').onclick=()=>{if(!requireRole(3,'փոխել PIN-ռեժիմ'))return;AUTH.pinOn=!AUTH.pinOn;authSave('vahan_pin_off',AUTH.pinOn?'0':'1');$('pinToggle').textContent=AUTH.pinOn?'PIN՝ միացված → անջատել':'PIN՝ անջատված → միացնել';toast('PIN '+(AUTH.pinOn?'միացվեց':'անջատվեց'))};
   if($('totpRot'))$('totpRot').onclick=()=>{if(!requireRole(3,'rotate 2FA'))return;AUTH.totp=randB32(16);authSave('vahan_totp',AUTH.totp);$('totpSec').textContent=AUTH.totp;$('totpUri').textContent=uri();renderQR($('totpQR'),uri());toast('2FA secret թարմացվեց')};
   if($('faceClear'))$('faceClear').onclick=()=>{if(!requireRole(3,'մաքրել դեմք'))return;AUTH.face='';authSave('vahan_face','');$('faceStat').innerHTML='<span class="pill gray">չգրանցված</span>';toast('Դեմքը մաքրվեց — հաջորդ մուտքին կվերագրանցվի')};
-  if($('logout2'))$('logout2').onclick=()=>{logAudit('ելք համակարգից');location.reload()};
+  if($('logout2'))$('logout2').onclick=()=>{if(window.vahanLogout)window.vahanLogout();else location.reload()};
 }
 
 /* ===================== COUNTRY DOSSIER ===================== */
@@ -1391,9 +1392,21 @@ async function totpAt(secret,sec){const key=b32dec(secret);const ctr=Math.floor(
 async function totpVerify(secret,code){const now=Date.now()/1000;for(const d of[-1,0,1]){if(await totpAt(secret,now+d*30)===code)return true}return false}
 function faceHash(video){const c=document.createElement('canvas');c.width=16;c.height=16;const x=c.getContext('2d');const w=video.videoWidth||300,h=video.videoHeight||300,sq=Math.min(w,h);x.drawImage(video,(w-sq)/2,(h-sq)/2,sq,sq,0,0,16,16);const d=x.getImageData(0,0,16,16).data;const g=[];let sum=0;for(let i=0;i<d.length;i+=4){const v=d[i]*0.3+d[i+1]*0.59+d[i+2]*0.11;g.push(v);sum+=v}const av=sum/g.length;return g.map(v=>v>av?'1':'0').join('')}
 function faceDist(a,b){if(!a||!b||a.length!==b.length)return 999;let d=0;for(let i=0;i<a.length;i++)if(a[i]!==b[i])d++;return d}
+const FACE={mode:'hash',loading:false,ready:false};
+async function faceInit(){if(FACE.ready||FACE.loading)return;FACE.loading=true;
+  try{if(window.faceapi){const M='https://cdn.jsdelivr.net/npm/@vladmandic/face-api/model/';
+    await faceapi.nets.tinyFaceDetector.loadFromUri(M);await faceapi.nets.faceLandmark68Net.loadFromUri(M);await faceapi.nets.faceRecognitionNet.loadFromUri(M);
+    FACE.mode='embedding';FACE.ready=true;}}catch(e){FACE.mode='hash';}
+  FACE.loading=false;}
+async function getFaceDesc(video){
+  if(FACE.mode==='embedding'&&window.faceapi){try{const d=await faceapi.detectSingleFace(video,new faceapi.TinyFaceDetectorOptions({scoreThreshold:0.4})).withFaceLandmarks().withFaceDescriptor();if(!d)return null;return {m:'embedding',v:Array.from(d.descriptor)}}catch(e){return null}}
+  let has=true;try{if('FaceDetector'in window){const fd=new window.FaceDetector();const f=await fd.detect(video);has=f&&f.length>0}}catch(e){has=true}
+  if(!has)return null;return {m:'hash',v:faceHash(video)};}
+function faceMatch(a,b){if(!a||!b||a.m!==b.m)return 1e9;if(a.m==='embedding'){let s=0;for(let i=0;i<a.v.length;i++){const d=a.v[i]-b.v[i];s+=d*d}return Math.sqrt(s)}return faceDist(a.v,b.v)}
+const FACE_THRESH={embedding:0.55,hash:72};
 function totpURI(label){return 'otpauth://totp/VAHAN:'+(label||'admin')+'?secret='+AUTH.totp+'&issuer=VAHAN&digits=6&period=30'}
 function renderQR(el,text){if(!el)return;el.innerHTML='';try{if(window.QRCode){new QRCode(el,{text,width:148,height:148,colorDark:'#0a0f1c',colorLight:'#ffffff',correctLevel:QRCode.CorrectLevel.M})}else{el.innerHTML='<div style="font-size:9px;color:#334;word-break:break-all;max-width:150px">'+text+'</div>'}}catch(e){el.innerHTML='<div style="font-size:9px;color:#334;word-break:break-all;max-width:150px">'+text+'</div>'}}
-(function(){const lob=document.getElementById('logoutBtn');if(lob)lob.onclick=()=>{try{logAudit('ելք համակարգից')}catch(e){}location.reload()};})();
+(function(){const lob=document.getElementById('logoutBtn');if(lob)lob.onclick=()=>{if(window.vahanLogout)window.vahanLogout();else location.reload()};})();
 
 (function(){
   const gate=document.getElementById('authGate');if(!gate)return;
@@ -1411,26 +1424,34 @@ function renderQR(el,text){if(!el)return;el.innerHTML='';try{if(window.QRCode){n
   async function checkOtp(){const v=otpVal();if(v.length===6){if(await totpVerify(AUTH.totp,v)){gotoStep(3);startCam()}else{document.getElementById('err2').textContent='Սխալ կոդ';setTimeout(()=>{[...otp.children].forEach(x=>x.value='');otp.children[0].focus();document.getElementById('err2').textContent=''},750)}}}
   function otpTick(){const hp=document.getElementById('otpHelp');if(hp){hp.innerHTML='Authenticator-ի կոդը · թարմ. <b>'+(30-(Math.floor(Date.now()/1000)%30))+'</b>վ · <span style="color:var(--muted2)">enroll secret՝</span> <b class="mono" style="color:var(--cyan)">'+AUTH.totp+'</b>'}}
   setInterval(otpTick,1000);otpTick();
-  let stream=null,enroll=!AUTH.face,fails=0;
-  async function startCam(){const v=document.getElementById('faceVid'),msg=document.getElementById('faceMsg');
-    document.getElementById('faceCapBtn').textContent=enroll?'Գրանցել դեմքը':'Ճանաչել դեմքը';
-    try{stream=await navigator.mediaDevices.getUserMedia({video:{facingMode:'user'}});v.srcObject=stream;msg.textContent=enroll?'Առաջին անգամ՝ գրանցիր դեմքդ (enroll)':'Նայիր տեսախցիկին և սեղմիր ճանաչել';document.getElementById('faceCapBtn').disabled=false;if(AUTH.face)document.getElementById('faceReenroll').style.display='inline-flex';}
-    catch(e){msg.innerHTML='📷 Տեսախցիկն անհասանելի է այս sandbox-ում։ Իրական build-ում դեմք-ստուգումը պարտադիր է՝ սխալի դեպքում մուտք չի տա։';const sk=document.getElementById('faceSkip');sk.textContent='Դիտման ռեժիմ (միայն preview — production-ում անջատ)';sk.style.display='inline-flex';}}
-  document.getElementById('faceCapBtn').onclick=async()=>{const wrap=document.getElementById('faceWrap'),v=document.getElementById('faceVid'),msg=document.getElementById('faceMsg');
-    wrap.classList.add('scan');msg.textContent='Անալիզ…';let hasFace=true;
-    try{if('FaceDetector'in window){const fd=new window.FaceDetector();const faces=await fd.detect(v);hasFace=faces&&faces.length>0}}catch(e){hasFace=true}
-    setTimeout(()=>{
-      if(!hasFace){wrap.classList.remove('scan');return fail('Դեմք չի հայտնաբերվել')}
-      const h=faceHash(v);
-      if(enroll){AUTH.face=h;authSave('vahan_face',h);unlock('դեմք գրանցվեց + մուտք')}
-      else{const dist=faceDist(h,AUTH.face);if(dist<72){fails=0;unlock('դեմք ճանաչվեց · d='+dist)}else{wrap.classList.remove('scan');fails++;if(fails>=3){lockGate()}else fail('Դեմքը չի համընկնում (d='+dist+') · մնաց '+(3-fails)+' փորձ')}}
-    },1000);};
-  function fail(m){document.getElementById('err3').textContent=m;setTimeout(()=>document.getElementById('err3').textContent='',2000)}
-  function lockGate(){const b=document.getElementById('faceCapBtn');b.disabled=true;b.textContent='🔒 Արգելափակված';const r=document.getElementById('faceReenroll');if(r)r.style.display='none';document.getElementById('faceMsg').innerHTML='⛔ 3 անհաջող փորձ — մուտքն արգելափակված է։ Վերբեռնիր էջը։';try{logAudit('մուտք ԱՐԳԵԼԱՓԱԿՎԵՑ · դեմք 3x ձախող')}catch(e){}}
+  let stream=null,fails=0,enrolled=null;
+  try{enrolled=AUTH.face?JSON.parse(AUTH.face):null}catch(e){enrolled=null}
+  let enroll=!enrolled;
+  faceInit();
+  async function startCam(){const v=document.getElementById('faceVid'),msg=document.getElementById('faceMsg'),btn=document.getElementById('faceCapBtn');
+    btn.textContent=enroll?'Գրանցել դեմքը':'Ճանաչել դեմքը';
+    try{stream=await navigator.mediaDevices.getUserMedia({video:{facingMode:'user'}});v.srcObject=stream;
+      if(!FACE.ready){msg.textContent='Բեռնվում է դեմք-ճանաչման մոդելը…';await faceInit()}
+      msg.innerHTML=(FACE.mode==='embedding'?'🧠 Neural face-recognition · ':'')+(enroll?'Առաջին անգամ՝ գրանցիր դեմքդ':'Նայիր ուղիղ տեսախցիկին և սեղմիր ճանաչել');
+      btn.disabled=false;if(enrolled)document.getElementById('faceReenroll').style.display='inline-flex';}
+    catch(e){msg.innerHTML='📷 Տեսախցիկն անհասանելի է այս sandbox-ում։ Իրական (deploy) build-ում դեմք-ստուգումը պարտադիր է՝ սխալի դեպքում մուտք չի տա։';const sk=document.getElementById('faceSkip');sk.textContent='Դիտման ռեժիմ (միայն preview — production-ում անջատ)';sk.style.display='inline-flex';}}
+  document.getElementById('faceCapBtn').onclick=async()=>{const wrap=document.getElementById('faceWrap'),v=document.getElementById('faceVid');
+    wrap.classList.add('scan');document.getElementById('faceMsg').textContent='Անալիզ…';
+    const desc=await getFaceDesc(v);
+    if(!desc){wrap.classList.remove('scan');return fail('Դեմք չի հայտնաբերվել — նայիր ուղիղ, լավ լույսի տակ')}
+    if(enroll){enrolled=desc;AUTH.face=JSON.stringify(desc);authSave('vahan_face',AUTH.face);enroll=false;unlock('դեմք գրանցվեց ('+desc.m+') + մուտք')}
+    else{if(desc.m!==enrolled.m){wrap.classList.remove('scan');enroll=true;return fail('Մոդելը փոխվել է — սեղմիր նորից՝ վերագրանցելու')}
+      const dist=faceMatch(desc,enrolled),th=FACE_THRESH[desc.m];
+      if(dist<th){fails=0;unlock('դեմք ճանաչվեց · '+desc.m+' d='+dist.toFixed(3))}
+      else{wrap.classList.remove('scan');fails++;if(fails>=3){lockGate()}else fail('Դեմքը չի համընկնում (d='+dist.toFixed(3)+') · մնաց '+(3-fails)+' փորձ')}}};
+  function fail(m){const e=document.getElementById('err3');if(e){e.textContent=m;setTimeout(()=>{if(e)e.textContent=''},2200)}}
+  function lockGate(){const b=document.getElementById('faceCapBtn');b.disabled=true;b.textContent='🔒 Արգելափակված';const r=document.getElementById('faceReenroll');if(r)r.style.display='none';document.getElementById('faceMsg').innerHTML='⛔ 3 անհաջող փորձ — մուտքն արգելափակված է։ Սեղմիր «⎋ Ելք» կամ վերբեռնիր։';try{logAudit('մուտք ԱՐԳԵԼԱՓԱԿՎԵՑ · դեմք 3x ձախող')}catch(e){}}
   document.getElementById('faceSkip').onclick=()=>unlock('face շրջանցված · preview');
-  const rb=document.getElementById('faceReenroll');if(rb)rb.onclick=()=>{AUTH.face='';authSave('vahan_face','');enroll=true;document.getElementById('faceCapBtn').textContent='Գրանցել դեմքը';document.getElementById('faceMsg').textContent='Վերագրանցում՝ նայիր ու սեղմիր գրանցել';toast('Դեմքը մաքրվեց՝ վերագրանցիր')};
+  const rb=document.getElementById('faceReenroll');if(rb)rb.onclick=()=>{enrolled=null;AUTH.face='';authSave('vahan_face','');enroll=true;const b=document.getElementById('faceCapBtn');b.disabled=false;b.textContent='Գրանցել դեմքը';document.getElementById('faceMsg').textContent='Վերագրանցում՝ նայիր ու սեղմիր գրանցել';toast('Դեմքը մաքրվեց՝ վերագրանցիր')};
   function stopCam(){if(stream){stream.getTracks().forEach(t=>t.stop());stream=null}}
-  function unlock(reason){stopCam();gate.classList.add('gone');try{logAudit('հաջող մուտք · '+(reason||'3-աստիճ.'))}catch(e){}setTimeout(()=>{try{toast('Բարի գալուստ, ՎԱՀԱՆ')}catch(e){}},400);setTimeout(()=>gate.remove(),650)}
+  function unlock(reason){stopCam();gate.classList.add('gone');try{logAudit('հաջող մուտք · '+(reason||'3-աստիճ.'))}catch(e){}setTimeout(()=>{try{toast('Բարի գալուստ, ՎԱՀԱՆ')}catch(e){}},400)}
+  function resetGate(){try{stopCam()}catch(e){}pin='';renderDots();[...otp.children].forEach(x=>x.value='');fails=0;['err1','err2','err3'].forEach(id=>{const e=document.getElementById(id);if(e)e.textContent=''});const b=document.getElementById('faceCapBtn');if(b){b.disabled=true;b.textContent=enroll?'Գրանցել դեմքը':'Ճանաչել դեմքը'}const fm=document.getElementById('faceMsg');if(fm)fm.textContent='Տեսախցիկը միանում է…';gate.classList.remove('gone');try{logAudit('ելք համակարգից')}catch(e){}gotoStep(AUTH.pinOn?1:2)}
+  window.vahanLogout=resetGate;
   function gotoStep(n){[1,2,3].forEach(i=>{document.getElementById('step'+i).classList.toggle('on',i===n);const s=document.getElementById('as'+i);s.classList.toggle('on',i===n);s.classList.toggle('done',i<n)});if(n===2){renderQR(document.getElementById('otpQR'),totpURI());setTimeout(()=>otp.children[0].focus(),120)}}
   renderDots();
   if(!AUTH.pinOn)gotoStep(2);
