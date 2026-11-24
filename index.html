@@ -363,14 +363,41 @@ button{font-family:inherit}
 .fh-corner.bl{bottom:7px;left:7px;border-right:0;border-top:0}
 .fh-corner.br{bottom:7px;right:7px;border-left:0;border-top:0}
 .face-read{text-align:center;font-family:'JetBrains Mono',ui-monospace,monospace;font-size:11px;color:var(--cyan);letter-spacing:1px;margin:0 0 8px;min-height:14px}
-.app-bg{position:fixed;inset:0;background:url(assets/dash.jpg) center/cover no-repeat;opacity:.05;z-index:0;pointer-events:none}
+.app-bg{position:fixed;inset:0;z-index:0;pointer-events:none;background:radial-gradient(1100px 560px at 72% -12%,rgba(20,74,150,.10),transparent 62%),radial-gradient(900px 500px at 10% 110%,rgba(16,60,120,.08),transparent 60%),linear-gradient(rgba(34,211,238,.022) 1px,transparent 1px) 0 0/100% 30px,linear-gradient(90deg,rgba(34,211,238,.022) 1px,transparent 1px) 0 0/30px 100%}
 .app{position:relative;z-index:1}
-.hero-banner{position:relative;height:172px;border-radius:14px;overflow:hidden;background-size:cover;background-position:center 35%;margin-bottom:14px;border:1px solid var(--line)}
-.hero-ov{position:absolute;inset:0;background:linear-gradient(90deg,rgba(4,8,16,.9),rgba(4,8,16,.3) 65%,rgba(4,8,16,.75))}
-.hero-txt{position:absolute;left:22px;bottom:16px;z-index:2}
+.hero-banner{position:relative;height:150px;border-radius:14px;overflow:hidden;margin-bottom:14px;border:1px solid var(--line);background:linear-gradient(120deg,#07182e,#0b2340 58%,#06101f)}
+.hb-grid{position:absolute;inset:0;background:linear-gradient(rgba(34,211,238,.07) 1px,transparent 1px) 0 0/100% 24px,linear-gradient(90deg,rgba(34,211,238,.07) 1px,transparent 1px) 0 0/24px 100%;-webkit-mask:linear-gradient(90deg,transparent,#000 45%);mask:linear-gradient(90deg,transparent,#000 45%)}
+.hb-scan{position:absolute;top:0;bottom:0;width:38%;background:linear-gradient(90deg,transparent,rgba(34,211,238,.09),transparent);animation:hbscan 5.5s linear infinite}
+@keyframes hbscan{0%{transform:translateX(-120%)}100%{transform:translateX(330%)}}
+.hb-shield{position:absolute;right:26px;top:50%;transform:translateY(-50%);width:120px;height:120px;color:rgba(34,211,238,.22);filter:drop-shadow(0 0 14px rgba(34,211,238,.25))}
+.hb-shield svg{width:100%;height:100%}
+.hero-txt{position:absolute;left:22px;top:20px;z-index:2}
 .hero-t{font-size:22px;font-weight:800;letter-spacing:1px;color:#eaf6ff}
 .hero-t span{color:var(--cyan)}
 .hero-s{font-size:12.5px;color:#9fbce0;margin-top:4px}
+.hb-stats{position:absolute;left:22px;bottom:16px;z-index:2;display:flex;gap:22px}
+.hb-stat b{font-size:19px;color:var(--cyan);font-family:'JetBrains Mono',monospace}
+.hb-stat span{display:block;font-size:10px;color:#86a6cc;letter-spacing:1px;text-transform:uppercase;margin-top:2px}
+.op-logo{display:inline-flex;align-items:center;justify-content:center;width:40px;height:40px;border-radius:9px;border:1px solid;font-weight:800;font-size:13px;font-family:'JetBrains Mono',monospace;flex:0 0 auto}
+.op-card{background:var(--panel);border:1px solid var(--line);border-radius:12px;overflow:hidden;transition:.15s}
+.op-card:hover{border-color:var(--line2)}
+.op-top{display:flex;align-items:center;gap:11px;padding:13px;cursor:pointer}
+.op-name{font-weight:700;font-size:14px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.op-meta{font-size:11.5px;color:var(--muted);margin-top:2px}
+.op-sub{display:none;padding:0 13px 13px;border-top:1px solid var(--line)}
+.op-row{display:flex;justify-content:space-between;font-size:12px;color:var(--muted);padding:7px 0;border-bottom:1px dashed var(--line)}
+.op-row b{color:var(--txt)}
+.op-svc-h{font-size:11px;color:var(--muted2);text-transform:uppercase;letter-spacing:1px;margin:10px 0 7px;font-weight:700}
+.op-svc{display:flex;flex-wrap:wrap;gap:6px}
+.svc-pill{font-size:11px;padding:3px 9px;border-radius:20px;background:rgba(34,211,238,.08);border:1px solid rgba(34,211,238,.25);color:#bfe9f5}
+.fcol{display:flex;flex-direction:column;gap:9px}
+.fcol input,.fcol select{padding:9px 11px;background:var(--panel2);border:1px solid var(--line2);border-radius:8px;color:var(--txt);font-size:13px;outline:none;font-family:inherit}
+.fcol input:focus,.fcol select:focus{border-color:var(--cyan)}
+.tgl-row{display:flex;align-items:center;justify-content:space-between;font-size:13px;color:var(--txt)}
+.tgl-row input{width:40px;height:20px;cursor:pointer}
+.lyr-row{display:flex;justify-content:space-between;align-items:center;font-size:12px;padding:7px 0;border-bottom:1px dashed var(--line);font-family:'JetBrains Mono',monospace;letter-spacing:.5px}
+.lyr-row:last-child{border-bottom:0}
+.lyr-tgl{width:32px;height:17px;cursor:pointer}
 .auth-hint{text-align:center;font-size:11px;color:var(--muted2);margin-top:12px}
 .auth-hint b{color:var(--cyan)}
 .auth-err{text-align:center;color:var(--red);font-size:12px;margin-top:9px;min-height:15px}
@@ -511,6 +538,7 @@ button{font-family:inherit}
     <div class="nav-section">Պաշտպանություն</div>
     <div class="nav-item" data-v="connectors"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M12 2v6M12 22v-6M2 12h6M22 12h-6"/></svg><span class="label">Աղբյուրներ</span><span class="badge" id="connBadge">դեմո</span></div>
     <div class="nav-item" data-v="defense"><svg viewBox="0 0 24 24"><path d="M12 2L4 6v6c0 5 3.5 8 8 10 4.5-2 8-5 8-10V6z"/></svg><span class="label">Մակարդակներ</span></div>
+    <div class="nav-item" data-v="users"><svg viewBox="0 0 24 24"><circle cx="9" cy="8" r="3.2"/><path d="M3 20c0-3.3 2.7-6 6-6s6 2.7 6 6"/><circle cx="17.5" cy="9" r="2.4"/><path d="M15.5 14.2c3 .3 5.5 2.7 5.5 5.8"/></svg><span class="label">Օգտատերեր</span><span class="badge p">RBAC</span></div>
     <div class="nav-foot">v0.4 · ֆունկցիոնալ նախատիպ<br>100% open-source շերտ<br>MaxMind · abuse.ch · MITRE · KEV</div>
   </nav>
 
@@ -662,7 +690,7 @@ setInterval(()=>{if(Math.random()<0.35)for(let i=0;i<4;i++)setTimeout(tick,i*140
 /* ============================ ROUTER ============================ */
 let viewTimers=[],rafId=null;
 function clearView(){viewTimers.forEach(t=>clearInterval(t));viewTimers=[];if(rafId)cancelAnimationFrame(rafId);rafId=null;listeners=[]}
-const VIEWS={overview:vOverview,map:vMap,siem:vSiem,intel:vIntel,vuln:vVuln,ipintel:vIp,incidents:vInc,ai:vAi,reports:vReports,connectors:vConnectors,defense:vDefense,trace:vTrace,asn:vAsn,osint:vOsint,search:vSearch,apt:vApt,image:vImage,geo:vGeo,cams:vCams,tools:vTools,learn:vLearn};
+const VIEWS={overview:vOverview,map:vMap,siem:vSiem,intel:vIntel,vuln:vVuln,ipintel:vIp,incidents:vInc,ai:vAi,reports:vReports,connectors:vConnectors,defense:vDefense,trace:vTrace,asn:vAsn,osint:vOsint,search:vSearch,apt:vApt,image:vImage,geo:vGeo,cams:vCams,tools:vTools,learn:vLearn,users:vUsers};
 function go(v){location.hash=v}
 function route(){
   const v=(location.hash.replace('#','')||'overview');
@@ -757,7 +785,9 @@ const sevN=s=>({crit:'Կրիտիկ',high:'Բարձր',med:'Միջին',low:'Ցա
 function vOverview(){
   const el=document.getElementById('view');
   el.innerHTML=`
-  <div class="hero-banner" style="background-image:url(assets/room.jpg)"><div class="hero-ov"></div><div class="hero-txt"><div class="hero-t">ՎԱ<span>ՀԱՆ</span> · Գործառնական կենտրոն</div><div class="hero-s">Հեռահար մոնիթորինգ · առանց ագենտի · իրական աղբյուրներ · AI վերլուծություն</div></div></div>
+  <div class="hero-banner"><div class="hb-grid"></div><div class="hb-scan"></div><div class="hb-shield"><svg viewBox="0 0 32 32"><path d="M16 2 L28 7 V15 C28 23 22 28 16 30 C10 28 4 23 4 15 V7 Z" fill="none" stroke="currentColor" stroke-width="1.4"/><path d="M11 16 l3.5 3.5 L22 12" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+  <div class="hero-txt"><div class="hero-t">ՎԱ<span>ՀԱՆ</span> · Գործառնական կենտրոն</div><div class="hero-s">Հեռահար մոնիթորինգ · առանց ագենտի · իրական աղբյուրներ · AI վերլուծություն</div></div>
+  <div class="hb-stats"><div class="hb-stat"><b id="hbA">—</b><span>հարձակում/24ժ</span></div><div class="hb-stat"><b id="hbB">—</b><span>արգելափակ.</span></div><div class="hb-stat"><b id="hbC">—</b><span>երկիր</span></div><div class="hb-stat"><b style="color:#34d399">●</b><span>կենդանի հոսք</span></div></div></div>
   <div class="page-head"><h1>Անվտանգային պատկեր</h1><span class="sub">· վերջին 24 ժ · ավտոմատ ագրեգացիա</span><span class="live"><span class="dot"></span>ԿԵՆԴԱՆԻ</span></div>
   ${kpiRow()}
   <div class="grid" style="grid-template-columns:1fr 400px;margin-top:14px">
@@ -781,6 +811,7 @@ function vOverview(){
     document.getElementById('kB').textContent=fmt(S.blocked);
     document.getElementById('kAc').textContent=fmt(S.active);
     document.getElementById('kC').textContent=S.countries.size;
+    const _a=document.getElementById('hbA');if(_a)_a.textContent=fmt(S.attacks);const _b=document.getElementById('hbB');if(_b)_b.textContent=fmt(S.blocked);const _c=document.getElementById('hbC');if(_c)_c.textContent=S.countries.size;
     if(S.alerts.includes(ev)){feed.insertAdjacentHTML('afterbegin',alertHTML(ev));while(feed.children.length>14)feed.removeChild(feed.lastChild)}
   });
   viewTimers.push(setInterval(()=>{document.getElementById('ovTop').innerHTML=topCountriesHTML();document.getElementById('ovProto').innerHTML=protoHTML()},1500));
@@ -795,6 +826,8 @@ function vMap(){
       <div class="map-legend"><span><i class="lg-dot" style="background:#ff3b63"></i>Կրիտ</span><span><i class="lg-dot" style="background:#ff9f1a"></i>Բարձր</span><span><i class="lg-dot" style="background:#ffd23f"></i>Միջին</span><span><i class="lg-dot" style="background:#34d399"></i>Թիրախ</span></div>
       <div class="map-target mono">● AM datacenter · Երևան</div></div></div>
     <div class="grid" style="gap:13px;align-content:start">
+      <div class="card"><div class="card-h">◉ DATA LAYERS<span class="mini">գլոբալ ընդհատում</span></div><div id="dLayers"></div></div>
+      <div class="card"><div class="card-h">⚡ Live intercept<span class="mini" id="intCount"></span></div><div id="intFeed" style="max-height:168px;overflow-y:auto"></div></div>
       <div class="card"><div class="card-h">Երկրի դոսյե<span class="mini">սեղմիր քարտեզին կամ ընտրիր</span></div>
         <select class="role-sel" id="ctrySel" style="width:100%;margin-bottom:10px"><option value="">— ընտրիր երկիր —</option>${COUNTRIES.map(c=>`<option value="${c.cc}">${c.f} ${c.c}</option>`).join('')}</select>
         <div id="dossier"><div style="font-size:12px;color:var(--muted2)">Ընտրիր երկիր՝ IP-տարածք, օպերատորներ ու ՏՏ վիճակ տեսնելու համար</div></div></div>
@@ -812,7 +845,12 @@ function vMap(){
     return `<div class="prow"><span class="pn">L7 (Application)</span><div class="pbar"><i style="width:${l7/t*100}%;background:#a78bfa"></i></div><span class="pv mono">${Math.round(l7/t*100)}%</span></div>
     <div class="prow"><span class="pn">L3/4 (Network)</span><div class="pbar"><i style="width:${l34/t*100}%;background:#22d3ee"></i></div><span class="pv mono">${Math.round(l34/t*100)}%</span></div>`}
   document.getElementById('layerSplit').innerHTML=layer();
-  viewTimers.push(setInterval(()=>{document.getElementById('mTop').innerHTML=topCountriesHTML();document.getElementById('mProto').innerHTML=protoHTML();document.getElementById('layerSplit').innerHTML=layer()},1500));
+  const LAYERS=[['✈ AIRCRAFT','aircraft','#22d3ee'],['⚓ MARITIME','maritime','#34d399'],['🛰 SPACE','space','#a78bfa'],['⚠ HAZARDS','hazard','#ff9f1a']];
+  const dl=document.getElementById('dLayers');if(dl)dl.innerHTML=LAYERS.map(([n,k,c])=>`<label class="lyr-row"><span style="color:${c}">${n}</span><span class="hrow" style="gap:9px"><b class="mono" id="ly_${k}">—</b><input type="checkbox" checked class="lyr-tgl"></span></label>`).join('');
+  function tickLayers(){const mp={aircraft:rnd(5800,6400),maritime:rnd(8,16),space:rnd(480,500),hazard:rnd(2,9)};for(const k in mp){const e=document.getElementById('ly_'+k);if(e)e.textContent=fmt(mp[k])}}
+  function intFeed(){const f=document.getElementById('intFeed');if(f)f.innerHTML=S.alerts.slice(0,8).map(alertHTML).join('');const ic=document.getElementById('intCount');if(ic)ic.textContent=S.alerts.length}
+  tickLayers();intFeed();
+  viewTimers.push(setInterval(()=>{document.getElementById('mTop').innerHTML=topCountriesHTML();document.getElementById('mProto').innerHTML=protoHTML();document.getElementById('layerSplit').innerHTML=layer();tickLayers();intFeed()},1500));
 }
 
 let siemFilter='all',siemQ='';
@@ -1277,36 +1315,56 @@ function vTrace(){
 }
 
 const OPERATORS=[
- {asn:'AS3356',op:'Lumen (Level 3)',cc:'🇺🇸 ԱՄՆ',type:'Tier-1',pfx:'~34,000',rank:1},
- {asn:'AS1299',op:'Arelion (Telia)',cc:'🇸🇪 Շվեդիա',type:'Tier-1',pfx:'~28,500',rank:2},
- {asn:'AS174',op:'Cogent',cc:'🇺🇸 ԱՄՆ',type:'Tier-1',pfx:'~27,000',rank:3},
- {asn:'AS2914',op:'NTT',cc:'🇯🇵 Ճապոնիա',type:'Tier-1',pfx:'~21,000',rank:4},
- {asn:'AS6939',op:'Hurricane Electric',cc:'🇺🇸 ԱՄՆ',type:'Tier-1',pfx:'~20,000',rank:5},
- {asn:'AS13335',op:'Cloudflare',cc:'🇺🇸 ԱՄՆ',type:'Cloud/CDN',pfx:'~1,500',rank:6},
- {asn:'AS16509',op:'Amazon AWS',cc:'🇺🇸 ԱՄՆ',type:'Cloud',pfx:'~18,000',rank:7},
- {asn:'AS15169',op:'Google',cc:'🇺🇸 ԱՄՆ',type:'Cloud',pfx:'~1,200',rank:8},
- {asn:'AS12389',op:'Rostelecom',cc:'🇷🇺 ՌԴ',type:'ISP',pfx:'~9,000',rank:9},
- {asn:'AS4134',op:'China Telecom',cc:'🇨🇳 Չինաստան',type:'ISP',pfx:'~12,000',rank:10},
- {asn:'AS9121',op:'Turk Telekom',cc:'🇹🇷 Թուրքիա',type:'ISP',pfx:'~3,400',rank:11},
- {asn:'AS12297',op:'Team Telecom Armenia',cc:'🇦🇲 Հայաստան',type:'ISP',pfx:'~180',rank:12}];
+ {asn:'AS3356',op:'Lumen (Level 3)',lg:'L3',clr:'#2f6fed',cc:'🇺🇸 ԱՄՆ',type:'Tier-1',pfx:'~34,000',rank:1,svc:['IP Transit','DIA (Dedicated Internet)','MPLS / IP-VPN','Dark fiber','Colocation','DDoS Mitigation','SD-WAN','Edge/CDN','SIP/Voice']},
+ {asn:'AS1299',op:'Arelion (Telia Carrier)',lg:'AR',clr:'#6a3fd6',cc:'🇸🇪 Շվեդիա',type:'Tier-1',pfx:'~28,500',rank:2,svc:['IP Transit','Ethernet/Wavelengths','DDoS protection','Cloud Connect','Dark fiber','Remote Peering']},
+ {asn:'AS174',op:'Cogent',lg:'CO',clr:'#c23b3b',cc:'🇺🇸 ԱՄՆ',type:'Tier-1',pfx:'~27,000',rank:3,svc:['IP Transit','DIA','Point-to-Point','Colocation','VoIP transit']},
+ {asn:'AS2914',op:'NTT (GIN)',lg:'NT',clr:'#1f8f5f',cc:'🇯🇵 Ճապոնիա',type:'Tier-1',pfx:'~21,000',rank:4,svc:['Global IP Network','DDoS Protection','Cloud Connect','MPLS','Managed Security']},
+ {asn:'AS6939',op:'Hurricane Electric',lg:'HE',clr:'#d98a1a',cc:'🇺🇸 ԱՄՆ',type:'Tier-1',pfx:'~20,000',rank:5,svc:['IPv4/IPv6 Transit','Colocation','DNS hosting','Looking Glass','Tunnel Broker']},
+ {asn:'AS13335',op:'Cloudflare',lg:'CF',clr:'#f6821f',cc:'🇺🇸 ԱՄՆ',type:'Cloud/CDN',pfx:'~1,500',rank:6,svc:['CDN','DDoS Protection','WAF','Zero Trust / SASE','DNS (1.1.1.1)','Workers (edge)','Bot Management','SSL/TLS']},
+ {asn:'AS16509',op:'Amazon AWS',lg:'AW',clr:'#ff9900',cc:'🇺🇸 ԱՄՆ',type:'Cloud',pfx:'~18,000',rank:7,svc:['EC2 / Compute','S3 Storage','VPC','Route 53 DNS','Shield / WAF','GuardDuty','KMS','CloudFront CDN']},
+ {asn:'AS15169',op:'Google',lg:'GO',clr:'#4285f4',cc:'🇺🇸 ԱՄՆ',type:'Cloud',pfx:'~1,200',rank:8,svc:['GCP Compute','Cloud Storage','Cloud DNS','Cloud Armor (DDoS/WAF)','Public DNS (8.8.8.8)','CDN']},
+ {asn:'AS12389',op:'Rostelecom',lg:'RT',clr:'#e23b57',cc:'🇷🇺 ՌԴ',type:'ISP',pfx:'~9,000',rank:9,svc:['Broadband (FTTx)','Mobile','IPTV','Hosting / Cloud','Gov e-services','DDoS protection']},
+ {asn:'AS4134',op:'China Telecom',lg:'CT',clr:'#c23b3b',cc:'🇨🇳 Չինաստան',type:'ISP',pfx:'~12,000',rank:10,svc:['Broadband','Mobile (CTM)','IDC / Hosting','CN2 Transit','Cloud','MPLS-VPN']},
+ {asn:'AS9121',op:'Türk Telekom',lg:'TT',clr:'#1f6fd6',cc:'🇹🇷 Թուրքիա',type:'ISP',pfx:'~3,400',rank:11,svc:['Broadband (FTTH)','Mobile','IPTV','Corporate VPN','Data center','Cloud']},
+ {asn:'AS12297',op:'Telecom Armenia (Team)',lg:'TM',clr:'#ffd23f',cc:'🇦🇲 Հայաստան',type:'ISP',pfx:'~180',rank:12,svc:['FTTH Fiber','Mobile (Team)','IPTV','Hosting','Corporate VPN','Data center','Cloud']},
+ {asn:'AS44395',op:'Ucom',lg:'UC',clr:'#7b2fd6',cc:'🇦🇲 Հայաստան',type:'ISP',pfx:'~70',rank:13,svc:['FTTH Fiber','Mobile 4G/5G','IPTV','Fixed voice','Corporate solutions','Cloud / Hosting']},
+ {asn:'AS43733',op:'GNC-Alfa / Rostelecom AM',lg:'GA',clr:'#e23b57',cc:'🇦🇲 Հայաստան',type:'ISP',pfx:'~45',rank:14,svc:['FTTH (Fibernet)','Corporate internet','Data center','IPTV','Managed WiFi']},
+ {asn:'AS47623',op:'Arminco',lg:'AC',clr:'#1f8f5f',cc:'🇦🇲 Հայաստան',type:'ISP',pfx:'~20',rank:15,svc:['Dedicated internet','Hosting','Colocation','Domain / DNS','Email hosting']},
+ {asn:'AS201986',op:'ADC (Armenian DataComm)',lg:'AD',clr:'#22a3c9',cc:'🇦🇲 Հայաստան',type:'ISP',pfx:'~12',rank:16,svc:['Corporate internet','VPN / MPLS','Colocation','Cloud / Hosting']}];
 function vAsn(){
   const el=document.getElementById('view');
   const stat=(l,v)=>`<div style="padding:12px;background:var(--panel2);border:1px solid var(--line);border-radius:10px"><div style="font-size:11px;color:var(--muted)">${l}</div><div style="font-size:16px;font-weight:700;margin-top:4px">${v}</div></div>`;
-  el.innerHTML=`<div class="page-head"><h1>Օպերատորներ / ASN</h1><span class="sub">· աշխարհի օպերատորների ու ցանցերի դիտարկում (RIPEstat / BGPView)</span></div>
-  <div class="ip-search" style="max-width:520px"><input id="asIn" placeholder="ASN կամ IP (օր. AS13335 կամ 1.1.1.1)" value="AS13335"><button class="btn primary" id="asGo">Որոնել</button></div>
-  <div id="asRes" style="margin-bottom:14px"></div>
-  <div class="card pad0"><div class="card-h" style="padding:15px 15px 0">Աշխարհի խոշոր օպերատորներ<span class="mini">rank ըստ prefix-ների</span></div>
-  <table class="tbl"><thead><tr><th>Rank</th><th>ASN</th><th>Օպերատոր</th><th>Երկիր</th><th>Տեսակ</th><th>Prefixes</th></tr></thead><tbody>
-  ${OPERATORS.map(o=>`<tr><td class="mono" style="color:var(--muted)">#${o.rank}</td><td class="mono" style="color:var(--cyan)">${o.asn}</td><td>${o.op}</td><td>${o.cc}</td><td><span class="pill ${o.type.includes('Tier')?'b':o.type.includes('Cloud')?'p':'gray'}">${o.type}</span></td><td class="mono">${o.pfx}</td></tr>`).join('')}
-  </tbody></table></div>`;
+  const logo=o=>`<span class="op-logo" style="background:${o.clr||'#1b2a44'}1f;border-color:${o.clr||'#2a3a55'};color:${o.clr||'#9fd8ff'}">${o.lg||o.op.slice(0,2).toUpperCase()}</span>`;
+  const types=[...new Set(OPERATORS.map(o=>o.type))];
+  const card=o=>`<div class="op-card" data-asn="${o.asn}">
+     <div class="op-top">${logo(o)}<div style="min-width:0"><div class="op-name">${o.op}</div><div class="op-meta"><span class="mono" style="color:var(--cyan)">${o.asn}</span> · ${o.cc}</div></div><span class="pill ${o.type.includes('Tier')?'b':o.type.includes('Cloud')?'p':'gray'}" style="margin-left:auto">${o.type}</span></div>
+     <div class="op-sub">
+       <div class="op-row"><span>Rank</span><b>#${o.rank}</b></div>
+       <div class="op-row"><span>Prefixes</span><b class="mono">${o.pfx}</b></div>
+       <div class="op-svc-h">Ծառայությունների սպեկտր <span class="mini">${o.svc.length}</span></div>
+       <div class="op-svc">${o.svc.map(s=>`<span class="svc-pill">${s}</span>`).join('')}</div>
+       <div class="hrow" style="gap:6px;margin-top:8px"><button class="btn" data-look="${o.asn}">🔎 Live ASN դիտ.</button><a class="btn" href="https://bgp.he.net/${o.asn}" target="_blank" rel="noopener" style="text-decoration:none">BGP.HE ↗</a></div>
+     </div></div>`;
+  el.innerHTML=`<div class="page-head"><h1>Օպերատորներ / ASN · կլաստեր</h1><span class="sub">· լոգո + ASN կոդ + ծառայությունների ողջ սպեկտր · live RIPEstat/BGP դիտարկում</span></div>
+  <div class="ip-search" style="max-width:520px"><input id="asIn" placeholder="ASN կամ IP (օր. AS13335 կամ 1.1.1.1)" value="AS13335"><button class="btn primary" id="asGo">Live որոնել</button></div>
+  <div id="asRes" style="margin:12px 0"></div>
+  <div class="hrow" id="opFilt" style="flex-wrap:wrap;gap:7px;margin:4px 0 14px"><span class="fchip on" data-t="">Բոլորը (${OPERATORS.length})</span><span class="fchip" data-t="🇦🇲">🇦🇲 Հայ օպերատորներ</span>${types.map(t=>`<span class="fchip" data-t="${t}">${t}</span>`).join('')}</div>
+  <div id="opGrid" class="grid" style="grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:12px"></div>`;
+  function renderGrid(f){const rows=OPERATORS.filter(o=>!f||o.type===f||(f==='🇦🇲'&&o.cc.includes('🇦🇲')));
+    document.getElementById('opGrid').innerHTML=rows.map(card).join('');
+    document.querySelectorAll('.op-card').forEach(c=>{const sub=c.querySelector('.op-sub');c.querySelector('.op-top').onclick=()=>{sub.style.display=sub.style.display==='block'?'none':'block'}});
+    document.querySelectorAll('[data-look]').forEach(b=>b.onclick=e=>{e.stopPropagation();document.getElementById('asIn').value=b.dataset.look;run()})}
   async function run(){
     const q=document.getElementById('asIn').value.trim();let d=OPERATORS.find(o=>o.asn.toLowerCase()===q.toLowerCase());
-    if(CONFIG.live){try{const L=await api('/asn',{q});d={asn:L.asn,op:L.holder||'—',cc:L.country||'🌐',type:'—',pfx:L.prefixes||'—',peers:L.announced};}catch(e){toast('Live ձախողվեց — դեմո')}}
+    document.getElementById('asRes').innerHTML=`<div class="card"><div style="text-align:center;padding:16px"><div class="spin"></div></div></div>`;
+    if(CONFIG.live){try{const L=await api('/asn',{q});const loc=OPERATORS.find(o=>o.asn.toLowerCase()===(L.asn||'').toLowerCase());d={asn:L.asn,op:L.holder||(loc&&loc.op)||'—',cc:L.country||(loc&&loc.cc)||'🌐',type:(loc&&loc.type)||'—',pfx:L.prefixes||(loc&&loc.pfx)||'—',peers:L.announced,svc:loc&&loc.svc,clr:loc&&loc.clr,lg:loc&&loc.lg};}catch(e){toast('Live ձախողվեց — լոկալ')}}
     if(!d){d={asn:/^as/i.test(q)?q.toUpperCase():'AS'+rnd(1000,65000),op:'Նմանակված օպերատոր',cc:'🌐',type:'ISP',pfx:'~'+rnd(10,9000)}}
-    document.getElementById('asRes').innerHTML=`<div class="card"><div class="card-h">${d.asn} · ${d.op}</div><div class="grid" style="grid-template-columns:repeat(auto-fit,minmax(150px,1fr))">${stat('Երկիր',d.cc)}${stat('Տեսակ',d.type||'—')}${stat('Prefixes',d.pfx)}${stat('Announced',d.peers||'—')}</div></div>`;
+    document.getElementById('asRes').innerHTML=`<div class="card"><div class="card-h">${logo(d)} ${d.asn} · ${d.op}</div><div class="grid" style="grid-template-columns:repeat(auto-fit,minmax(150px,1fr))">${stat('Երկիր',d.cc)}${stat('Տեսակ',d.type||'—')}${stat('Prefixes',d.pfx)}${stat('Announced',d.peers||'—')}</div>${d.svc?`<div class="op-svc-h" style="margin-top:12px">Ծառայություններ</div><div class="op-svc">${d.svc.map(s=>`<span class="svc-pill">${s}</span>`).join('')}</div>`:''}</div>`;
     logAudit('ASN որոնում → '+q);
   }
-  document.getElementById('asGo').onclick=run;document.getElementById('asIn').addEventListener('keydown',e=>{if(e.key==='Enter')run()});run();
+  document.getElementById('asGo').onclick=run;document.getElementById('asIn').addEventListener('keydown',e=>{if(e.key==='Enter')run()});
+  document.querySelectorAll('#opFilt [data-t]').forEach(x=>x.onclick=()=>{document.querySelectorAll('#opFilt .fchip').forEach(y=>y.classList.remove('on'));x.classList.add('on');renderGrid(x.dataset.t)});
+  renderGrid('');
 }
 
 const BREACHES=[{n:'Collection #1',y:2019,c:'772M',d:['Email','Գաղտնաբառ']},{n:'LinkedIn',y:2021,c:'700M',d:['Email','Հեռ.','Պրոֆիլ']},{n:'Adobe',y:2013,c:'153M',d:['Email','Գաղտնաբառ(enc)']},{n:'Dropbox',y:2012,c:'68M',d:['Email','Գաղտնաբառ']},{n:'Canva',y:2019,c:'137M',d:['Email','Անուն']}];
@@ -1543,6 +1601,66 @@ function vTools(){
 }
 
 /* ===================== PUBLIC WEBCAMS (intentionally-public only) ===================== */
+/* ===================== ՕԳՏԱՏԵՐԵՐ · ստեղծում/կառավարում ===================== */
+function vUsers(){
+ const el=document.getElementById('view');
+ const LK='vahan_users',PK='vahan_pending',RK='vahan_pubreg';
+ const loadU=()=>{try{const a=JSON.parse(localStorage.getItem(LK)||'[]');return a.length?a:[{fn:'ՎԱՀԱՆ · Տնօրեն',un:'director',role:'lead',lvl:'L5',st:'active',dt:'—'}]}catch(e){return[]}};
+ const saveU=a=>localStorage.setItem(LK,JSON.stringify(a));
+ const loadP=()=>{try{return JSON.parse(localStorage.getItem(PK)||'[]')}catch(e){return[]}};
+ const saveP=a=>localStorage.setItem(PK,JSON.stringify(a));
+ const pub=()=>localStorage.getItem(RK)==='1';
+ const lvlOf={viewer:'L1',analyst:'L2',admin:'L4',lead:'L5'};
+ const roleOpts=Object.entries(ROLES).map(([k,v])=>`<option value="${k}">${v.n} (L${v.lvl})</option>`).join('');
+ const admin=can(3);
+ el.innerHTML=`<div class="page-head"><h1>Օգտատերեր · RBAC</h1><span class="sub">· ստեղծում, դերեր, հասանելիության մակարդակ · հանրային գրանցման հոսք</span></div>
+ ${!admin?'<div class="note" style="margin-bottom:12px">👁 Դիտման ռեժիմ — ստեղծել/ջնջել կարող է միայն Ադմին/SOC-ղեկավար (փոխիր դերը Կարգավորումներից)։</div>':''}
+ <div class="grid" style="grid-template-columns:340px 1fr;gap:14px;align-items:start">
+  <div class="grid" style="gap:14px">
+   <div class="card"><div class="card-h">➕ Նոր օգտատեր</div>
+    <div class="fcol">
+     <input id="uFn" placeholder="Անուն Ազգանուն">
+     <input id="uUn" placeholder="Օգտանուն (username)">
+     <select id="uRole">${roleOpts}</select>
+     <select id="uLvl"><option>L1</option><option>L2</option><option selected>L3</option><option>L4</option><option>L5</option></select>
+     <button class="btn primary" id="uAdd" ${admin?'':'disabled'} style="justify-content:center">Ստեղծել օգտատեր</button>
+    </div></div>
+   <div class="card"><div class="card-h">🌐 Հանրային գրանցում</div>
+    <div style="font-size:12px;color:var(--muted);margin-bottom:10px">Միացրա, որ նոր մարդիկ ինքնագրանցվեն (հայտը գնում է հաստատման)։ Հետագայում՝ առանձին կայք/էջ։</div>
+    <label class="tgl-row"><span>Թույլատրել ինքնագրանցում</span><input type="checkbox" id="uPub" ${pub()?'checked':''} ${admin?'':'disabled'}></label>
+    <div class="mono" style="font-size:11px;color:var(--cyan);margin-top:8px;word-break:break-all">հղում՝ vahan.app/#register</div>
+   </div>
+   <div class="card"><div class="card-h">✍ Ինքնագրանցում (դեմո)</div>
+    <div class="fcol"><input id="rFn" placeholder="Անուն Ազգանուն"><input id="rUn" placeholder="Օգտանուն"><button class="btn" id="rReq" style="justify-content:center" ${pub()?'':'disabled'}>Ուղարկել հայտ</button></div>
+    ${pub()?'':'<div class="mini" style="color:var(--muted2);margin-top:6px">— անջատված է (միացրու վերևից)</div>'}
+   </div>
+  </div>
+  <div class="grid" style="gap:14px">
+   <div id="uStats" class="grid" style="grid-template-columns:repeat(4,1fr);gap:10px"></div>
+   <div class="card pad0"><div class="card-h" style="padding:15px 15px 0">Օգտատերեր<span class="mini" id="uCount"></span></div>
+    <table class="tbl"><thead><tr><th>Անուն</th><th>Username</th><th>Դեր</th><th>Մակարդ.</th><th>Կարգավիճ.</th><th></th></tr></thead><tbody id="uBody"></tbody></table></div>
+   <div class="card" id="pendWrap"><div class="card-h">⏳ Սպասող հայտեր<span class="mini" id="pCount"></span></div><div id="pBody"></div></div>
+  </div>
+ </div>`;
+ function stat(l,v,c){return `<div style="padding:12px;background:var(--panel2);border:1px solid var(--line);border-radius:10px"><div style="font-size:11px;color:var(--muted)">${l}</div><div style="font-size:18px;font-weight:700;margin-top:3px;color:${c||'var(--txt)'}">${v}</div></div>`}
+ function render(){
+  const u=loadU(),p=loadP();
+  document.getElementById('uStats').innerHTML=stat('Ընդամենը',u.length)+stat('Ակտիվ',u.filter(x=>x.st==='active').length,'#34d399')+stat('Ադմին+',u.filter(x=>x.role==='admin'||x.role==='lead').length,'#22d3ee')+stat('Սպասող',p.length,p.length?'#ff9f1a':'var(--txt)');
+  document.getElementById('uCount').textContent=u.length;
+  document.getElementById('uBody').innerHTML=u.map((x,i)=>`<tr><td>${esc(x.fn)}</td><td class="mono" style="color:var(--cyan)">${esc(x.un)}</td><td><span class="pill ${x.role==='lead'||x.role==='admin'?'b':'gray'}">${ROLES[x.role]?ROLES[x.role].n:x.role}</span></td><td class="mono">${x.lvl||'—'}</td><td>${x.st==='active'?'<span class="pill" style="background:rgba(52,211,153,.12);color:#34d399;border-color:rgba(52,211,153,.3)">ակտիվ</span>':'<span class="pill gray">կասեց.</span>'}</td><td>${admin&&x.un!=='director'?`<b data-del="${i}" style="color:var(--bad);cursor:pointer">✕</b>`:''}</td></tr>`).join('');
+  const pb=document.getElementById('pBody');
+  pb.innerHTML=p.length?p.map((x,i)=>`<div class="hrow" style="justify-content:space-between;padding:8px 0;border-bottom:1px dashed var(--line)"><span>${esc(x.fn)} · <span class="mono" style="color:var(--cyan)">${esc(x.un)}</span></span><span class="hrow" style="gap:6px">${admin?`<button class="btn" data-appr="${i}">✓ Հաստատել</button><b data-rej="${i}" style="color:var(--bad);cursor:pointer;align-self:center">✕</b>`:'<span class="mini">սպասում է ադմինի</span>'}</span></div>`).join(''):'<div class="mini" style="color:var(--muted2)">— հայտեր չկան</div>';
+  document.getElementById('pCount').textContent=p.length;
+  document.querySelectorAll('[data-del]').forEach(b=>b.onclick=()=>{if(!requireRole(3,'ջնջել օգտատեր'))return;const a=loadU();a.splice(+b.dataset.del,1);saveU(a);render()});
+  document.querySelectorAll('[data-appr]').forEach(b=>b.onclick=()=>{if(!requireRole(3,'հաստատել օգտատեր'))return;const p=loadP(),x=p.splice(+b.dataset.appr,1)[0];saveP(p);const u=loadU();u.push({fn:x.fn,un:x.un,role:'viewer',lvl:'L1',st:'active',dt:new Date().toISOString().slice(0,10)});saveU(u);render();toast('Օգտատերը հաստատվեց ✓')});
+  document.querySelectorAll('[data-rej]').forEach(b=>b.onclick=()=>{if(!requireRole(3,'մերժել հայտ'))return;const p=loadP();p.splice(+b.dataset.rej,1);saveP(p);render();toast('Մերժվեց')});
+ }
+ document.getElementById('uAdd').onclick=()=>{if(!requireRole(3,'ստեղծել օգտատեր'))return;const fn=document.getElementById('uFn').value.trim(),un=document.getElementById('uUn').value.trim().replace(/\s+/g,'');if(!fn||!un){toast('Լրացրու անուն ու username');return}const u=loadU();if(u.some(x=>x.un===un)){toast('Այդ username-ն արդեն կա');return}u.push({fn,un,role:document.getElementById('uRole').value,lvl:document.getElementById('uLvl').value,st:'active',dt:new Date().toISOString().slice(0,10)});saveU(u);document.getElementById('uFn').value='';document.getElementById('uUn').value='';render();toast('Օգտատեր ստեղծվեց ✓');logAudit('օգտատեր ստեղծվեց՝ '+un)};
+ document.getElementById('uPub').onchange=e=>{if(!requireRole(3,'փոխել հանրային գրանցումը')){e.target.checked=!e.target.checked;return}localStorage.setItem(RK,e.target.checked?'1':'0');toast('Հանրային գրանցում՝ '+(e.target.checked?'միացված':'անջատված'));vUsers()};
+ document.getElementById('rReq').onclick=()=>{if(!pub()){toast('Ինքնագրանցումն անջատված է');return}const fn=document.getElementById('rFn').value.trim(),un=document.getElementById('rUn').value.trim().replace(/\s+/g,'');if(!fn||!un){toast('Լրացրու դաշտերը');return}const p=loadP();p.push({fn,un});saveP(p);document.getElementById('rFn').value='';document.getElementById('rUn').value='';render();toast('Հայտն ուղարկվեց՝ սպասում է հաստատման')};
+ render();
+}
+
 /* ===================== ԳԻՏԵԼԻՔ / ՈՒՍՈՒՑՈՒՄ (in-app) ===================== */
 const KB=[
  {c:'ATT&CK',t:'Reconnaissance · Հետախուզություն',d:'Հարձակվողը հավաքում է թիրախի մասին տվյալներ մինչ հարձակումը՝ դոմեյններ, աշխատակիցներ, տեխնոլոգիաներ, բաց պորտեր։<br><b>Օրինակ.</b> OSINT, սկանավորում (nmap), էլ-հասցեների հավաք։<br><b>Պաշտպանություն՝</b><ul><li>Նվազագույնի հասցրու հրապարակային տեխ-տվյալները (banner, metadata)</li><li>Մոնիթորինգ՝ զանգվածային սկան փնտրող IDS/GreyNoise</li><li>Attack-surface աուդիտ (Shodan/Censys քո ակտիվների վրա)</li></ul>'},
