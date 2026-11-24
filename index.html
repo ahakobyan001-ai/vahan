@@ -272,7 +272,7 @@ button{font-family:inherit}
 .rbac th:first-child,.rbac td:first-child{text-align:left}
 .rbac td .y{color:var(--green);font-weight:700}.rbac td .n{color:var(--muted2)}
 .audit-row{display:flex;gap:11px;padding:8px 0;border-bottom:1px solid rgba(27,39,64,.5);font-size:12px}
-.audit-row .at{color:var(--muted2);font-family:'JetBrains Mono',monospace;flex:0 0 66px}
+.audit-row .at{color:var(--muted2);font-family:'JetBrains Mono',monospace;flex:0 0 108px;font-size:10.5px}
 .audit-row .ar{flex:0 0 96px;color:var(--cyan)}
 .hide{display:none!important}
 /* AUTH GATE */
@@ -383,6 +383,7 @@ button{font-family:inherit}
     <div class="nav-item" data-v="reports"><svg viewBox="0 0 24 24"><path d="M4 4h16v16H4z"/><path d="M8 9h8M8 13h5"/></svg><span class="label">Հաշվետվ.</span></div>
     <div class="nav-section">Հետախուզ. գործիքներ</div>
     <div class="nav-item" data-v="search"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4-4M11 8v6M8 11h6"/></svg><span class="label">AI որոնում</span><span class="badge p">★</span></div>
+    <div class="nav-item" data-v="image"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21"/></svg><span class="label">Նկար փնտրում</span></div>
     <div class="nav-item" data-v="trace"><svg viewBox="0 0 24 24"><circle cx="5" cy="19" r="2"/><circle cx="19" cy="5" r="2"/><path d="M6.5 17.5 17 7M8 6H5v3M16 18h3v-3"/></svg><span class="label">Traceroute</span></div>
     <div class="nav-item" data-v="asn"><svg viewBox="0 0 24 24"><circle cx="12" cy="5" r="2.5"/><circle cx="5" cy="19" r="2.5"/><circle cx="19" cy="19" r="2.5"/><path d="M12 7.5v4M10 13l-3.5 4M14 13l3.5 4"/></svg><span class="label">Օպերատորներ</span></div>
     <div class="nav-item" data-v="osint"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4-4M8 11h6M11 8v6"/></svg><span class="label">OSINT</span></div>
@@ -538,7 +539,7 @@ setInterval(()=>{if(Math.random()<0.35)for(let i=0;i<4;i++)setTimeout(tick,i*140
 /* ============================ ROUTER ============================ */
 let viewTimers=[],rafId=null;
 function clearView(){viewTimers.forEach(t=>clearInterval(t));viewTimers=[];if(rafId)cancelAnimationFrame(rafId);rafId=null;listeners=[]}
-const VIEWS={overview:vOverview,map:vMap,siem:vSiem,intel:vIntel,vuln:vVuln,ipintel:vIp,incidents:vInc,ai:vAi,reports:vReports,connectors:vConnectors,defense:vDefense,trace:vTrace,asn:vAsn,osint:vOsint,search:vSearch,apt:vApt};
+const VIEWS={overview:vOverview,map:vMap,siem:vSiem,intel:vIntel,vuln:vVuln,ipintel:vIp,incidents:vInc,ai:vAi,reports:vReports,connectors:vConnectors,defense:vDefense,trace:vTrace,asn:vAsn,osint:vOsint,search:vSearch,apt:vApt,image:vImage};
 function go(v){location.hash=v}
 function route(){
   const v=(location.hash.replace('#','')||'overview');
@@ -564,7 +565,8 @@ function mountMap(canvas){
   let W=0,H=0,DPR=Math.min(window.devicePixelRatio||1,2),arcs=[],ripples=[];
   function resize(){const r=canvas.getBoundingClientRect();W=r.width;H=r.height;canvas.width=W*DPR;canvas.height=H*DPR;ctx.setTransform(DPR,0,0,DPR,0,0)}
   const ro=new ResizeObserver(resize);ro.observe(canvas.parentElement);resize();
-  const proj=(lon,lat)=>[(lon+180)/360*W,(90-lat)/180*H];
+  if(!window.MAPVIEW)window.MAPVIEW={s:1,lon:0,lat:0,ts:1,tlon:0,tlat:0};else{Object.assign(window.MAPVIEW,{s:1,lon:0,lat:0,ts:1,tlon:0,tlat:0})}
+  const proj=(lon,lat)=>{const MV=window.MAPVIEW;let x=(lon+180)/360*W,y=(90-lat)/180*H;const fx=(MV.lon+180)/360*W,fy=(90-MV.lat)/180*H;return [(x-fx)*MV.s+W/2,(y-fy)*MV.s+H/2]};
   function land(){
     ctx.strokeStyle='rgba(34,211,238,0.045)';ctx.lineWidth=1;
     for(let lo=-180;lo<=180;lo+=30){const[a]=proj(lo,90);ctx.beginPath();ctx.moveTo(a,0);ctx.lineTo(a,H);ctx.stroke()}
@@ -577,6 +579,7 @@ function mountMap(canvas){
   onTick(ev=>{let tc=TARGET;if(window.MAP_GLOBAL){tc=COUNTRIES[Math.floor(Math.random()*COUNTRIES.length)]}const[sx,sy]=proj(ev.cty.lon,ev.cty.lat),[tx,ty]=proj(tc.lon,tc.lat);arcs.push({sx,sy,tx,ty,t:0,sev:ev.atk.sev,speed:0.006+Math.random()*0.006})});
   function frame(){
     ctx.clearRect(0,0,W,H);
+    {const MV=window.MAPVIEW;if(MV){MV.s+=(MV.ts-MV.s)*0.09;MV.lon+=(MV.tlon-MV.lon)*0.09;MV.lat+=(MV.tlat-MV.lat)*0.09}}
     const g=ctx.createRadialGradient(W/2,0,0,W/2,0,W*0.8);g.addColorStop(0,'rgba(18,30,55,0.45)');g.addColorStop(1,'rgba(6,10,18,0)');ctx.fillStyle=g;ctx.fillRect(0,0,W,H);
     land();
     const[tx,ty]=proj(TARGET.lon,TARGET.lat);
@@ -677,10 +680,10 @@ function vMap(){
     </div>
   </div>`;
   mountMap(document.getElementById('bigmap'));
-  const mm=document.getElementById('mapMode');if(mm)mm.onclick=()=>{window.MAP_GLOBAL=!window.MAP_GLOBAL;mm.textContent=window.MAP_GLOBAL?'🎯 Թիրախ ռեժիմ':'🌍 Գլոբալ ռեժիմ';mm.classList.toggle('primary',window.MAP_GLOBAL);const t=document.querySelector('.map-target');if(t)t.textContent=window.MAP_GLOBAL?'● Գլոբալ հոսք · ամբողջ աշխարհ':'● AM datacenter · Երևան'};
+  const mm=document.getElementById('mapMode');if(mm)mm.onclick=()=>{window.MAP_GLOBAL=!window.MAP_GLOBAL;mm.textContent=window.MAP_GLOBAL?'🎯 Թիրախ ռեժիմ':'🌍 Գլոբալ ռեժիմ';mm.classList.toggle('primary',window.MAP_GLOBAL);const t=document.querySelector('.map-target');if(t)t.textContent=window.MAP_GLOBAL?'● Գլոբալ հոսք · ամբողջ աշխարհ':'● AM datacenter · Երևան';window.SEL_CC=null;if(window.MAPVIEW){window.MAPVIEW.ts=1;window.MAPVIEW.tlon=0;window.MAPVIEW.tlat=0}};
   const bmap=document.getElementById('bigmap'),csel=document.getElementById('ctrySel');
   if(csel)csel.onchange=()=>{if(csel.value)selectCountry(csel.value)};
-  if(bmap)bmap.onclick=(e)=>{const r=bmap.getBoundingClientRect();const x=e.clientX-r.left,y=e.clientY-r.top;let best=null,bd=1e9;for(const c of COUNTRIES){const cx=(c.lon+180)/360*r.width,cy=(90-c.lat)/180*r.height;const dd=Math.hypot(cx-x,cy-y);if(dd<bd){bd=dd;best=c}}if(best&&bd<42){selectCountry(best.cc);if(csel)csel.value=best.cc}};
+  if(bmap)bmap.onclick=(e)=>{const r=bmap.getBoundingClientRect();const x=e.clientX-r.left,y=e.clientY-r.top;let best=null,bd=1e9;for(const c of COUNTRIES){const cx=(c.lon+180)/360*r.width,cy=(90-c.lat)/180*r.height;const dd=Math.hypot(cx-x,cy-y);if(dd<bd){bd=dd;best=c}}if(best&&bd<42){selectCountry(best.cc);if(csel)csel.value=best.cc}else{window.SEL_CC=null;if(window.MAPVIEW){window.MAPVIEW.ts=1;window.MAPVIEW.tlon=0;window.MAPVIEW.tlat=0}}};
   function layer(){const l7=S.byLayer.L7||0,l34=S.byLayer['L3/4']||0,t=l7+l34||1;
     return `<div class="prow"><span class="pn">L7 (Application)</span><div class="pbar"><i style="width:${l7/t*100}%;background:#a78bfa"></i></div><span class="pv mono">${Math.round(l7/t*100)}%</span></div>
     <div class="prow"><span class="pn">L3/4 (Network)</span><div class="pbar"><i style="width:${l34/t*100}%;background:#22d3ee"></i></div><span class="pv mono">${Math.round(l34/t*100)}%</span></div>`}
@@ -890,10 +893,10 @@ function vReports(){
 /* ===================== DEFENSE / RBAC / CONNECTORS ===================== */
 let POSTURE=2,postureManual=false,ROLE='admin';
 const ROLES={viewer:{n:'Դիտող',lvl:1},analyst:{n:'Վերլուծաբան',lvl:2},admin:{n:'Ադմին',lvl:3},lead:{n:'SOC-ղեկավար',lvl:4}};
-const AUDIT=[{t:nowT(),role:'admin',action:'մուտք համակարգ'}];
+const AUDIT=(()=>{try{const a=JSON.parse(localStorage.getItem('vahan_audit'));if(Array.isArray(a)&&a.length)return a}catch(e){}return [{t:nowT(),role:'admin',action:'սեսիա սկսվեց'}]})();
 const CONFIG={apiBase:(()=>{try{return localStorage.getItem('vahan_api')||''}catch(e){return''}})(),apiKey:(()=>{try{return localStorage.getItem('vahan_key')||''}catch(e){return''}})(),live:false,mode:'off'};
 function can(l){return ROLES[ROLE].lvl>=l}
-function logAudit(a){AUDIT.unshift({t:nowT(),role:ROLE,action:a});if(AUDIT.length>200)AUDIT.pop()}
+function logAudit(a){AUDIT.unshift({t:new Date().toLocaleString('hy-AM',{month:'2-digit',day:'2-digit',hour:'2-digit',minute:'2-digit',second:'2-digit',hour12:false}),role:ROLE,action:a});if(AUDIT.length>300)AUDIT.pop();try{localStorage.setItem('vahan_audit',JSON.stringify(AUDIT.slice(0,300)))}catch(e){}}
 function requireRole(l,a){if(!can(l)){toast('⛔ Իրավունք չունեք՝ «'+a+'» (պետք է ավելի բարձր դեր)');return false}logAudit(a);return true}
 function computePosture(){if(!postureManual){const a=S.active;POSTURE=a>=12?5:a>=8?4:a>=4?3:a>=1?2:1}return POSTURE}
 const POST=[null,{n:'L1 · Նորմալ',c:'#34d399',d:'Ֆոնային ակտիվություն։ Ստանդարտ մոնիթորինգ։'},{n:'L2 · Բարձրացված',c:'#60a5fa',d:'Նկատելի սկանավորում։ Ուժեղացված դիտարկում։'},{n:'L3 · Զգուշացում',c:'#ffd23f',d:'Ակտիվ հարձակումներ։ Rate-limit խստացում, challenge։'},{n:'L4 · Բարձր',c:'#ff9f1a',d:'Բազմավեկտոր սպառնալիք։ Ագրեսիվ auto-mitigation, scrubbing։'},{n:'L5 · Կրիտիկ',c:'#ff3b63',d:'Զանգվածային հարձակում։ Արտակարգ ռեժիմ, բոլոր պաշտպանությունն ակտիվ։'}];
@@ -1064,7 +1067,7 @@ function dossierHTML(C,d,live){
    <div class="hrow" style="flex-wrap:wrap;gap:6px;margin-top:9px">${countryLinks(C.cc).map(([n,u])=>`<a class="kmini" href="${u}" target="_blank" rel="noopener" style="text-decoration:none">${n} ↗</a>`).join('')}</div>`;
 }
 function selectCountry(cc){
-  window.SEL_CC=cc;
+  window.SEL_CC=cc;const _sc=COUNTRIES.find(c=>c.cc===cc);if(_sc&&window.MAPVIEW){window.MAPVIEW.ts=3.4;window.MAPVIEW.tlon=_sc.lon;window.MAPVIEW.tlat=_sc.lat}
   const box=document.getElementById('dossier');if(!box)return;
   const C=COUNTRIES.find(c=>c.cc===cc)||{c:cc,f:'🌐',cc,w:3};
   let d=CDOSSIER[cc]||genDossier(C);
@@ -1370,6 +1373,31 @@ function vSearch(){
  document.querySelectorAll('[data-ex]').forEach(c=>c.onclick=()=>{document.getElementById('uniIn').value=c.dataset.ex;run()});
 }
 
+/* ===================== REVERSE IMAGE SEARCH ===================== */
+function vImage(){
+ const el=document.getElementById('view');const enc=s=>encodeURIComponent(s);
+ const engines=u=>[['Google Lens','https://lens.google.com/uploadbyurl?url='+enc(u)],['Yandex','https://yandex.com/images/search?rpt=imageview&url='+enc(u)],['TinEye','https://tineye.com/search?url='+enc(u)],['Bing','https://www.bing.com/images/search?view=detailv2&iss=sbi&q=imgurl:'+enc(u)]];
+ el.innerHTML=`<div class="page-head"><h1>Նկարով փնտրում (reverse image)</h1><span class="sub">· գտիր որտեղ է հայտնվում նկարը համացանցում · 4 շարժիչ</span></div>
+ <div class="note" style="margin-bottom:14px">🔒 Շրջանակ. բրենդ/լոգո-չարաշահում, ֆիշինգ-սքրինշոթ, կեղծ պրոֆիլի նկար, ապրանք/լոկացիա ստուգելու համար (bellingcat-ոճ OSINT)։ Ոչ՝ մասնավոր անձի դեմքով հետախուզում։</div>
+ <div class="grid" style="grid-template-columns:1fr 1fr">
+   <div class="card"><div class="card-h">Ա · Նկարի URL-ով</div>
+     <div class="ip-search" style="max-width:none"><input id="imgUrl" placeholder="https://.../photo.jpg (ուղիղ նկարի հղում)"><button class="btn primary" id="imgGo">Փնտրել</button></div>
+     <div id="imgLinks" style="margin-top:12px"><div style="font-size:11.5px;color:var(--muted2)">Մուտքագրիր ուղիղ նկար-URL → կստանաս 4 շարժիչի հղումները</div></div></div>
+   <div class="card"><div class="card-h">Բ · Ֆայլ վերբեռնելով</div>
+     <input type="file" id="imgFile" accept="image/*" style="font-size:12px;color:var(--muted);width:100%">
+     <div id="imgPrev" style="margin-top:10px"></div>
+     <div style="font-size:11px;color:var(--muted);margin-top:10px">Բացիր շարժիչի upload-էջը և քաշիր նկարը՝</div>
+     <div class="hrow" style="flex-wrap:wrap;gap:7px;margin-top:7px">
+       <a class="btn" href="https://images.google.com/" target="_blank" rel="noopener">Google Images ↗</a>
+       <a class="btn" href="https://yandex.com/images/" target="_blank" rel="noopener">Yandex ↗</a>
+       <a class="btn" href="https://tineye.com/" target="_blank" rel="noopener">TinEye ↗</a>
+       <a class="btn" href="https://www.bing.com/visualsearch" target="_blank" rel="noopener">Bing ↗</a></div></div>
+ </div>`;
+ function run(){const u=document.getElementById('imgUrl').value.trim();if(!/^https?:\/\//.test(u)){toast('Մուտքագրիր նկարի ուղիղ URL');return}logAudit('reverse-image → '+u.slice(0,50));document.getElementById('imgLinks').innerHTML=`<div style="font-size:11px;color:var(--muted);margin-bottom:7px">Բացիր շարժիչներից՝</div><div class="hrow" style="flex-wrap:wrap;gap:7px">${engines(u).map(([n,l])=>`<a class="btn" href="${l}" target="_blank" rel="noopener" style="text-decoration:none">${n} ↗</a>`).join('')}</div>`}
+ document.getElementById('imgGo').onclick=run;document.getElementById('imgUrl').addEventListener('keydown',e=>{if(e.key==='Enter')run()});
+ document.getElementById('imgFile').onchange=e=>{const f=e.target.files[0];if(!f)return;const rd=new FileReader();rd.onload=()=>{document.getElementById('imgPrev').innerHTML='<img src="'+rd.result+'" style="max-width:100%;max-height:190px;border-radius:9px;border:1px solid var(--line)">'};rd.readAsDataURL(f)};
+}
+
 /* ============================ UTIL ============================ */
 let toastT;
 function toast(m){const t=document.getElementById('toast');t.textContent=m;t.classList.add('show');clearTimeout(toastT);toastT=setTimeout(()=>t.classList.remove('show'),2600)}
@@ -1449,7 +1477,7 @@ function renderQR(el,text){if(!el)return;el.innerHTML='';try{if(window.QRCode){n
   document.getElementById('faceSkip').onclick=()=>unlock('face շրջանցված · preview');
   const rb=document.getElementById('faceReenroll');if(rb)rb.onclick=()=>{enrolled=null;AUTH.face='';authSave('vahan_face','');enroll=true;const b=document.getElementById('faceCapBtn');b.disabled=false;b.textContent='Գրանցել դեմքը';document.getElementById('faceMsg').textContent='Վերագրանցում՝ նայիր ու սեղմիր գրանցել';toast('Դեմքը մաքրվեց՝ վերագրանցիր')};
   function stopCam(){if(stream){stream.getTracks().forEach(t=>t.stop());stream=null}}
-  function unlock(reason){stopCam();gate.classList.add('gone');try{logAudit('հաջող մուտք · '+(reason||'3-աստիճ.'))}catch(e){}setTimeout(()=>{try{toast('Բարի գալուստ, ՎԱՀԱՆ')}catch(e){}},400)}
+  function unlock(reason){stopCam();gate.classList.add('gone');try{logAudit('✅ ՄՈՒՏՔ · '+(reason||'3-աստիճ.'))}catch(e){}try{fetch('https://ipwho.is/').then(r=>r.json()).then(d=>{try{logAudit('մուտքի IP՝ '+(d.ip||'?')+' ('+(d.country||'?')+')')}catch(e){}}).catch(()=>{})}catch(e){}setTimeout(()=>{try{toast('Բարի գալուստ, ՎԱՀԱՆ')}catch(e){}},400)}
   function resetGate(){try{stopCam()}catch(e){}pin='';renderDots();[...otp.children].forEach(x=>x.value='');fails=0;['err1','err2','err3'].forEach(id=>{const e=document.getElementById(id);if(e)e.textContent=''});const b=document.getElementById('faceCapBtn');if(b){b.disabled=true;b.textContent=enroll?'Գրանցել դեմքը':'Ճանաչել դեմքը'}const fm=document.getElementById('faceMsg');if(fm)fm.textContent='Տեսախցիկը միանում է…';gate.classList.remove('gone');try{logAudit('ելք համակարգից')}catch(e){}gotoStep(AUTH.pinOn?1:2)}
   window.vahanLogout=resetGate;
   function gotoStep(n){[1,2,3].forEach(i=>{document.getElementById('step'+i).classList.toggle('on',i===n);const s=document.getElementById('as'+i);s.classList.toggle('on',i===n);s.classList.toggle('done',i<n)});if(n===2){renderQR(document.getElementById('otpQR'),totpURI());setTimeout(()=>otp.children[0].focus(),120)}}
