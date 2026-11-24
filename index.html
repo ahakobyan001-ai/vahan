@@ -1402,12 +1402,30 @@ const TOOLS=[
 ];
 function vTools(){
  const el=document.getElementById('view');
- el.innerHTML=`<div class="page-head"><h1>Online գործիքներ</h1><span class="sub">· կիբեռանվտանգության ու վերլուծական լավագույն օնլայն գործիքները՝ մեկ հանգույցում</span></div>
- <div class="ip-search" style="max-width:560px"><input id="toolQ" placeholder="query (IP / դոմեն / email / hash / CVE) — կկապվի գործիքներին"><button class="btn primary" id="toolApply">Կիրառել</button></div>
+ el.innerHTML=`<div class="page-head"><h1>Online գործիքներ</h1><span class="sub">· արդյունքը՝ համակարգի ներսում (CORS-բաց աղբյուրներից) + deep-link մնացածին</span></div>
+ <div class="ip-search" style="max-width:580px"><input id="toolQ" placeholder="IP / դոմեն / email / hash / CVE / ASN / username"><button class="btn primary" id="toolApply">Հետազոտել</button></div>
+ <div id="toolResult" style="margin:12px 0"></div>
  <div id="toolGrid"></div>`;
- function render(){const q=document.getElementById('toolQ').value.trim();
-  document.getElementById('toolGrid').innerHTML=TOOLS.map(([cat,items])=>`<div class="card" style="margin-bottom:14px"><div class="card-h">${cat}<span class="mini">${items.length}</span></div><div class="grid" style="grid-template-columns:repeat(auto-fit,minmax(245px,1fr))">${items.map(([n,d,u,p])=>{const deep=(q&&p)?p.replace('{q}',encodeURIComponent(q)):'';return `<div class="conn-card"><div class="conn-top"><span class="cn">${n}</span>${deep?`<a class="st live" href="${deep}" target="_blank" rel="noopener" style="text-decoration:none">«q» ↗</a>`:''}</div><div class="conn-use">${d}</div><a class="conn-ep" href="${u}" target="_blank" rel="noopener" style="color:var(--cyan);text-decoration:none">${u.replace('https://','').replace(/\/$/,'')} ↗</a></div>`}).join('')}</div></div>`).join('');}
- document.getElementById('toolApply').onclick=render;document.getElementById('toolQ').addEventListener('keydown',e=>{if(e.key==='Enter')render()});render();
+ const spin=t=>`<div class="card"><div style="text-align:center;padding:26px"><div class="spin"></div><div style="margin-top:10px;color:var(--muted);font-size:12.5px">${t||'Հետազոտվում է…'}</div></div></div>`;
+ function renderGrid(q){document.getElementById('toolGrid').innerHTML=TOOLS.map(([cat,items])=>`<div class="card" style="margin-bottom:14px"><div class="card-h">${cat}<span class="mini">${items.length}</span></div><div class="grid" style="grid-template-columns:repeat(auto-fit,minmax(245px,1fr))">${items.map(([n,d,u,p])=>{const deep=(q&&p)?p.replace('{q}',encodeURIComponent(q)):'';return `<div class="conn-card"><div class="conn-top"><span class="cn">${n}</span>${deep?`<a class="st live" href="${deep}" target="_blank" rel="noopener" style="text-decoration:none">«q» ↗</a>`:''}</div><div class="conn-use">${d}</div><a class="conn-ep" href="${u}" target="_blank" rel="noopener" style="color:var(--cyan);text-decoration:none">${u.replace('https://','').replace(/\/$/,'')} ↗</a></div>`}).join('')}</div></div>`).join('')}
+ async function run(){const q=document.getElementById('toolQ').value.trim();const panel=document.getElementById('toolResult');
+  if(!q){panel.innerHTML='';renderGrid('');return}
+  const type=detectType(q);logAudit('tools query ['+type+'] → '+q);panel.innerHTML=spin('Հետազոտվում է ('+TYPE_LABEL[type]+')…');
+  let detail='';
+  try{
+   if(type==='ip')detail=await uniIp(q);
+   else if(type==='cve')detail=await uniCve(q);
+   else if(type==='asn')detail=uniAsn(q);
+   else if(type==='email')detail=osEmail(q);
+   else if(type==='domain')detail=await osDomain(q);
+   else if(type==='username')detail=osUser(q);
+   else if(type==='hash')detail=osHash(q);
+   else detail='<div class="note">Ազատ query՝ ճանաչելի selector չէ — օգտագործիր ներքևի գործիքների deep-link-երը։</div>';
+  }catch(e){detail='<div class="note">Արդյունք չստացվեց (preview-ում կանչերն արգ. են, live-ում կաշխատի)։</div>'}
+  panel.innerHTML=`<div class="card" style="margin-bottom:10px;display:flex;align-items:center;gap:10px"><span class="pill b">In-app · ${TYPE_LABEL[type]}</span><span class="mono" style="color:var(--cyan)">${esc(q)}</span><span style="margin-left:auto;font-size:11px;color:var(--muted)">${CONFIG.live?'🟢 LIVE':'🟠 ԼՈԿԱԼ'}</span></div>`+detail+linksCard(type,q);
+  renderGrid(q);
+ }
+ document.getElementById('toolApply').onclick=run;document.getElementById('toolQ').addEventListener('keydown',e=>{if(e.key==='Enter')run()});renderGrid('');
 }
 
 /* ===================== PUBLIC WEBCAMS (intentionally-public only) ===================== */
