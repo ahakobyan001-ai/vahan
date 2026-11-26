@@ -398,6 +398,41 @@ button{font-family:inherit}
 .lyr-row{display:flex;justify-content:space-between;align-items:center;font-size:12px;padding:7px 0;border-bottom:1px dashed var(--line);font-family:'JetBrains Mono',monospace;letter-spacing:.5px}
 .lyr-row:last-child{border-bottom:0}
 .lyr-tgl{width:32px;height:17px;cursor:pointer}
+/* command center */
+.cmd-wrap{display:grid;gap:12px}
+.cmd-r1{display:grid;grid-template-columns:1.75fr 1.25fr;gap:12px}
+.cmd-r2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.cmd-r3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px}
+@media(max-width:900px){.cmd-r1,.cmd-r2,.cmd-r3{grid-template-columns:1fr}}
+.cmd-panel{background:#070e1b;border:1px solid var(--line2);border-radius:10px;overflow:hidden;position:relative;display:flex;flex-direction:column}
+.cmd-hd{display:flex;align-items:center;gap:8px;padding:8px 11px;border-bottom:1px solid var(--line);font-family:'JetBrains Mono',ui-monospace,monospace;font-size:11px}
+.cmd-no{background:#13324f;color:#8fd4ff;padding:1px 6px;border-radius:3px;font-weight:700}
+.cmd-ttl{color:#cfe0f2;letter-spacing:1px;text-transform:uppercase;font-weight:700}
+.cmd-sub{color:var(--muted2);font-size:10px}
+.cmd-rdy{margin-left:auto;color:#34d399;font-size:9.5px;letter-spacing:1px}
+.cmd-bd{padding:11px;flex:1;min-height:0}
+.cmd-strip{display:flex;flex-wrap:wrap;gap:0;border:1px solid var(--line2);border-radius:10px;overflow:hidden;margin-bottom:12px;background:#070e1b}
+.cmd-st{flex:1;min-width:110px;padding:11px 14px;border-right:1px solid var(--line);font-family:'JetBrains Mono',monospace}
+.cmd-st b{font-size:19px;color:var(--cyan)}
+.cmd-st span{display:block;font-size:9.5px;color:#86a6cc;letter-spacing:1.5px;text-transform:uppercase;margin-top:2px}
+.tmap{display:flex;flex-wrap:wrap;gap:3px;height:200px;align-content:flex-start}
+.tbox{border-radius:4px;padding:6px 8px;font-family:'JetBrains Mono',monospace;font-size:10px;overflow:hidden;display:flex;flex-direction:column;justify-content:space-between;min-width:60px}
+.tbox b{font-size:13px}
+.hbar-row{display:flex;align-items:center;gap:8px;margin:7px 0;font-family:'JetBrains Mono',monospace;font-size:11px}
+.hbar-l{width:92px;color:#9fbce0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.hbar-t{flex:1;height:10px;background:#0d1a2e;border-radius:5px;overflow:hidden}
+.hbar-f{height:100%;border-radius:5px}
+.hbar-v{width:52px;text-align:right;color:var(--cyan)}
+.cmd-feed{font-family:'JetBrains Mono',monospace;font-size:11px}
+.cmd-feed .fr{display:flex;align-items:center;gap:8px;margin:8px 0}
+.cmd-feed .fn{width:92px;color:#9fbce0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.cmd-feed .fp{flex:1;height:8px;background:#0d1a2e;border-radius:4px;overflow:hidden}
+.cmd-feed .fpf{height:100%;background:linear-gradient(90deg,#22d3ee,#34d399)}
+.rule-box{font-family:'JetBrains Mono',monospace;font-size:11.5px;line-height:1.8}
+.rtag{padding:1px 7px;border-radius:4px;font-weight:700;margin-right:6px;font-size:10px}
+.chk-row{display:flex;align-items:center;gap:9px;font-family:'JetBrains Mono',monospace;font-size:11.5px;padding:5px 0}
+.chk-box{width:15px;height:15px;border:1.5px solid var(--line2);border-radius:3px;display:flex;align-items:center;justify-content:center;font-size:10px;color:#34d399}
+.chk-box.on{border-color:#34d399;background:rgba(52,211,153,.12)}
 .mk-layer{position:absolute;inset:0;pointer-events:none;z-index:2}
 .mk{position:absolute;transform:translate(-50%,-50%);font-size:11px;display:block;filter:drop-shadow(0 0 3px currentColor);animation:mkpulse 3s ease-in-out infinite}
 @keyframes mkpulse{0%,100%{opacity:.45}50%{opacity:.95}}
@@ -517,6 +552,7 @@ button{font-family:inherit}
   <nav class="nav">
     <div class="nav-section">Վահանակ</div>
     <div class="nav-item" data-v="overview"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="9"/><rect x="14" y="3" width="7" height="5"/><rect x="14" y="12" width="7" height="9"/><rect x="3" y="16" width="7" height="5"/></svg><span class="label">Գլխավոր</span></div>
+    <div class="nav-item" data-v="command"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="8" height="8"/><rect x="13" y="3" width="8" height="5"/><rect x="13" y="10" width="8" height="11"/><rect x="3" y="13" width="8" height="8"/></svg><span class="label">Հրամ. կենտրոն</span><span class="badge p">grid</span></div>
     <div class="nav-item" data-v="map"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M2 12h20M12 2a15 15 0 010 20 15 15 0 010-20"/></svg><span class="label">Հարձակ. քարտեզ</span><span class="badge alert" data-k="active">0</span></div>
     <div class="nav-item" data-v="geo"><svg viewBox="0 0 24 24"><path d="M12 21s-7-6.2-7-11a7 7 0 0114 0c0 4.8-7 11-7 11z"/><circle cx="12" cy="10" r="2.5"/></svg><span class="label">Գեո քարտեզ</span><span class="badge">real</span></div>
     <div class="nav-section">Մոդուլներ</div>
@@ -695,7 +731,7 @@ setInterval(()=>{if(Math.random()<0.35)for(let i=0;i<4;i++)setTimeout(tick,i*140
 /* ============================ ROUTER ============================ */
 let viewTimers=[],rafId=null;
 function clearView(){viewTimers.forEach(t=>clearInterval(t));viewTimers=[];if(rafId)cancelAnimationFrame(rafId);rafId=null;listeners=[]}
-const VIEWS={overview:vOverview,map:vMap,siem:vSiem,intel:vIntel,vuln:vVuln,ipintel:vIp,incidents:vInc,ai:vAi,reports:vReports,connectors:vConnectors,defense:vDefense,trace:vTrace,asn:vAsn,osint:vOsint,search:vSearch,apt:vApt,image:vImage,geo:vGeo,cams:vCams,tools:vTools,learn:vLearn,users:vUsers,graph:vGraph,aicore:vAiCore};
+const VIEWS={overview:vOverview,map:vMap,siem:vSiem,intel:vIntel,vuln:vVuln,ipintel:vIp,incidents:vInc,ai:vAi,reports:vReports,connectors:vConnectors,defense:vDefense,trace:vTrace,asn:vAsn,osint:vOsint,search:vSearch,apt:vApt,image:vImage,geo:vGeo,cams:vCams,tools:vTools,learn:vLearn,users:vUsers,graph:vGraph,aicore:vAiCore,command:vCommand};
 function go(v){location.hash=v}
 function route(){
   const v=(location.hash.replace('#','')||'overview');
@@ -1619,6 +1655,72 @@ function vTools(){
 }
 
 /* ===================== PUBLIC WEBCAMS (intentionally-public only) ===================== */
+/* ===================== ՀՐԱՄԱՆԱՏԱՐԱԿԱՆ ԿԵՆՏՐՈՆ (multi-panel) ===================== */
+function vCommand(){
+ const el=document.getElementById('view');
+ el.innerHTML=`<div class="page-head"><h1>Հրամանատարական կենտրոն</h1><span class="sub">· բոլոր մոդուլները մեկ վահանակում</span><span class="live"><span class="dot"></span>REAL-TIME</span></div>
+ <div class="cmd-strip">
+   <div class="cmd-st"><b id="cs1">6</b><span>աղբյուր</span></div>
+   <div class="cmd-st"><b id="cs2">—</b><span>իրադ./ր</span></div>
+   <div class="cmd-st"><b id="cs3">—</b><span>մոդուլ</span></div>
+   <div class="cmd-st"><b id="cs4">128</b><span>կանոն</span></div>
+   <div class="cmd-st" style="border-right:0"><b id="cs5">—</b><span>սպառնալիք</span></div>
+ </div>
+ <div class="cmd-wrap">
+  <div class="cmd-r1">
+   <div class="cmd-panel"><div class="cmd-hd"><span class="cmd-no">01</span><span class="cmd-ttl">Սպառնալիքի ցանց</span><span class="cmd-sub" id="gStat">· nodes — · links —</span><span class="cmd-rdy">● LIVE</span></div><div class="cmd-bd" style="padding:0"><canvas id="cmdGraph" style="width:100%;height:282px;display:block"></canvas></div></div>
+   <div class="cmd-panel"><div class="cmd-hd"><span class="cmd-no">02</span><span class="cmd-ttl">Տվյալ-աղբյուրներ</span><span class="cmd-sub">ծավալ</span><span class="cmd-rdy">READY</span></div><div class="cmd-bd"><div class="tmap" id="cmdTmap"></div></div></div>
+  </div>
+  <div class="cmd-r2">
+   <div class="cmd-panel"><div class="cmd-hd"><span class="cmd-no">03</span><span class="cmd-ttl">Մոդուլներ · ծանրաբեռն.</span><span class="cmd-rdy">LIVE</span></div><div class="cmd-bd" id="cmdBars"></div></div>
+   <div class="cmd-panel"><div class="cmd-hd"><span class="cmd-no">04</span><span class="cmd-ttl">Կանոն + pipeline</span><span class="cmd-rdy">SIGMA</span></div><div class="cmd-bd" style="display:grid;grid-template-columns:1.15fr 1fr;gap:12px">
+     <div class="rule-box"><span style="color:#ff9f1a">title</span>: RDP brute-force<br><span style="color:#ff9f1a">logsource</span>: win/security<br><span style="color:#22d3ee">detection</span>:<br>&nbsp;&nbsp;sel: EventID <span style="color:#34d399">4625</span><br>&nbsp;&nbsp;count() <span style="color:#f472b6">&gt;</span> <span style="color:#34d399">20</span><br><span style="color:#ff3b63">condition</span>: sel | 5m<br><span style="color:#a78bfa">level</span>: high</div>
+     <div id="cmdPipe"></div></div></div>
+  </div>
+  <div class="cmd-r3">
+   <div class="cmd-panel"><div class="cmd-hd"><span class="cmd-no">05</span><span class="cmd-ttl">Ծածկույթ</span><span class="cmd-rdy">READY</span></div><div class="cmd-bd" style="display:flex;justify-content:center;align-items:center"><svg id="cmdDonut" viewBox="0 0 200 200" style="width:100%;max-width:220px;height:196px"></svg></div></div>
+   <div class="cmd-panel"><div class="cmd-hd"><span class="cmd-no">06</span><span class="cmd-ttl">Feed-ներ · sync</span><span class="cmd-rdy">LIVE</span></div><div class="cmd-bd cmd-feed" id="cmdFeeds"></div></div>
+   <div class="cmd-panel"><div class="cmd-hd"><span class="cmd-no">07</span><span class="cmd-ttl">Կանոնի խմբագիր</span><span class="cmd-rdy">YAML</span></div><div class="cmd-bd rule-box" id="cmdRule" style="line-height:2.1"></div></div>
+  </div>
+ </div>`;
+ document.getElementById('cs3').textContent=Object.keys(VIEWS).length;
+ /* --- 02 treemap --- */
+ const srcs=[['ADS-B',6100,'#22d3ee'],['OTX',1200,'#f472b6'],['Shodan',1500,'#38bdf8'],['CVE',900,'#ff9f1a'],['SAT',490,'#a78bfa'],['RIPE',700,'#60a5fa'],['News',160,'#ffd23f'],['AIS',110,'#34d399']];
+ const tot=srcs.reduce((s,x)=>s+x[1],0);
+ document.getElementById('cmdTmap').innerHTML=srcs.map((x,i)=>`<div class="tbox" style="flex:${x[1]} 1 ${Math.max(62,x[1]/tot*260).toFixed(0)}px;height:${i<2?98:i<4?74:58}px;background:${x[2]}1f;border:1px solid ${x[2]}66;color:${x[2]}"><b>${x[0]}</b><span>${fmt(x[1])}</span></div>`).join('');
+ /* --- 04 pipeline --- */
+ const PIPE=[['Ingest',1],['Normalize',1],['Correlate',1],['Enrich',1],['Alert',1],['Respond',0]];
+ document.getElementById('cmdPipe').innerHTML=PIPE.map(([n,d])=>`<div class="chk-row"><span class="chk-box ${d?'on':''}">${d?'✓':'⟳'}</span>${n}</div>`).join('');
+ /* --- 05 donut --- */
+ const cats=[['SIEM',8,'#22d3ee'],['OSINT',7,'#34d399'],['Vuln',6,'#ff9f1a'],['Threat',6,'#a78bfa'],['Geo',5,'#38bdf8'],['Net',5,'#60a5fa'],['WiFi',4,'#f472b6'],['Dark',4,'#ff3b63']];
+ const ct=cats.reduce((s,c)=>s+c[1],0),R=70,CIRC=2*Math.PI*R;let off=0,ds='';
+ cats.forEach(c=>{const len=c[1]/ct*CIRC;ds+=`<circle cx="100" cy="100" r="${R}" fill="none" stroke="${c[2]}" stroke-width="20" stroke-dasharray="${len.toFixed(1)} ${(CIRC-len).toFixed(1)}" stroke-dashoffset="${(-off).toFixed(1)}" transform="rotate(-90 100 100)"/>`;off+=len});
+ ds+=`<text x="100" y="95" text-anchor="middle" fill="#eaf6ff" font-size="32" font-weight="700" font-family="JetBrains Mono,monospace">${ct}</text><text x="100" y="117" text-anchor="middle" fill="#7fa6d6" font-size="11">գործիք · ${cats.length} տիրույթ</text>`;
+ document.getElementById('cmdDonut').innerHTML=ds;
+ /* --- 07 rule editor --- */
+ document.getElementById('cmdRule').innerHTML=[['match','#22d3ee','src.country ∈ watchlist'],['when','#ffd23f','ports ⊇ [3389, 445]'],['score','#a78bfa','risk ≥ 70'],['then','#ff3b63','block + alert SOC'],['notify','#34d399','telegram · email'],['log','#38bdf8','audit + SIEM']].map(([t,c,v])=>`<div><span class="rtag" style="background:${c}22;color:${c}">${t}</span>${v}</div>`).join('');
+ /* --- 01 graph (canvas) --- */
+ const cv=document.getElementById('cmdGraph');let W=cv.width=cv.offsetWidth||640,H=cv.height=282;const ctx=cv.getContext('2d');
+ const clusters=[[0.28,0.34,'#38bdf8'],[0.62,0.6,'#ff9f1a'],[0.36,0.72,'#f472b6'],[0.72,0.3,'#a78bfa']];
+ const nodes=[];clusters.forEach((cl,ci)=>{for(let i=0;i<17;i++)nodes.push({cx:cl[0],cy:cl[1],c:cl[2],ox:(Math.random()-.5)*0.2,oy:(Math.random()-.5)*0.2,ph:Math.random()*6.28,r:Math.random()*2+1.4,ci})});
+ const links=[];for(let i=0;i<nodes.length;i++)for(let j=i+1;j<nodes.length;j++){if(nodes[i].ci===nodes[j].ci){if(Math.random()<0.13)links.push([i,j])}else if(Math.random()<0.004)links.push([i,j])}
+ const P=(n,t)=>{const a=n.ph+t*0.0004;return {x:(n.cx+n.ox+Math.cos(a)*0.012)*W,y:(n.cy+n.oy+Math.sin(a)*0.012)*H}};
+ function draw(){if(cv.offsetParent===null)return;if(cv.offsetWidth&&cv.offsetWidth!==W){W=cv.width=cv.offsetWidth}const t=Date.now();ctx.clearRect(0,0,W,H);ctx.lineWidth=0.5;links.forEach(([a,b])=>{const pa=P(nodes[a],t),pb=P(nodes[b],t);ctx.strokeStyle=nodes[a].c+'30';ctx.beginPath();ctx.moveTo(pa.x,pa.y);ctx.lineTo(pb.x,pb.y);ctx.stroke()});nodes.forEach(n=>{const p=P(n,t);ctx.fillStyle=n.c;ctx.beginPath();ctx.arc(p.x,p.y,n.r,0,6.3);ctx.fill();ctx.strokeStyle=n.c+'55';ctx.lineWidth=1;ctx.beginPath();ctx.arc(p.x,p.y,n.r+3,0,6.3);ctx.stroke()})}
+ viewTimers.push(setInterval(draw,55));draw();
+ /* --- 03 bars + live tick --- */
+ const bars=[['SIEM',86,'#22d3ee'],['OSINT',62,'#34d399'],['Threat-intel',71,'#a78bfa'],['Vuln',48,'#ff9f1a'],['Geo',39,'#38bdf8'],['Network',77,'#60a5fa'],['AI-core',83,'#f472b6']];
+ const feeds=[['AlienVault OTX',0],['abuse.ch',0],['crt.sh',0],['InternetDB',0],['RIPEstat',0],['GreyNoise',0]];
+ feeds.forEach(f=>f[1]=rnd(40,96));
+ function renderBars(){document.getElementById('cmdBars').innerHTML=bars.map(b=>`<div class="hbar-row"><span class="hbar-l">${b[0]}</span><div class="hbar-t"><div class="hbar-f" style="width:${b[1]}%;background:${b[2]}"></div></div><span class="hbar-v">${b[1]}%</span></div>`).join('')}
+ function renderFeeds(){document.getElementById('cmdFeeds').innerHTML=feeds.map(f=>`<div class="fr"><span class="fn">${f[0]}</span><div class="fp"><div class="fpf" style="width:${f[1]}%"></div></div><span style="width:40px;text-align:right;color:${f[1]>=100?'#34d399':'#9fbce0'}">${f[1]>=100?'✓':f[1]+'%'}</span></div>`).join('')}
+ renderBars();renderFeeds();
+ function tick(){document.getElementById('cs2').textContent=fmt(rnd(900,2400));document.getElementById('cs5').textContent=fmt((S.active||0)+rnd(3,18));
+   document.getElementById('gStat').textContent='· nodes 1,118 · links 1,676 · signals '+rnd(40,70);
+   bars.forEach(b=>{b[1]=Math.max(20,Math.min(98,b[1]+rnd(-6,6)))});renderBars();
+   feeds.forEach(f=>{f[1]=f[1]>=100?rnd(30,60):Math.min(100,f[1]+rnd(2,14))});renderFeeds();}
+ tick();viewTimers.push(setInterval(tick,1600));
+}
+
 /* ===================== ԿԱՊԵՐԻ ԳՐԱՖ (influence/connection) ===================== */
 function vGraph(){
  const el=document.getElementById('view');
